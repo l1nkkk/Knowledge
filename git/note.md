@@ -1,3 +1,14 @@
+- [代理](#%E4%BB%A3%E7%90%86)
+- [分支](#%E5%88%86%E6%94%AF)
+  - [查看分支](#%E6%9F%A5%E7%9C%8B%E5%88%86%E6%94%AF)
+- [git库文件夹中文件的状态](#git%E5%BA%93%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%AD%E6%96%87%E4%BB%B6%E7%9A%84%E7%8A%B6%E6%80%81)
+- [忽略不想提交文件(.gitignore)](#%E5%BF%BD%E7%95%A5%E4%B8%8D%E6%83%B3%E6%8F%90%E4%BA%A4%E6%96%87%E4%BB%B6gitignore)
+  - [三种方式](#%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F)
+  - [优先级](#%E4%BC%98%E5%85%88%E7%BA%A7)
+  - [语法](#%E8%AF%AD%E6%B3%95)
+  - [例子](#%E4%BE%8B%E5%AD%90)
+  - [测试](#%E6%B5%8B%E8%AF%95)
+  - [注意点](#%E6%B3%A8%E6%84%8F%E7%82%B9)
 # 代理
 
 git config --global https.proxy http://127.0.0.1:1080
@@ -9,6 +20,23 @@ git config --global --unset http.proxy
 git config --global --unset https.proxy
 
 
+# 分支
+
+## 查看分支
+- git branch
+  - -a
+
+创建分支：`git branch <name>`
+
+切换分支：`git checkout <name>`或者`git switch <name>`
+
+创建+切换分支：`git checkout -b <name>`或者`git switch -c <name>`
+
+合并某分支到当前分支：`git merge <name>`
+
+删除分支：`git branch -d <name>`
+
+
 # git库文件夹中文件的状态
 - Untracked:  
 未跟踪, 此文件在文件夹中, 但并没有加入到git库, 不参与版本控制. 通过git add 状态变为Staged.
@@ -16,7 +44,9 @@ git config --global --unset https.proxy
 - Unmodify:
 文件已经入库, 未修改, 即版本库中的文件快照内容与文件夹中完全一致. 这种类型的文件有两种去处, 如果它被修改,
 而变为Modified. 如果使用git rm移出版本库, 则成为Untracked文件
- 
+ This is a command-line program that helps to build random sample data for project rena
+
+to check its running arguments, see
 - Modified:  
 文件已修改, 仅仅是修改, 并没有进行其他的操作. 这个文件也有两个去处, 通过git add可进入暂存staged状态,
 使用git checkout 则丢弃修改过, 返回到unmodify状态, 这个git checkout即从库中取出文件, 覆盖当前修改
