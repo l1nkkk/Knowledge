@@ -24,7 +24,7 @@ git config --global --unset https.proxy
 
 ## 查看分支
 - git branch
-  - -a
+  - -a:查看本地分支
 
 创建分支：`git branch <name>`
 
