@@ -21,7 +21,15 @@
 - [Zookeeper 内部原理](#Zookeeper-%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86)
   - [选举机制](#%E9%80%89%E4%B8%BE%E6%9C%BA%E5%88%B6)
   - [节点类型](#%E8%8A%82%E7%82%B9%E7%B1%BB%E5%9E%8B)
+- [shell命令](#shell%E5%91%BD%E4%BB%A4)
+  - [节点详细信息](#%E8%8A%82%E7%82%B9%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF)
+  - [监听原理](#%E7%9B%91%E5%90%AC%E5%8E%9F%E7%90%86)
+  - [写数据流程](#%E5%86%99%E6%95%B0%E6%8D%AE%E6%B5%81%E7%A8%8B)
+- [ACL](#ACL)
 - [注意](#%E6%B3%A8%E6%84%8F)
+
+> https://www.jianshu.com/p/5e012efb2d82
+
 # Zookeeper 概述
 ## 作用
 - 文件系统+通知机制
@@ -184,8 +192,8 @@ server.2=192.168.211.2:2888:3888
 2：PERSISTENT_SEQUENTIAL：持久化排序节点
 
 3：EPHEMERAL：临时节点
-
 4：EPHEMERAL_SEQUENTIAL：临时排序节点
+
 
 永久节点：节点创建后会被持久化，只有主动调用delete方法的时候才可以删除节点。
 
@@ -194,7 +202,72 @@ server.2=192.168.211.2:2888:3888
 排序节点：创建的节点名称后自动添加序号，如节点名称为"node-"，自动添加为"node-1"，顺序添加为"node-2".
 
 
+# shell命令
+> https://www.jianshu.com/p/30752ba8059b
+- 启动客户端
+  - 本地：`zkCli.sh`
+  - 远程：`zkCli.sh -server ip:port`
+- 查看帮助
+  - `help`
+- 创建
+  - 持久型：`create path data`
+  - 短暂型：`create -e path data`,客户端宕掉就失效，这个时候监听会收到`type:NodeDeleted`类型事件
+  - 带序号型：`create -s path data`
+- 获取
+  - `get path`
+- 修改值
+    - `set path data`
+- 查看节点
+  - `ls path`
+  - 详细：`ls -s path` 或 `stat path`
+- 删除
+  - 删除单个：`delete path`
+  - 递归删除：`deleteall path` 
+- 监听
+  - 监听节点变化：`get -w path`
+  - 监听路径变化：`ls -w path`
+  - 注：这些都是监听一次运行一次
 
+## 节点详细信息
+
+| 状态属性                 | 说明                                                                                     |
+| ------------------------ | ---------------------------------------------------------------------------------------- |
+| cZxid                    | 数据节点创建时的事务ID                                                                   |
+| ctime                    | 数据节点创建时的时间                                                                     |
+| mZxid                    | 数据节点最后一次更新时的事务ID                                                           |
+| mtime                    | 数据节点最后一次更新时的时间                                                             |
+| pZxid                    | 数据节点的子节点列表最后一次被修改（是子节点列表变更，而不是子节点内容变更）时的事务ID   |
+| cversion	 子节点的版本号 |
+| dataVersion              | 数据节点的版本号                                                                         |
+| aclVersion               | 数据节点的ACL版本号                                                                      |
+| ephemeralOwner           | 如果节点是临时节点，则表示创建该节点的会话的SessionID；如果节点是持久节点，则该属性值为0 |
+| dataLength               | 数据内容的长度                                                                           |
+| numChildren              | 数据节点当前的子节点个数                                                                 |
+
+## 监听原理
+<div align="center">
+<img src="pic/7.png">
+</div>
+
+- 首先有一个main()线程
+
+- 在main线程中创建Zookeeper客户端，会创建两个线程，connect负责网络连接通信，listener负责监听
+
+- 通过connect线程将注册的监听事件发送给Zookeeper
+
+- 在Zookeeper的注册监听器列表中将注册的监听事件添加到列表中
+
+- Zookeeper监听到有数据或路径变化，就会将这个消息发送给listener线程
+
+- listener线程内部调用了process（）方法
+
+## 写数据流程
+<div align="center">
+<img src="pic/8.png">
+</div>
+
+# ACL
+> https://blog.csdn.net/liuxiao723846/article/details/79391650
 
 # 注意
 - ZooKeeper虽然提供了在节点存储数据的功能，但它并不将自己定位为一个通用的数据库，也就是说，你不应该在节点存储过多的数据。Zk规定节点的数据大小不能超过1M，但实际上我们**在znode的数据量应该尽可能小**，因为数据过大会导致zk的性能明显下降。如果确实需要存储大量的数据，一般解决方法是在另外的分布式数据库（例如redis）中保存这部分数据，然后在znode中我们只保留这个数据库中保存位置的索引即可。

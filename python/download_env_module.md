@@ -5,6 +5,7 @@
   - [模块和包](#%E6%A8%A1%E5%9D%97%E5%92%8C%E5%8C%85)
   - [setuptools](#setuptools)
   - [pip](#pip)
+  - [pip加速](#pip%E5%8A%A0%E9%80%9F)
 - [egg](#egg)
 # virtualenv
 - 安装  
@@ -131,6 +132,9 @@ pip install 'SomePackage>=1.0.4'     # 最小版本
 > **搜索包**
 - pip search <搜索关键字>
 
+
+## pip加速
+https://learnku.com/python/wikis/23003
 
 # egg
 > https://zhuanlan.zhihu.com/p/25020501
