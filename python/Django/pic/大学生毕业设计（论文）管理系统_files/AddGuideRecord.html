@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<!-- saved from url=(0129)http://xhu.co.cnki.net/Student/AddGuideRecord.html?num=17%20&prevTitle=%u63D0%u4EA4%u6307%u5BFC%u8BB0%u5F55&r=0.21175431905581665 -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title>添加指导记录</title>
+    <link rel="stylesheet" href="./easyui(4).css">
+    <link rel="stylesheet" href="./base(4).css">
+    <link rel="stylesheet" href="./common.css">
+    <link rel="stylesheet" href="./webuploader.css">
+
+    <script type="text/javascript" src="./jquery.min(4).js"></script>
+    <script type="text/javascript" src="./jquery.cookie(4).js"></script>
+    <script type="text/javascript" src="./jquery.extend(4).js"></script>
+    <script type="text/javascript" src="./jquery.easyui.min(4).js"></script>
+    <script type="text/javascript" src="./common(4).js"></script>
+    <script type="text/javascript" src="./constant(4).js"></script>
+    <script type="text/javascript" src="./DesignTable.js"></script>
+    <script type="text/javascript" src="./audit(1).js"></script>
+    <script type="text/javascript" src="./webuploader.nolog.js"></script>
+    <script type="text/javascript" src="./webuploader.handler.js"></script>
+    <script type="text/javascript" src="./Dictionary(3).js"></script>
+    <script type="text/javascript" src="./JSEncrypt(4).js"></script>
+    <!--[if lt IE 9]>
+        <script type="text/javascript" src="../Scripts/json2.js?r=2020042213495211"></script>
+    <![endif]-->
+    <!--富文本编辑器-begin-->
+    <script type="text/javascript" src="./ueditor.config.js"></script>
+    <script type="text/javascript" src="./ueditor.all.js"></script>
+    <script type="text/javascript" src="./ueditor.parse.js"></script>
+    <script type="text/javascript" src="./zh-cn.js"></script>
+    <script type="text/javascript" src="./addKityFormulaDialog.js"></script>
+    <script type="text/javascript" src="./getKfContent.js"></script>
+    <script type="text/javascript" src="./defaultFilterFix.js"></script>
+    <!--富文本编辑器-end-->
+<link href="./ueditor.css" type="text/css" rel="stylesheet"><style id="edui-customize-kityformula-style">.edui-default .edui-for-kityformula .edui-dialog-content  {width:783px; height: 386px;}</style><style id="edui-customize-插入kityformula-style">.edui-default  .edui-for-插入kityformula .edui-icon {background: url("http://xhu.co.cnki.net/Scripts/UEditor/kityformula-plugin/kf-icon.png") !important}</style><script src="./codemirror.js" type="text/javascript" defer="defer"></script><link rel="stylesheet" type="text/css" href="./codemirror.css"><script src="./ZeroClipboard.js" type="text/javascript" defer="defer"></script></head>
+<body style="">
+    
+    <div id="tipsBox" class="gxf_tips" style="display:none; margin-bottom:15px;">
+        <div class="gxf_tip"> <i></i>信息提示 </div>
+        <div> <p id="tipsText"></p> </div>
+    </div>
+    <div class="main" id="choiceDiv" style="">
+        <div id="gxf-project-information"><div class="gxf_problem gxf_problem_detail"><div><h2><span></span>题目基本信息</h2></div><div class="gxf_pro_content gxf_content_table"><ul class="clearfix gxf_project_detadil_ul"><li style="width:100%;position: relative;padding: 0;padding-left: 120px;box-sizing: border-box;   -moz-box-sizing: border-box;-webkit-box-sizing: border-box;-o-box-sizing: border-box;-ms-box-sizing: border-box;"><div style="position: absolute;left: 0; width: 120px; text-align: right; line-height: 30px;"> 题目：</div><div style="width:100%;" class="detadil_txt_right proTitle" title="基于微服务的安全管理监控分析系统"><span>基于微服务的安全管理监控分析系统</span></div></li><li><span class="detadil_txt_left"> 可选专业：</span><span class="detadil_txt_right" title="计算机与软件工程学院(信息安全)">计算机与软件工程学院(信息安全)</span></li><li><span class="detadil_txt_left"> 题目申报时间：</span><span class="detadil_txt_right">2019-11-14</span></li><li><span class="detadil_txt_left"> 题目类型：</span><span class="detadil_txt_right">应用研究</span></li><li><span class="detadil_txt_left"> 题目来源：</span><span class="detadil_txt_right">其他</span></li><li><span class="detadil_txt_left"> 选择模式：</span><span class="detadil_txt_right">团队课题</span></li><li><span class="detadil_txt_left"> 题目所属专业：</span><span class="detadil_txt_right">计算机与软件工程学院-信息安全</span></li><li><span class="detadil_txt_left"> 指导教师：</span><span class="detadil_txt_right">牛宪华（0120120029）(组长)</span></li><li><span class="detadil_txt_left"> 教师职称：</span><span class="detadil_txt_right">教授</span></li><li><span class="detadil_txt_left"> 导师联系邮箱：</span><span class="detadil_txt_right"></span></li><li><span class="detadil_txt_left"> 学生姓名：</span><span class="detadil_txt_right">钟俊吉（3120160906111）,周鑫（3120160906119）,李锐平（3120160906124）,林庆（3120160906129）</span></li><li><span class="detadil_txt_left"> 学生院系专业：</span><span class="detadil_txt_right">计算机与软件工程学院-信息安全</span></li></ul></div></div></div>
+        <div class=" gxf_problem gxf_problem_title" style="">
+            <div><h2><span></span>添加内容</h2></div>
+            <div class="gxf_designTable_content" style="">
+                
+                <ul class="gxf_designTable_box" id="DesignTable" style=""><li><p><b style="color: #f00;position:relative;top:3px;"> * </b>主题<span class="writerText margl"> 共输入<i style="color: #f00;"> 11 </i>字符</span><span class="statement margl"></span></p><input id="txt_221_column001" type="text" class="easyui-textbox textbox-f" data-options="multiline:true,height:100" style="width: 100%; display: none;"><span class="textbox easyui-fluid" style="width: 1595px; height: 98px;"><textarea id="_easyui_textbox_input6" class="textbox-text validatebox-text" autocomplete="off" tabindex="" placeholder="" style="margin: 0px; height: 90px; width: 1587px;"></textarea><input type="hidden" class="textbox-value" value="系统的整合以及问题讨论"></span></li><li><p><b style="color: #f00;position:relative;top:3px;"> * </b>指导时间<span class="statement margl"></span></p><div class="designTable_radio"><span class="margl"></span><input id="date_222_column222" type="text" class="easyui-datebox mgL datebox-f combo-f textbox-f" data-options="prompt:&#39;请选择正确的时间&#39;,showSeconds:false,editable: false,height:24,width:180" panelheight="240" style="display: none;"><span class="textbox combo datebox" style="width: 178px; height: 22px;"><span class="textbox-addon textbox-addon-right" style="right: 0px; top: 0px;"><a href="javascript:;" class="textbox-icon combo-arrow" icon-index="0" tabindex="-1" style="width: 26px; height: 22px;"></a></span><input id="_easyui_textbox_input7" type="text" class="textbox-text validatebox-text validatebox-readonly" autocomplete="off" tabindex="" readonly="" placeholder="请选择正确的时间" style="margin: 0px 26px 0px 0px; padding-top: 0px; padding-bottom: 0px; height: 22px; line-height: 22px; width: 144px;"><input type="hidden" class="textbox-value" name="" value="2020-04-01"></span></div></li><li style=""><p><b style="color: #f00;position:relative;top:3px;"> * </b>指导内容<span class="writerText margl"> 共输入<i style="color: #f00;"> 125 </i>字符</span><span class="statement margl"></span></p><div id="txt_223_column223" class="edui-default" style="width: 100%;"><div id="edui1" class="edui-editor  edui-default" style="width: 100%; z-index: 999;"><div id="edui1_toolbarbox" class="edui-editor-toolbarbox edui-default" style=""><div id="edui1_toolbarboxouter" class="edui-editor-toolbarboxouter edui-default"><div class="edui-editor-toolbarboxinner edui-default"><div id="edui2" class="edui-toolbar   edui-default" onselectstart="return false;" onmousedown="return $EDITORUI[&quot;edui2&quot;]._onMouseDown(event, this);" style="user-select: none;"><div id="edui3" class="edui-box edui-button edui-for-undo edui-default"><div id="edui3_state" onmousedown="$EDITORUI[&quot;edui3&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui3&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui3&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui3&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui3_body" unselectable="on" title="撤销" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui3&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui3&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui4" class="edui-box edui-button edui-for-redo edui-default"><div id="edui4_state" onmousedown="$EDITORUI[&quot;edui4&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui4&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui4&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui4&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui4_body" unselectable="on" title="重做" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui4&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui4&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui5" class="edui-box edui-button edui-for-bold edui-default"><div id="edui5_state" onmousedown="$EDITORUI[&quot;edui5&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui5&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui5&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui5&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui5_body" unselectable="on" title="加粗" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui5&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui5&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui6" class="edui-box edui-button edui-for-italic edui-default"><div id="edui6_state" onmousedown="$EDITORUI[&quot;edui6&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui6&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui6&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui6&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui6_body" unselectable="on" title="斜体" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui6&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui6&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui7" class="edui-box edui-button edui-for-underline edui-default"><div id="edui7_state" onmousedown="$EDITORUI[&quot;edui7&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui7&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui7&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui7&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui7_body" unselectable="on" title="下划线" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui7&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui7&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui8" class="edui-box edui-button edui-for-strikethrough edui-default"><div id="edui8_state" onmousedown="$EDITORUI[&quot;edui8&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui8&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui8&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui8&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui8_body" unselectable="on" title="删除线" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui8&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui8&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui9" class="edui-box edui-button edui-for-subscript edui-default"><div id="edui9_state" onmousedown="$EDITORUI[&quot;edui9&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui9&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui9&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui9&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui9_body" unselectable="on" title="下标" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui9&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui9&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui10" class="edui-box edui-button edui-for-superscript edui-default"><div id="edui10_state" onmousedown="$EDITORUI[&quot;edui10&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui10&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui10&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui10&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui10_body" unselectable="on" title="上标" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui10&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui10&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui11" class="edui-box edui-separator  edui-default"></div><div id="edui12" class="edui-box edui-button edui-for-formatmatch edui-default"><div id="edui12_state" onmousedown="$EDITORUI[&quot;edui12&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui12&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui12&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui12&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui12_body" unselectable="on" title="格式刷" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui12&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui12&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui13" class="edui-box edui-button edui-for-removeformat edui-default"><div id="edui13_state" onmousedown="$EDITORUI[&quot;edui13&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui13&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui13&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui13&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui13_body" unselectable="on" title="清除格式" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui13&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui13&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui14" class="edui-box edui-button edui-for-cleardoc edui-default"><div id="edui14_state" onmousedown="$EDITORUI[&quot;edui14&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui14&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui14&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui14&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui14_body" unselectable="on" title="清空文档" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui14&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui14&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div><div class="edui-box edui-label edui-default"></div></div></div></div></div><div id="edui15" class="edui-box edui-separator  edui-default"></div><div id="edui16" class="edui-box edui-splitbutton edui-for-forecolor edui-default edui-colorbutton"><div title="字体颜色" id="edui16_state" onmousedown="$EDITORUI[&quot;edui16&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui16&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui16&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui16&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-splitbutton-body edui-default"><div id="edui16_button_body" class="edui-box edui-button-body edui-default" onclick="$EDITORUI[&quot;edui16&quot;]._onButtonClick(event, this);"><div class="edui-box edui-icon edui-default"></div><div id="edui16_colorlump" class="edui-colorlump"></div></div><div class="edui-box edui-splitborder edui-default"></div><div class="edui-box edui-arrow edui-default" onclick="$EDITORUI[&quot;edui16&quot;]._onArrowClick();"></div></div></div></div><div id="edui19" class="edui-box edui-splitbutton edui-for-backcolor edui-default edui-colorbutton"><div title="背景色" id="edui19_state" onmousedown="$EDITORUI[&quot;edui19&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui19&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui19&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui19&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-splitbutton-body edui-default"><div id="edui19_button_body" class="edui-box edui-button-body edui-default" onclick="$EDITORUI[&quot;edui19&quot;]._onButtonClick(event, this);"><div class="edui-box edui-icon edui-default"></div><div id="edui19_colorlump" class="edui-colorlump"></div></div><div class="edui-box edui-splitborder edui-default"></div><div class="edui-box edui-arrow edui-default" onclick="$EDITORUI[&quot;edui19&quot;]._onArrowClick();"></div></div></div></div><div id="edui22" class="edui-box edui-combox edui-for-fontfamily edui-default"><div title="字体" id="edui22_state" onmousedown="$EDITORUI[&quot;edui22&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui22&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui22&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui22&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-combox-body edui-default"><div id="edui22_button_body" class="edui-box edui-button-body edui-default" onclick="$EDITORUI[&quot;edui22&quot;]._onButtonClick(event, this);">arial</div><div class="edui-box edui-splitborder edui-default"></div><div class="edui-box edui-arrow edui-default" onclick="$EDITORUI[&quot;edui22&quot;]._onArrowClick();"></div></div></div></div><div id="edui35" class="edui-box edui-combox edui-for-fontsize edui-default"><div title="字号" id="edui35_state" onmousedown="$EDITORUI[&quot;edui35&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui35&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui35&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui35&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-combox-body edui-default"><div id="edui35_button_body" class="edui-box edui-button-body edui-default" onclick="$EDITORUI[&quot;edui35&quot;]._onButtonClick(event, this);">小四</div><div class="edui-box edui-splitborder edui-default"></div><div class="edui-box edui-arrow edui-default" onclick="$EDITORUI[&quot;edui35&quot;]._onArrowClick();"></div></div></div></div><div id="edui49" class="edui-box edui-separator  edui-default"></div><div id="edui54" class="edui-box edui-button edui-for-searchreplace edui-default"><div id="edui54_state" onmousedown="$EDITORUI[&quot;edui54&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui54&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui54&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui54&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui54_body" unselectable="on" title="查询替换" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui54&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui54&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div><div class="edui-box edui-label edui-default"></div></div></div></div></div><div id="edui55" class="edui-box edui-button edui-for-indent edui-default"><div id="edui55_state" onmousedown="$EDITORUI[&quot;edui55&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui55&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui55&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui55&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui55_body" unselectable="on" title="首行缩进" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui55&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui55&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui56" class="edui-box edui-button edui-for-justifyleft edui-default"><div id="edui56_state" onmousedown="$EDITORUI[&quot;edui56&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui56&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui56&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui56&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-checked"><div class="edui-button-wrap edui-default"><div id="edui56_body" unselectable="on" title="居左对齐" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui56&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui56&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div><div class="edui-box edui-label edui-default"></div></div></div></div></div><div id="edui57" class="edui-box edui-button edui-for-justifyright edui-default"><div id="edui57_state" onmousedown="$EDITORUI[&quot;edui57&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui57&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui57&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui57&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui57_body" unselectable="on" title="居右对齐" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui57&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui57&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div><div class="edui-box edui-label edui-default"></div></div></div></div></div><div id="edui58" class="edui-box edui-button edui-for-justifycenter edui-default"><div id="edui58_state" onmousedown="$EDITORUI[&quot;edui58&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui58&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui58&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui58&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui58_body" unselectable="on" title="居中对齐" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui58&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui58&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div><div class="edui-box edui-label edui-default"></div></div></div></div></div><div id="edui59" class="edui-box edui-button edui-for-justifyjustify edui-default"><div id="edui59_state" onmousedown="$EDITORUI[&quot;edui59&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui59&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui59&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui59&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui59_body" unselectable="on" title="两端对齐" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui59&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui59&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div><div class="edui-box edui-label edui-default"></div></div></div></div></div><div id="edui60" class="edui-box edui-menubutton edui-for-insertorderedlist edui-default"><div title="有序列表" id="edui60_state" onmousedown="$EDITORUI[&quot;edui60&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui60&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui60&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui60&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-menubutton-body edui-default"><div id="edui60_button_body" class="edui-box edui-button-body edui-default" onclick="$EDITORUI[&quot;edui60&quot;]._onButtonClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div><div class="edui-box edui-splitborder edui-default"></div><div class="edui-box edui-arrow edui-default" onclick="$EDITORUI[&quot;edui60&quot;]._onArrowClick();"></div></div></div></div><div id="edui73" class="edui-box edui-menubutton edui-for-insertunorderedlist edui-default"><div title="无序列表" id="edui73_state" onmousedown="$EDITORUI[&quot;edui73&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui73&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui73&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui73&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-menubutton-body edui-default"><div id="edui73_button_body" class="edui-box edui-button-body edui-default" onclick="$EDITORUI[&quot;edui73&quot;]._onButtonClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div><div class="edui-box edui-splitborder edui-default"></div><div class="edui-box edui-arrow edui-default" onclick="$EDITORUI[&quot;edui73&quot;]._onArrowClick();"></div></div></div></div><div id="edui80" class="edui-box edui-menubutton edui-for-lineheight edui-default"><div title="行间距" id="edui80_state" onmousedown="$EDITORUI[&quot;edui80&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui80&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui80&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui80&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-menubutton-body edui-default"><div id="edui80_button_body" class="edui-box edui-button-body edui-default" onclick="$EDITORUI[&quot;edui80&quot;]._onButtonClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div><div class="edui-box edui-splitborder edui-default"></div><div class="edui-box edui-arrow edui-default" onclick="$EDITORUI[&quot;edui80&quot;]._onArrowClick();"></div></div></div></div><div id="edui89" class="edui-box edui-menubutton edui-for-rowspacingtop edui-default"><div title="段前距" id="edui89_state" onmousedown="$EDITORUI[&quot;edui89&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui89&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui89&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui89&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-menubutton-body edui-default"><div id="edui89_button_body" class="edui-box edui-button-body edui-default" onclick="$EDITORUI[&quot;edui89&quot;]._onButtonClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div><div class="edui-box edui-splitborder edui-default"></div><div class="edui-box edui-arrow edui-default" onclick="$EDITORUI[&quot;edui89&quot;]._onArrowClick();"></div></div></div></div><div id="edui96" class="edui-box edui-menubutton edui-for-rowspacingbottom edui-default"><div title="段后距" id="edui96_state" onmousedown="$EDITORUI[&quot;edui96&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui96&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui96&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui96&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-menubutton-body edui-default"><div id="edui96_button_body" class="edui-box edui-button-body edui-default" onclick="$EDITORUI[&quot;edui96&quot;]._onButtonClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div><div class="edui-box edui-splitborder edui-default"></div><div class="edui-box edui-arrow edui-default" onclick="$EDITORUI[&quot;edui96&quot;]._onArrowClick();"></div></div></div></div><div id="edui103" class="edui-box edui-button edui-for-pagebreak edui-default"><div id="edui103_state" onmousedown="$EDITORUI[&quot;edui103&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui103&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui103&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui103&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui103_body" unselectable="on" title="分页" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui103&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui103&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui104" class="edui-box edui-separator  edui-default"></div><div id="edui105" class="edui-box edui-button edui-for-imagenone edui-default"><div id="edui105_state" onmousedown="$EDITORUI[&quot;edui105&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui105&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui105&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui105&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui105_body" unselectable="on" title="默认" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui105&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui105&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div><div class="edui-box edui-label edui-default"></div></div></div></div></div><div id="edui106" class="edui-box edui-button edui-for-imageleft edui-default"><div id="edui106_state" onmousedown="$EDITORUI[&quot;edui106&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui106&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui106&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui106&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui106_body" unselectable="on" title="左浮动" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui106&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui106&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div><div class="edui-box edui-label edui-default"></div></div></div></div></div><div id="edui107" class="edui-box edui-button edui-for-imageright edui-default"><div id="edui107_state" onmousedown="$EDITORUI[&quot;edui107&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui107&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui107&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui107&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui107_body" unselectable="on" title="右浮动" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui107&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui107&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div><div class="edui-box edui-label edui-default"></div></div></div></div></div><div id="edui108" class="edui-box edui-button edui-for-imagecenter edui-default"><div id="edui108_state" onmousedown="$EDITORUI[&quot;edui108&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui108&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui108&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui108&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui108_body" unselectable="on" title="居中" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui108&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui108&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div><div class="edui-box edui-label edui-default"></div></div></div></div></div><div id="edui109" class="edui-box edui-separator  edui-default"></div><div id="edui110" class="edui-box edui-splitbutton edui-for-inserttable edui-default"><div title="插入表格" id="edui110_state" onmousedown="$EDITORUI[&quot;edui110&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui110&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui110&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui110&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-splitbutton-body edui-default"><div id="edui110_button_body" class="edui-box edui-button-body edui-default" onclick="$EDITORUI[&quot;edui110&quot;]._onButtonClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div><div class="edui-box edui-splitborder edui-default"></div><div class="edui-box edui-arrow edui-default" onclick="$EDITORUI[&quot;edui110&quot;]._onArrowClick();"></div></div></div></div><div id="edui113" class="edui-box edui-button edui-for-insertrow edui-default"><div id="edui113_state" onmousedown="$EDITORUI[&quot;edui113&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui113&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui113&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui113&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui113_body" unselectable="on" title="前插入行" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui113&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui113&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui114" class="edui-box edui-button edui-for-insertcol edui-default"><div id="edui114_state" onmousedown="$EDITORUI[&quot;edui114&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui114&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui114&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui114&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui114_body" unselectable="on" title="前插入列" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui114&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui114&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui115" class="edui-box edui-button edui-for-mergeright edui-default"><div id="edui115_state" onmousedown="$EDITORUI[&quot;edui115&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui115&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui115&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui115&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui115_body" unselectable="on" title="右合并单元格" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui115&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui115&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui116" class="edui-box edui-button edui-for-mergedown edui-default"><div id="edui116_state" onmousedown="$EDITORUI[&quot;edui116&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui116&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui116&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui116&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui116_body" unselectable="on" title="下合并单元格" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui116&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui116&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui117" class="edui-box edui-button edui-for-deleterow edui-default"><div id="edui117_state" onmousedown="$EDITORUI[&quot;edui117&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui117&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui117&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui117&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui117_body" unselectable="on" title="删除行" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui117&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui117&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui118" class="edui-box edui-button edui-for-deletecol edui-default"><div id="edui118_state" onmousedown="$EDITORUI[&quot;edui118&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui118&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui118&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui118&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui118_body" unselectable="on" title="删除列" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui118&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui118&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui119" class="edui-box edui-button edui-for-splittorows edui-default"><div id="edui119_state" onmousedown="$EDITORUI[&quot;edui119&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui119&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui119&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui119&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui119_body" unselectable="on" title="拆分成行" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui119&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui119&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui120" class="edui-box edui-button edui-for-splittocols edui-default"><div id="edui120_state" onmousedown="$EDITORUI[&quot;edui120&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui120&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui120&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui120&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui120_body" unselectable="on" title="拆分成列" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui120&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui120&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui121" class="edui-box edui-button edui-for-splittocells edui-default"><div id="edui121_state" onmousedown="$EDITORUI[&quot;edui121&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui121&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui121&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui121&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui121_body" unselectable="on" title="完全拆分单元格" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui121&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui121&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui122" class="edui-box edui-button edui-for-mergecells edui-default"><div id="edui122_state" onmousedown="$EDITORUI[&quot;edui122&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui122&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui122&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui122&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui122_body" unselectable="on" title="合并多个单元格" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui122&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui122&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui123" class="edui-box edui-button edui-for-deletetable edui-default"><div id="edui123_state" onmousedown="$EDITORUI[&quot;edui123&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui123&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui123&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui123&quot;].Stateful_onMouseOut(event, this);" class="edui-default edui-state-disabled"><div class="edui-button-wrap edui-default"><div id="edui123_body" unselectable="on" title="删除表格" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui123&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui123&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui124" class="edui-box edui-separator  edui-default"></div><div id="edui125" class="edui-box edui-button edui-for-custombtn edui-default"><div id="edui125_state" onmousedown="$EDITORUI[&quot;edui125&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui125&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui125&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui125&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui125_body" unselectable="on" title="图片" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui125&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui125&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div></div></div></div></div><div id="edui130" class="edui-box edui-button edui-for-插入kityformula edui-default"><div id="edui130_state" onmousedown="$EDITORUI[&quot;edui130&quot;].Stateful_onMouseDown(event, this);" onmouseup="$EDITORUI[&quot;edui130&quot;].Stateful_onMouseUp(event, this);" onmouseover="$EDITORUI[&quot;edui130&quot;].Stateful_onMouseOver(event, this);" onmouseout="$EDITORUI[&quot;edui130&quot;].Stateful_onMouseOut(event, this);" class="edui-default"><div class="edui-button-wrap edui-default"><div id="edui130_body" unselectable="on" title="插入公式-kityformula" class="edui-button-body edui-default" onmousedown="return $EDITORUI[&quot;edui130&quot;]._onMouseDown(event, this);" onclick="return $EDITORUI[&quot;edui130&quot;]._onClick(event, this);"><div class="edui-box edui-icon edui-default"></div><div class="edui-box edui-label edui-default"></div></div></div></div></div></div></div></div><div id="edui1_toolbarmsg" class="edui-editor-toolbarmsg edui-default" style="display:none;"><div id="edui1_upload_dialog" class="edui-editor-toolbarmsg-upload edui-default" onclick="$EDITORUI[&quot;edui1&quot;].showWordImageDialog();">点击上传</div><div class="edui-editor-toolbarmsg-close edui-default" onclick="$EDITORUI[&quot;edui1&quot;].hideToolbarMsg();">x</div><div id="edui1_toolbarmsg_label" class="edui-editor-toolbarmsg-label edui-default"></div><div style="height:0;overflow:hidden;clear:both;" class="edui-default"></div></div><div id="edui1_message_holder" class="edui-editor-messageholder edui-default" style="top: 3px; z-index: 1000;"></div></div><div id="edui1_iframeholder" class="edui-editor-iframeholder edui-default" style="width: 100%; height: 300px; z-index: 999; overflow: hidden;"><iframe id="ueditor_0" width="100%" height="100%" frameborder="0" src="javascript:void(function(){document.open();document.write(&quot;&lt;!DOCTYPE html&gt;&lt;html xmlns=&#39;http://www.w3.org/1999/xhtml&#39; class=&#39;view&#39; &gt;&lt;head&gt;&lt;style type=&#39;text/css&#39;&gt;.view{padding:0;word-wrap:break-word;cursor:text;height:90%;word-spacing:0.5em;}
+body{margin:8px;font-family:sans-serif;font-size:16px;}p{margin:5px 0;}&lt;/style&gt;&lt;link rel=&#39;stylesheet&#39; type=&#39;text/css&#39; href=&#39;http://xhu.co.cnki.net/Scripts/UEditor/themes/iframe.css&#39;/&gt;&lt;/head&gt;&lt;body class=&#39;view&#39; &gt;&lt;/body&gt;&lt;script type=&#39;text/javascript&#39;  id=&#39;_initialScript&#39;&gt;setTimeout(function(){editor = window.parent.UE.instants[&#39;ueditorInstant0&#39;];editor._setup(document);},0);var _tmpScript = document.getElementById(&#39;_initialScript&#39;);_tmpScript.parentNode.removeChild(_tmpScript);&lt;/script&gt;&lt;/html&gt;&quot;);document.close();}())" src="./saved_resource.html"></iframe></div><div id="edui1_bottombar" class="edui-editor-bottomContainer edui-default" style="display:none;"><table class="edui-default"><tbody class="edui-default"><tr class="edui-default"><td id="edui1_elementpath" class="edui-editor-bottombar edui-default"><div class="edui-editor-breadcrumb" onmousedown="return false;">元素路径: <span unselectable="on" onclick="$EDITORUI[&quot;edui1&quot;].editor.execCommand(&quot;elementpath&quot;, &quot;0&quot;);">body</span> &gt; <span unselectable="on" onclick="$EDITORUI[&quot;edui1&quot;].editor.execCommand(&quot;elementpath&quot;, &quot;1&quot;);">p</span></div></td><td id="edui1_wordcount" class="edui-editor-wordcount edui-default"></td><td id="edui1_scale" class="edui-editor-scale edui-default" style="display: none;"><div class="edui-editor-icon edui-default"></div></td></tr></tbody></table></div><div id="edui1_scalelayer" class="edui-default"></div></div></div></li></ul>
+                <ul class="gxf_designTable_box">
+                    <li id="teaShow" class="disNone">
+                        <p><i id="psname">单次平时成绩</i>（该学生对应总平时成绩占总成绩的权重为：<i id="psqz" style="font-weight:700"></i>）</p>
+                        <div class="gxf_designTable_detailes" style="background-color:#fff;">
+                            <input id="inputScore" type="text" class="easyui-textbox textbox-f" data-options="height:28" style="width: 50px; display: none;"><span class="textbox" style="width: 48px; height: 26px;"><input id="_easyui_textbox_input4" type="text" class="textbox-text validatebox-text textbox-prompt" autocomplete="off" tabindex="" placeholder="" style="margin: 0px; padding-top: 0px; padding-bottom: 0px; height: 26px; line-height: 26px; width: 40px;"><input type="hidden" class="textbox-value" value=""></span><span id="pstishi" class="margl">等级提示</span>
+                            <div class="statement txt_red">*您可以在本次添加<span class="dictionary_3">指导记录</span>时，给定学生对应的“单次平时成绩”；系统将按照“多次平时成绩计算平均分”的方法计算学生的“平时成绩”，并按照设定的权重计入总成绩</div>
+                        </div>
+
+                    </li>
+                </ul>
+
+                <ul class="gxf_designTable_box">
+                    <li id="fujian" style="">
+                        <p>添加附件：<span id="scfj" class="statement">上传有关<span class="dictionary_3">指导记录</span>的附件，上传的文件将以附件的形式显示。支持附件格式为doc，docx，pdf，wps，rar，zip</span></p>
+                        <input id="txtFileName" class="easyui-textbox textbox-f" style="width: 258px; display: none;" data-options="readonly:true"><span class="textbox textbox-readonly" style="width: 256px;"><input id="_easyui_textbox_input5" type="text" class="textbox-text validatebox-text validatebox-readonly textbox-prompt" autocomplete="off" tabindex="" readonly="" placeholder="" style="margin: 0px; padding-top: 0px; padding-bottom: 0px; height: 25px; line-height: 25px; width: 248px;"><input type="hidden" class="textbox-value" value=""></span>
+                        <span id="webUploaderPick" class="webuploader-container"><div class="webuploader-pick">浏览</div><div id="rt_rt_1e9aa7qtc3d6hnhl3l1c7h1r4f2" style="position: absolute; top: -0.59375px; left: 5px; width: 48px; height: 26px; overflow: hidden; bottom: auto; right: auto;"><input type="file" capture="camera" name="file" class="webuploader-element-invisible" accept=".doc,.docx,.pdf,.wps,.rar,.zip"><label style="opacity: 0; width: 100%; height: 100%; display: block; cursor: pointer; background: rgb(255, 255, 255);"></label></div></span>
+                        <div id="divFileProgressContainer"></div>
+                    </li>
+                    <li>
+                        <input id="submit_uploading" class="formBtn margt" type="button" value="提交">
+                        <input id="cancel" class="clearBtn margl margt" type="button" value="取消">
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    
+    <script type="text/javascript">
+        var flag = getUrlParam("flag");//0添加 1修改
+        var num = getUrlParam("num");//第几次提交
+        var LogID = getUrlParam("LogID");//日志ID
+        var projectId = getUrlParam("ProjectId")//题目编号
+        var sid = getUrlParam("sid")//sid
+        var tid = getUrlParam("tid")//tid
+        var replace = getUrlParam("replace")//replace=1代替学生修改
+        var current_role = get_current_role(); //角色ID
+        var AttachmentNum = 0;// 删除附件
+        var stuAcademyNum = getUrlParam("stuAcademyNum");//学生学院编号
+        var zybh = "";
+        var xybh = "";
+        var DesignTableData;
+        var webUploader; //上传实例
+        $(function () {
+            $(".dictionary_3").html(SetDictionary(3));
+            //获得基本信息
+            if (current_role == 2) {//学生
+                var obj = getProjectInformation("", "task");
+            };
+            if (current_role == 3) {//教师
+                var obj = getProjectInformation(projectId);
+                isTeaSub();//显示可填平时成绩
+            };
+            zybh = obj["zybh"];
+            xybh = obj["xybh"];
+            if (obj["isTrue"]) {
+                $("#choiceDiv").show();
+                $("#nochoiceDiv").remove();
+                isCanAddStuFile(sid, projectId, 5, "tipsText", "tipsBox");
+                //创建上传实例
+                webUploader = createWebuploader({
+                    successCallback: function (data, params) {
+                        if (data.isSuccess) {
+                            uploadSuccessFun("AddStuProjectLogAttachment", params);
+                        } else {
+                            myMessage(data.message);
+                        }
+                    }
+                });
+
+                DesignTableData = isSetDesignTableByProjectID(39, xybh, zybh, obj["ktbh"]); // 是否自定义
+                DesignTableData.done(function (data) {
+                    if (data.isSuccess) {
+                        if (flag == 1) {
+                            $("#submit_uploading").val('修改');
+                            getDetail(data.rows); // 获取详情
+                        } else {
+                            $("#noDesignTable").remove();
+                            $("#DesignTable").show();
+                            SetDesignTable(data.rows, 'DesignTable');
+                            if (data.rows[0]['是否显示附件'] == '1') {
+                                $("#fujian").show();
+                            };
+                        }
+                    } else {
+                        if (flag == 1) {
+                            $("#submit_uploading").val('修改');
+                            getDetail(); // 获取详情
+                        } else {
+                            $("#DesignTable").remove();
+                            $("#noDesignTable,#fujian").show();
+                            $.parser.parse('#noDesignTable');       // 重新渲染页面
+                            showWriteTextNumber.createNew("noDesignTable", "main_work");
+                        };
+                    }
+                    if (webUploader) {
+                        webUploader.refresh();
+                    };
+                }).fail(function (err) {
+                    console.log(err);
+                });
+            } else {
+                $("#choiceDiv").remove();
+                $("#nochoiceDiv").show();
+            };
+        });
+        //获取平时成绩的提示
+        function getScoreTips() {
+            $.ajax({
+                url: "../Handler/ReviewHandler.ashx",
+                data: { "action": "GetGetScoreRankToolTipsText" },
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                    if (data.isSuccess == true) {
+                        $("#pstishi").html(data.dataList[0]['提示']);
+                    };
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        };
+        //获取平时成绩的权重
+        function GetWeightDetailes() {
+            $.ajax({
+                url: "../Handler/ReviewHandler.ashx",
+                data: {
+                    "action": "GetStudentScoringWeight",
+                    sid: sid,
+                    projectId: projectId
+                },
+                dataType: "json",
+                type: "POST",
+                async: false,
+                success: function (data) {
+                    if (data.isSuccess) {
+                        $('#psname').text(data.rows[0]['平时成绩名称']);
+                        $("#psqz").text(data.rows[0]['平时成绩']);
+                    }
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        };
+        //是否显示平时成绩
+        function isTeaSub() {
+            $.ajax({
+                url: '../Handler/SystemSet.ashx?action=GetSystemList',
+                type: 'post',
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.isSuccess && data.rows[0]['指导记录提交设置'] == 2) {//教师提交
+                        $.ajax({//是否显示
+                            url: "../Handler/ReviewHandler.ashx?action=GetReviewColumn",
+                            type: "post",
+                            dataType: "json",
+                            success: function (data) {
+                                if (data.isSuccess && data.dataList[0]['不显示平时成绩'] == 1) {
+                                    GetWeightDetailes() //获取平时成绩的权重
+                                    if ($("#psqz").text() > 0) {//权重大于0才显示
+                                        $("#teaShow").show();
+                                        getScoreTips(); //获取平时成绩的提示
+
+                                    }
+                                };
+                            },
+                            error: function (err) { console.log(err); }
+                        });
+                    };
+                }
+            });
+        };
+
+        function getDetail(designTable) {
+            var xhr = $.ajax({
+                url: "../Handler/OpenReport.ashx",
+                type: "post",
+                dataType: "json",
+                data: {
+                    action: "GetDetail",
+                    id: LogID,
+                    projectId: projectId,
+                    sid: sid,
+                    zybh: zybh,
+                    xybh: xybh,
+                    opeType: '3'
+                },
+                success: function (data) {
+                    if (data.isSuccess) {
+                        $("#inputScore").textbox("setValue", data.rows[0]["成绩"] >= 0 ? data.rows[0]["成绩"] : '');
+                        if (designTable) {
+                            $("#noDesignTable").remove();
+                            $("#DesignTable").show();
+                            SetValueDesignTable(designTable, data.rows[0], 'DesignTable');
+                            if (designTable[0]['是否显示附件'] == '1') {
+                                getAttachment();
+                                $("#fujian").show();
+                            };
+                        } else {
+                            getAttachment();// 附件
+                            $("#txtTitle").textbox("setValue", data.rows[0]["主题"]);
+                            $("#txtTime").textbox("setValue", data.rows[0]["指导时间"]);
+                            $("#main_work").textbox("setValue", data.rows[0]["内容"]);
+                            $("#main_work").prev().find(".writerText>i").html(" " + $("#main_work").textbox("getText").replace(/\s|\r|\n/g, "").length + " ");
+                            $("#inputScore").textbox("setValue", data.rows[0]["成绩"] >= 0 ? data.rows[0]["成绩"] : '');
+                            $("#DesignTable").remove();
+                            $("#noDesignTable,#fujian").show();
+                            $.parser.parse('#noDesignTable');       // 重新渲染页面
+                        };
+                        webUploader.refresh();
+                    }
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+            return xhr;
+        };
+
+        // 获取附件
+        function getAttachment() {
+            $.ajax({
+                url: "../Handler/OpenReport.ashx",
+                type: "post",
+                dataType: "json",
+                data: {
+                    action: 'GetAttachent',
+                    id: LogID,
+                    projectId: projectId,
+                    sid: sid,
+                    opeType: '3'
+                },
+                success: function (data) {
+                    if (data.isSuccess) {
+                        if (data.rows.length > 0) {
+                            if (data.rows[0]["文件名"] !== "" && data.rows[0]["附件"] !== "") {
+                                $("#scfj").html("已有" + SetDictionary(3) + "的附件，<span style='color:#ff6632;'>" + data.rows[0]["文件名"] + "<a href='javascript:AttachmentClick( \""
+                                    + data.rows[0]["文件名"] + "\" );' class='listA margl'>删除 </a> </span>  支持附件格式为doc，docx，pdf，wps，rar，zip");
+                            };
+                        };
+                    };
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        };
+
+        //点击取消
+        $("#cancel").off().on('click', function () {
+            if (flag == 1) {
+                var tabTitle = getCurrentTabTitle();
+                reloadTable(getUrlParam("prevTitle"), 'main');
+                closeTab(tabTitle);
+            } else {
+                location.reload(false);
+            }
+        });
+
+        // 提交修改成功后刷新
+        function ReturnFresh() {
+            if (current_role == 2) {//学生
+                if (flag == 1) {
+                    refreshTab("首页");
+                    var tabTitle = getCurrentTabTitle();
+                    reloadTable(getUrlParam("prevTitle"), 'list');
+                    closeTab(tabTitle);
+                } else {
+                    refreshTab("首页");
+                    var tabTitle = getCurrentTabTitle();
+                    reloadTable(getUrlParam("prevTitle"), 'main');
+                    closeTab(tabTitle);
+                };
+            };
+            if (current_role == 3) {//教师
+                if (flag == 1) {
+                    //try {
+                    //    refreshTab("查看指导记录"); //刷新前一页
+                    //} catch (err) {
+
+                    //};
+                    var tabTitle = getCurrentTabTitle(); 
+                    reloadTable(getUrlParam("prevTitle"), 'main'); //刷新前一页
+                    closeTab(tabTitle);
+                } else {
+                    //try {
+                    //    refreshTab("学生指导记录"); //刷新父Tab
+                    //} catch (err) {
+                    //    refreshTab(getRoleName(3) + "提交指导记录");
+                    //};
+                    var tabTitle = getCurrentTabTitle();//获取当前title
+                    reloadTable(getUrlParam("prevTitle"), 'main'); //刷新前一页
+                    closeTab(tabTitle);
+                };
+            };
+        };
+
+        //点击提交 上传附件部分
+        var mark = true;//防止连点
+        $("#submit_uploading").click(function () {
+            if (!mark) {
+                return false;
+            };
+            mark = false;
+            if (!$('#teaShow').is(":hidden")) {//学生不输入平时成绩
+                if ($.trim($("#inputScore").textbox("getValue")) == "") {
+                    mark = true;
+                    myMessage("平时成绩不能为空!")
+                    return;
+                };
+            };
+            var list = {
+                'LogID': LogID,
+                'num': num,
+                'scfj': AttachmentNum, // 是否删除附件
+                'xybh': xybh,
+                'zybh': zybh,
+                'stuAcademyNum': stuAcademyNum,//学生学院编号
+                'ProjectId': projectId,
+                'sid': sid,
+                'tid': tid,
+                'replace': replace,
+                'inputScore': replaceUnequa($("#inputScore").textbox("getValue")), //平时成绩
+                'flag': flag,
+                'ScoreType': 10//成绩类型，10平时成绩
+            };
+            DesignTableData.done(function (data) {
+                if (data.isSuccess) {
+                    if (!SubmitCheckData(data.rows)) { mark = true; return }
+                    submitDesignTableValue(data.rows, list);
+                    if (data.rows[0]['类型'] == -1) {
+                        if (checkValIsUndefinedOrNull($("#txtFileName").val())) {
+                            mark = true;
+                            myMessage("附件不能为空！")
+                            return;
+                        };
+                    };
+                } else {
+                    list["rizhizhuti"] = replaceUnequa($("#txtTitle").textbox("getValue")); //主题
+                    list["zdsj"] = replaceUnequa($("#txtTime").textbox("getValue")); //指导
+                    list["zhuyaogongzuo"] = replaceUnequa($("#main_work").textbox("getValue"))//主要工作
+                    if ($.trim(list["zhuyaogongzuo"]) == "") {
+                        mark = true;
+                        myMessage("主要工作内容不能为空！")
+                        return;
+                    };
+                };
+                var fileName = $("#txtFileName").textbox("getValue");
+                if (checkValIsUndefinedOrNull(fileName)) {//无附件
+                    list["fileCount"] = 0;
+                    list['action'] = 'AddStuProjectLog';
+                    $.ajax({
+                        url: "../Handler/ProjectLog.ashx",
+                        data: list,
+                        dataType: "json",
+                        type: "POST",
+                        success: function (data) {
+                            if (data.isSuccess) {
+                                mark = true;
+                                myMessage(data.message, function () {
+                                    ReturnFresh();
+                                }, true);
+                            } else {
+                                mark = true;
+                                myMessage(data.message);
+                            };
+                        }
+                    });
+                } else {  //有附件
+                    list["ASPSESSID"] = getid();
+                    list["fileCount"] = 1;
+                    $.extend(webUploader.options.formData, list);
+                    var fileId = $("#txtFileName").attr("fileId");
+                    webUploader.upload(fileId);
+                };
+            });
+        });
+
+        // 文件上传成功后fun
+        function uploadSuccessFun(action, data) {
+            if (checkValIsUndefinedOrNull(action)) {
+                myMessage("出错了！");
+                return;
+            }
+            var data = data || {};
+            data["action"] = action;
+            $.ajax({
+                url: "../Handler/ProjectLog.ashx?r=" + new Date().getTime(),
+                data: data,
+                dataType: "json",
+                type: "POST",
+                beforeSend: function () {
+                    open_loading();
+                },
+                success: function (data) {
+                    if (data.isSuccess) {
+                        myMessage(data.message, function () {
+                            ReturnFresh()
+                        }, true);
+                    } else {
+                        myMessage(data.message);
+                    }
+                },
+                error: function (err) {
+                    console.log(err)
+                },
+                complete: function () {
+                    close_loading();
+                }
+            });
+        };
+
+        //删除附件
+        function AttachmentClick(data) {
+            $('#delmessagebox').text("你确定要删除附件（ " + data + " ）吗？").dialog({
+                title: '删除附件',
+                buttons: [{ text: '确定', handler: function () { AttachmentNum = 1; $("#scfj").html("上传" + SetDictionary(3) + "有关附件，支持附件格式为doc，docx，pdf，wps，rar，zip"); $("#delmessagebox").dialog("close"); } },
+                { text: '取消', handler: function () { AttachmentNum = 0; $("#delmessagebox").dialog("close"); } }]
+            }).dialog("open").window('center');
+        };
+            // ==== 删除附件结束
+    </script>
+
+
+<div class="panel window panel-htop" style="display: none; width: 400px; left: 635px; top: 301px;"><div class="panel-header panel-header-noborder window-header" style="width: 392px;"><div class="panel-title">New Dialog</div><div class="panel-tool"><a href="javascript:;" class="panel-tool-close"></a></div></div><div id="delmessagebox" class="easyui-dialog panel-body panel-body-noborder window-body" style="text-align: center; padding: 10px; overflow-wrap: break-word; width: 378px; height: 143px;" data-options="closed:true" title=""></div></div><div class="window-shadow" style="display: none; left: 635px; top: 301px; width: 400px; height: 200px;"></div><div class="panel window panel-htop" style="display: none; width: 400px; left: 635px; top: 301px; z-index: 9005;"><div class="panel-header panel-header-noborder window-header" style="width: 392px;"><div class="panel-title">提示</div><div class="panel-tool"></div></div></div><div class="window-shadow" style="display: none; left: 635px; top: 301px; width: 400px; height: 200px; z-index: 9004;"></div><div class="window-mask" style="display: none; z-index: 9003; position: fixed;"></div><div class="panel window panel-htop" style="display: none; width: 400px; left: 635px; top: 301px; z-index: 9011;"><div class="panel-header panel-header-noborder window-header" style="width: 392px;"><div class="panel-title">提示</div><div class="panel-tool"></div></div></div><div class="window-shadow" style="display: none; left: 635px; top: 301px; width: 400px; height: 200px; z-index: 9010;"></div><div class="window-mask" style="display: none; z-index: 9009; position: fixed;"></div><div class="panel window panel-htop" style="display: none; width: 400px; left: 635px; top: 301px; z-index: 9014;"><div class="panel-header panel-header-noborder window-header" style="width: 392px;"><div class="panel-title">提示</div><div class="panel-tool"></div></div></div><div class="window-shadow" style="display: none; left: 635px; top: 301px; width: 400px; height: 200px; z-index: 9013;"></div><div class="window-mask" style="display: none; z-index: 9012; position: fixed;"></div><div class="panel combo-p panel-htop" style="position: absolute; z-index: 110000; display: none; left: 57px; width: 250px; top: 452.406px;"><div class="combo-panel panel-body panel-body-noheader" title="" style="overflow: hidden; width: 248px; height: 238px;"><div class="datebox-calendar-inner panel-noscroll" style="width: 248px; height: 216px;"><div class="calendar easyui-fluid calendar-noborder" style="width: 246px; height: 214px;"><div class="calendar-header"><div class="calendar-nav calendar-prevmonth"></div><div class="calendar-nav calendar-nextmonth"></div><div class="calendar-nav calendar-prevyear"></div><div class="calendar-nav calendar-nextyear"></div><div class="calendar-title"><span class="calendar-text">四月 2020</span></div></div><div class="calendar-body" style="height: 192px;"><table class="calendar-dtable" cellspacing="0" cellpadding="0" border="0"><thead><tr><th>日</th><th>一</th><th>二</th><th>三</th><th>四</th><th>五</th><th>六</th></tr></thead><tbody><tr class="calendar-first"><td class="calendar-day calendar-other-month calendar-sunday calendar-first " abbr="2020,3,29" style="">29</td><td class="calendar-day calendar-other-month " abbr="2020,3,30" style="">30</td><td class="calendar-day calendar-other-month " abbr="2020,3,31" style="">31</td><td class="calendar-day calendar-selected " abbr="2020,4,1" style="">1</td><td class="calendar-day " abbr="2020,4,2" style="">2</td><td class="calendar-day " abbr="2020,4,3" style="">3</td><td class="calendar-day calendar-saturday calendar-last " abbr="2020,4,4" style="">4</td></tr><tr class=""><td class="calendar-day calendar-sunday calendar-first " abbr="2020,4,5" style="">5</td><td class="calendar-day " abbr="2020,4,6" style="">6</td><td class="calendar-day " abbr="2020,4,7" style="">7</td><td class="calendar-day " abbr="2020,4,8" style="">8</td><td class="calendar-day " abbr="2020,4,9" style="">9</td><td class="calendar-day " abbr="2020,4,10" style="">10</td><td class="calendar-day calendar-saturday calendar-last " abbr="2020,4,11" style="">11</td></tr><tr class=""><td class="calendar-day calendar-sunday calendar-first " abbr="2020,4,12" style="">12</td><td class="calendar-day " abbr="2020,4,13" style="">13</td><td class="calendar-day " abbr="2020,4,14" style="">14</td><td class="calendar-day " abbr="2020,4,15" style="">15</td><td class="calendar-day " abbr="2020,4,16" style="">16</td><td class="calendar-day " abbr="2020,4,17" style="">17</td><td class="calendar-day calendar-saturday calendar-last " abbr="2020,4,18" style="">18</td></tr><tr class=""><td class="calendar-day calendar-sunday calendar-first " abbr="2020,4,19" style="">19</td><td class="calendar-day " abbr="2020,4,20" style="">20</td><td class="calendar-day " abbr="2020,4,21" style="">21</td><td class="calendar-day " abbr="2020,4,22" style="">22</td><td class="calendar-day " abbr="2020,4,23" style="">23</td><td class="calendar-day " abbr="2020,4,24" style="">24</td><td class="calendar-day calendar-saturday calendar-last " abbr="2020,4,25" style="">25</td></tr><tr class=""><td class="calendar-day calendar-sunday calendar-first " abbr="2020,4,26" style="">26</td><td class="calendar-day " abbr="2020,4,27" style="">27</td><td class="calendar-day " abbr="2020,4,28" style="">28</td><td class="calendar-day " abbr="2020,4,29" style="">29</td><td class="calendar-day " abbr="2020,4,30" style="">30</td><td class="calendar-day calendar-other-month " abbr="2020,5,1" style="">1</td><td class="calendar-day calendar-other-month calendar-saturday calendar-last " abbr="2020,5,2" style="">2</td></tr><tr class="calendar-last"><td class="calendar-day calendar-other-month calendar-sunday calendar-first " abbr="2020,5,3" style="">3</td><td class="calendar-day calendar-other-month " abbr="2020,5,4" style="">4</td><td class="calendar-day calendar-other-month " abbr="2020,5,5" style="">5</td><td class="calendar-day calendar-other-month " abbr="2020,5,6" style="">6</td><td class="calendar-day calendar-other-month " abbr="2020,5,7" style="">7</td><td class="calendar-day calendar-other-month " abbr="2020,5,8" style="">8</td><td class="calendar-day calendar-other-month calendar-saturday calendar-last " abbr="2020,5,9" style="">9</td></tr></tbody></table><div class="calendar-menu" style="display: none;"><div class="calendar-menu-year-inner"><span class="calendar-nav calendar-menu-prev"></span><span><input class="calendar-menu-year" type="text"></span><span class="calendar-nav calendar-menu-next"></span></div><div class="calendar-menu-month-inner"></div></div></div></div></div><div class="datebox-button" style="width: 238px;"><table cellspacing="0" cellpadding="0" style="width:100%"><tbody><tr><td style="width: 50%;"><a class="datebox-button-a" href="javascript:;" datebox-button-index="0">今天</a></td><td style="width: 50%;"><a class="datebox-button-a" href="javascript:;" datebox-button-index="1">清空</a></td></tr></tbody></table></div></div></div><div id="edui_fixedlayer" class="edui-default" style="position: fixed; left: 0px; top: 0px; width: 0px; height: 0px; z-index: 10000;"><div id="edui131" class="edui-popup  edui-bubble edui-default" onmousedown="return false;" style="display: none;"> <div id="edui131_body" class="edui-popup-body edui-default"> <iframe style="position:absolute;z-index:-1;left:0;top:0;background-color: transparent;" frameborder="0" width="100%" height="100%" src="./saved_resource(1).html" class="edui-default"></iframe> <div class="edui-shadow edui-default"></div> <div id="edui131_content" class="edui-popup-content edui-default">  </div> </div></div></div></body></html>

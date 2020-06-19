@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<!-- saved from url=(0065)http://xhu.co.cnki.net/Notice/ShowList.html?r=0.09019450991627309 -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <link rel="stylesheet" href="./easyui(2).css">
+    <script type="text/javascript" src="./jquery.min(2).js"></script>
+    <script type="text/javascript" src="./jquery.cookie(2).js"></script>
+    <script type="text/javascript" src="./jquery.extend(2).js"></script>
+    <script type="text/javascript" src="./jquery.easyui.min(2).js"></script>
+    <script type="text/javascript" src="./common(2).js"></script>
+    <script type="text/javascript" src="./constant(2).js"></script>
+    <script type="text/javascript" src="./JSEncrypt(2).js"></script>
+    <!--[if lt IE 9]>
+        <script type="text/javascript" src="../Scripts/json2.js?r=2020042213495838"></script>
+    <![endif]-->
+    <link rel="stylesheet" href="./base(2).css">
+    <script type="text/javascript" src="./cnkiPager.js"></script>
+    <link href="./cnkiPager.css" rel="stylesheet">
+    <link rel="stylesheet" href="./Login.css">
+
+</head>
+<body>
+    <div class="main gxf_teacher_container">
+        <div class="gxf_teacher_tabs">
+            <ul id="ulNoticeTabs" class="clearfix"><li><a href="javascript:SwitchTab(&quot;0&quot;,&quot;1247&quot;,&quot;0&quot;);" class="active">操作指南</a></li><li><a href="javascript:SwitchTab(&quot;1&quot;,&quot;1236&quot;,&quot;0&quot;);">学校通知公告</a></li><li><a href="javascript:SwitchTab(&quot;2&quot;,&quot;1246&quot;,&quot;0&quot;);">资料下载</a></li><li><a href="javascript:SwitchTab(&quot;3&quot;,&quot;1245&quot;,&quot;0&quot;);">毕业论文（设计）管理文件</a></li></ul>
+        </div>
+        <div id="Ncontent" class="Ncontent clearfix" style="width: 100%">
+            <!--右侧展示-->
+            <div id="divModeList" class="NRnews" style="display: none;width: 100%; padding: 0;border:0;">
+                <!--<h2>通知公告</h2>-->
+                <ul id="ulNoticeList" class="Narticlelist clearfix" style="padding-left: 10px;"></ul>
+
+                <div id="noticeListPager" class="cnkipager" style="width: 100%; float: right; text-align: right; line-height: 30px; margin-top: 30px; margin-right: 30px; font-size: 12px;">&nbsp;<span class="disabled">首页</span><span class="disabled">上一页</span><span class="curr">1</span><span class="disabled">下一页</span><span class="disabled">尾页</span>&nbsp;<span class="normalsize">共1页/0条数据</span></div>
+            </div>
+
+            <!--右1035侧展示 第2种样式-->
+            <div id="divModeContent" class="NRnews-two" style="display: none; width: 100%; padding: 0; border: 0;">
+                <!--<h2 style="padding-left: 30px;">通知公告</h2>-->
+                <div id="contentList" style="padding: 0 20px"></div>
+
+                <div id="noticeListPager2" class="cnkipager" style="width: 100%; float: right; text-align: right; line-height: 30px; margin-top: 30px; margin-right: 30px; font-size: 12px;">&nbsp;<span class="disabled">首页</span><span class="disabled">上一页</span><span class="curr">1</span><span class="disabled">下一页</span><span class="disabled">尾页</span>&nbsp;<span class="normalsize">共1页/0条数据</span></div>
+            </div>
+
+            <div id="noContent" style="color: red; min-height: 200px; text-align: left; padding-left: 30px;">该公告类型下暂未发布公告内容</div>
+        </div>
+    </div>
+    <script>
+        $(function() {
+            function showHide(idx) {
+                $(".gxf_tacher_content>.teacher_tabs_container").hide();
+                $(".gxf_tacher_content>.teacher_tabs_container").eq(idx).show();
+            }
+
+            showHide(0);
+            $(".gxf_teacher_tabs>ul>li").on('click', function() {
+                var idx = $(this).index();
+                $(".gxf_teacher_tabs>ul>li a").removeClass("active");
+                $(".gxf_teacher_tabs>ul>li a").eq(idx).addClass("active");
+                showHide(idx);
+            });
+
+            //分页设置布局
+            $('#teacher-page').pagination({
+                layout: ['first', 'prev', 'sep', 'manual', 'sep', 'next', 'last']
+            });
+
+            InitPager();
+            getNoticeTypeList();
+        });
+
+        var globalTypeId = "";//当前选中的公告类型
+        var globalVisibleType = "";//当前选中的显示模式
+        var curRoleId = get_current_role();//当前角色id
+
+        //获取上方tabs公告类型
+        function getNoticeTypeList() {
+            $.ajax({
+                url: "../Handler/NoticesHandler.ashx?rd=" + Math.random(),
+                data: { "action": "GetCurYearNoticeType" },
+                async: false,
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                    if (data.isSuccess) {
+                        var json = data.rows;
+                        var count = data.total;
+                        globalTypeId = json[0].ID;
+                        globalVisibleType = json[0].显示模式;
+
+                        var str = "";
+                        $.each(json, function (index, item) {
+                            str += "<li><a href='javascript:SwitchTab(\"" + index + "\",\"" + item.ID + "\",\"" + item.显示模式 + "\");'>" + item.名称 + "</a></li>";
+                        });
+                        $("#ulNoticeTabs").empty();
+                        $("#ulNoticeTabs").append(str);
+                        $(".gxf_teacher_tabs>ul>li a").eq(0).addClass("active");
+                    } else {
+                        console.log(data.message);
+                    }
+                },
+                complete: function () {
+                    //上方公告类型加载完毕后,加载下方公告列表
+                    getNoticeListByTypeId(globalTypeId, globalVisibleType);
+                }
+            });
+        }
+
+        //初始化分页控件
+        function InitPager() {
+            var pageSize = 20;
+            window.noticeListPager = new CNKIPager("noticeListPager", pageSize);
+            noticeListPager.click = function (n) {
+                this.selectPage(n);
+                noticeListPager.selectPage(n);
+                getNoticeListByTypeId(globalTypeId, globalVisibleType);
+            }
+            noticeListPager.generPagerControl(noticeListPager);
+
+            window.noticeListPager2 = new CNKIPager("noticeListPager2", 3);
+            noticeListPager2.click = function (n) {
+                this.selectPage(n);
+                noticeListPager2.selectPage(n);
+                getNoticeListByTypeId(globalTypeId, globalVisibleType);
+            }
+            noticeListPager2.generPagerControl(noticeListPager2);
+        }
+
+        //按照公告类型加载公告列表
+        function getNoticeListByTypeId(id, type) {
+            $("#noContent").hide();
+            var roleAcademyId = get_role_academyId();//当前角色学院编号
+            var pn = 1;
+            var ps = 10;
+            if (type == 1) {
+                pn = noticeListPager2.getPageIndex();
+                ps = noticeListPager2.getPageSize();
+            } else {
+                pn = noticeListPager.getPageIndex();
+                ps = noticeListPager.getPageSize();
+            }
+            $.ajax({
+                url: "../Handler/NoticesHandler.ashx",
+                data: {
+                    action: "GetNoticesTitleList",
+                    typeID: id,
+                    visibleType: type,
+                    page: pn,
+                    rows: ps
+                },
+                async: false,
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                    if (data.isSuccess) {
+                        var json = data.rows;
+                        var showMode = json[0].显示模式;
+                        var str = "";
+
+                        $.each(json, function (index, item) {
+                            var title = item["标题"];
+                            if (title.length > 50) {
+                                title = title.substring(0, 50) + "....";
+                            }
+                            var publishRange = item["发布范围"];
+                            var academyId = item["学院编号"];
+
+                            //标题+内容(附件)
+                            if (showMode == 1) {
+                                $("#divModeList").css("display", "none");
+                                $("#divModeContent").css("display", "block");
+                                if (curRoleId == "2") {
+                                    if (publishRange == "0" || publishRange == "4" || ((publishRange == "2" || publishRange == "5") && academyId == roleAcademyId)) {
+                                        str += "<div class=\"NRparticular\" style=\"border-bottom:1px solid #e0e0e0;\"><h4><i class=\"rhombus\"></i>" + title + "<span>[" + dateFormat(item.创建时间, "yyyy-MM-dd") + "]</span></h4><p style=\"text-indent: 2em; margin-top: 14px;\">" + retrieveUnequa(item.内容);
+
+                                        if (item.文件名 != null) {
+                                            var wjArr = item.文件名.split(";");
+                                            var fjArr = item.附件.split(";");
+                                            for (var i = 0; i < wjArr.length; i++) {
+                                                str += "<div><a style='font-weight: 400' class=\"Ndownload\" href=\"" + fjArr[i] + "\"><i class=\"\"></i>下载</a><a style='font-weight: 400' href=\"" + fjArr[i] + "\">" + wjArr[i] + "</a></div>";
+                                            }
+                                        }
+                                        str += "</p></div>";
+                                    }
+                                } else if (curRoleId == "1") {
+                                    str += "<div class=\"NRparticular\" style=\"border-bottom:1px solid #e0e0e0;\"><h4><i class=\"rhombus\"></i>" + title + "<span>[" + dateFormat(item.创建时间, "yyyy-MM-dd") + "]</span></h4><p style=\"text-indent: 2em; margin-top: 14px;\">" + retrieveUnequa(item.内容);
+
+                                    if (item.文件名 != null) {
+                                        var wjArr = item.文件名.split(";");
+                                        var fjArr = item.附件.split(";");
+                                        for (var i = 0; i < wjArr.length; i++) {
+                                            str += "<div><a style='font-weight: 400' class=\"Ndownload\" href=\"" + fjArr[i] + "\"><i class=\"\"></i>下载</a><a style='font-weight: 400' href=\"" + fjArr[i] + "\">" + wjArr[i] + "</a></div>";
+                                        }
+                                    }
+                                    str += "</p></div>";
+                                } else {
+                                    if (publishRange == "0" || publishRange == "1" || (publishRange == "2" && academyId == roleAcademyId) || (publishRange == "3" && academyId == roleAcademyId)) {
+                                        str += "<div class=\"NRparticular\" style=\"border-bottom:1px solid #e0e0e0;\"><h4><i class=\"rhombus\"></i>" + title + "<span>[" + dateFormat(item.创建时间, "yyyy-MM-dd") + "]</span></h4><p style=\"text-indent: 2em; margin-top: 14px;\">" + retrieveUnequa(item.内容);
+
+                                        if (item.文件名 != null) {
+                                            var wjArr = item.文件名.split(";");
+                                            var fjArr = item.附件.split(";");
+                                            for (var i = 0; i < wjArr.length; i++) {
+                                                str += "<div><a style='font-weight: 400' class=\"Ndownload\" href=\"" + fjArr[i] + "\"><i class=\"\"></i>下载</a><a style='font-weight: 400' href=\"" + fjArr[i] + "\">" + wjArr[i] + "</a></div>";
+                                            }
+                                        }
+                                        str += "</p></div>";
+                                    }
+                                }
+                            } else {
+                                $("#divModeList").css("display", "block");
+                                $("#divModeContent").css("display", "none");
+                                //根据发布范围和当前角色判断是否显示每条公告
+                                //发布范围(0:全校师生;1:全校教师;2:全院师生;3:全院教师)
+                                if (curRoleId == "2") {
+                                    if (publishRange == "0" || publishRange == "4") {
+                                        str += '<li><p><a href="javascript:openframe(\'查看通知公告\', \'Notice/Details.html?noticeId=' + item.ID + '&typeId=' + id + '\',false)">' + title + '</a>';
+                                    } else if ((publishRange == "2" || publishRange == "5") && academyId == roleAcademyId) {
+                                        str += '<li><p><a href="javascript:openframe(\'查看通知公告\', \'Notice/Details.html?noticeId=' + item.ID + '&typeId=' + id + '\',false)">' + title + '</a>';
+                                    }
+                                } else if (curRoleId == "1") {
+                                    str += '<li><p><a href="javascript:openframe(\'查看通知公告\', \'Notice/Details.html?noticeId=' + item.ID + '&typeId=' + id + '\',false)">' + title + '</a>';
+                                } else {
+                                    if (publishRange == "0" || publishRange == "1" || (publishRange == "2" && academyId == roleAcademyId) || (publishRange == "3" && academyId == roleAcademyId)) {
+                                        str += '<li><p><a href="javascript:openframe(\'查看通知公告\', \'Notice/Details.html?noticeId=' + item.ID + '&typeId=' + id + '\',false)">' + title + '</a>';
+                                    }
+                                }
+                            }
+                        });
+
+                        if (showMode == 1) {
+                            noticeListPager2.totalRecords = data.total;
+                            noticeListPager2.generPagerControl(noticeListPager2);
+                            $("div .NRparticular").remove();
+                            $("#contentList").append(str);
+                        } else {
+                            noticeListPager.totalRecords = data.total;
+                            noticeListPager.generPagerControl(noticeListPager);
+                            $("#ulNoticeList").empty();
+                            $("#ulNoticeList").append(str);
+                        }
+                    } else {
+                        $("#divModeList").hide();
+                        $("#divModeContent").hide();
+                        $("#noContent").html("该公告类型下暂未发布公告内容");
+                        $("#noContent").show();
+                    }
+                },
+                complete: function () {
+                }
+            });
+        }
+
+        //切换上方Tab事件
+        function SwitchTab(index, typeId, visibleType) {
+            $("#ulNoticeTabs>li a").removeClass("active");
+            $("#ulNoticeTabs>li a").eq(index).addClass("active");
+            noticeListPager2.totalRecords = 0;
+            noticeListPager2.generPagerControl(noticeListPager2);
+            noticeListPager.totalRecords = 0;
+            noticeListPager.generPagerControl(noticeListPager);
+
+            globalTypeId = typeId;
+            globalVisibleType = visibleType;
+            getNoticeListByTypeId(typeId, visibleType);
+        }
+    </script>
+
+
+<div class="panel window panel-htop" style="display: none; width: 400px; left: 1px; top: 1px; z-index: 9002;"><div class="panel-header panel-header-noborder window-header" style="width: 392px;"><div class="panel-title">提示</div><div class="panel-tool"></div></div></div><div class="window-shadow" style="display: none; left: 1px; top: 1px; width: 400px; height: 3px; z-index: 9001;"></div><div class="window-mask" style="display: none; z-index: 9000; position: fixed;"></div></body></html>

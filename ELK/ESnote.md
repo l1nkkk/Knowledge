@@ -36,6 +36,15 @@
     - [权重](#%E6%9D%83%E9%87%8D)
   - [ES集群](#ES%E9%9B%86%E7%BE%A4)
     - [集群节点](#%E9%9B%86%E7%BE%A4%E8%8A%82%E7%82%B9)
+- [粗糙](#%E7%B2%97%E7%B3%99)
+- [filebeat](#filebeat)
+  - [读取文件](#%E8%AF%BB%E5%8F%96%E6%96%87%E4%BB%B6)
+  - [添加自定义字段](#%E6%B7%BB%E5%8A%A0%E8%87%AA%E5%AE%9A%E4%B9%89%E5%AD%97%E6%AE%B5)
+  - [传到es中](#%E4%BC%A0%E5%88%B0es%E4%B8%AD)
+  - [工作原理](#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86)
+  - [读取nginx文件](#%E8%AF%BB%E5%8F%96nginx%E6%96%87%E4%BB%B6)
+  - [nginx](#nginx)
+- [启动](#%E5%90%AF%E5%8A%A8-1)
 # 简介
 
 未来发布的elasticsearch 6.0.0版本为保持兼容，仍然会支持单index，多type结构，但是作者已不推荐这么设置。在elasticsearch 7.0.0版本必须使用单index,单type，多type结构则会完全移除。
@@ -169,7 +178,7 @@ bootstrap.system_call_filter: false
 
 ## Elasticsearch-head
 - 源码安装,通过npm run start启动(不推荐)
-- 通过docker安装(推荐)
+- 通过docker安装(推荐，但是只支持到了5，后面的版本不支持了)
 - 通过chrome插件安装(推荐)
 - 通过ES的plugin方式安装(不推荐)
 
@@ -239,6 +248,9 @@ Elasticsearch可以把索引存放在一台机器或者分散在多台服务器�
 
 - 创建test索引：PUT http://ip:9200/test
 - send
+  - 参数：
+    - "number_of_shards":"2" // 分片数
+    - "number_of_replicas":"0" // 副本数
 ```json
 {
   "settings":{
@@ -256,7 +268,6 @@ Elasticsearch可以把索引存放在一台机器或者分散在多台服务器�
     "shards_acknowledged": true,
     "index": "test"
 }
-
 ```
 
 
@@ -362,9 +373,9 @@ Elasticsearch可以把索引存放在一台机器或者分散在多台服务器�
   - send
 ```json
 {
-    "doc":{
-        "age":23
-    }
+  "doc":{
+      "age":23
+  }
 }
 ```
 
@@ -1099,3 +1110,123 @@ ELasticsearch的集群是由多个节点组成的,通过cluster.name设置集群
 
 - 部落节点
   - 当一个节点配置tribe.*的时候,它是一个特殊的客户端,它可以连接多个集群,在所有连接的集群上执行搜索和其他操作。
+
+
+# 粗糙
+- 收集nginx的运行指标（连接数，总连接数）和运行日志
+
+<div align="center">
+<img src="pic/11.png">
+</div>
+
+- ElasticStack技术栈
+<div align="center">
+<img src="pic/12.png">
+</div>
+
+# filebeat
+下载
+
+```yml
+filebeat.inputs:
+- type: stdin
+  enabled: true
+setup.template.settings:
+  index.number_of_shards: 1
+output.console:
+  pretty: true
+  enable: true
+```
+- 启用标准输入，输出到控制台
+
+- 启动：` ./filebeat  -e -c itcast.yml `
+- 架构和部署
+
+
+- 参数
+  - e：输出到标准输出，默认输出
+  - c：指定配置文件
+  - d：输出debug信息，可以查看输出，方便调试
+## 读取文件
+
+```yml
+filebeat.inputs:
+- type: log
+  enabled: true
+  path:
+    - /
+setup.template.settings:
+  index.number_of_shards: 1
+output.console:
+  pretty: true
+  enable: true
+```
+
+## 添加自定义字段
+
+## 传到es中
+
+```yml
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /home/l1nkkk/opt/testlog/*.log
+  tags: ["web","test"]
+setup.template.settings:
+  index.number_of_shards: 1
+output.console:
+  hosts: ["39.107.83.89"]
+```
+## 工作原理
+
+## 读取nginx文件
+
+## nginx
+```yml
+#filebeat.inputs:
+#- type: log
+#  enabled: true
+#  paths:
+#    - /var/log/nginx/*.log
+#  tags: ["nginx"]
+setup.template.settings:
+  index.number_of_shards: 1
+output.elasticsearch:
+  hosts: ["39.107.83.89"]
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*yml
+  reload.enable: false
+
+```
+
+
+```yml
+filebeat.inputs:
+#- type: log
+#  enabled: true
+#  paths:
+#    - /var/log/nginx/*.log
+#  tags: ["nginx"]
+setup.template.settings:
+  index.number_of_shards: 1
+output.elasticsearch:
+  hosts: ["39.107.83.89"]
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+```
+
+# 启动
+nohup ./kibana/bin/kibana &  
+./metricbeat -e  
+./filebeat  -e -c itcast-nginx.yml  
+vim ./kibana/config/kibana.yml  
+
+ ./metricbeat setup --dashboards 安装仪表盘
+
+ # 开发者工具
+ <div align="center">
+<img src="pic/14.png">
+</div>

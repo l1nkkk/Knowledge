@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<!-- saved from url=(0097)http://xhu.co.cnki.net/Student/SubmitGuideRecord.html?prevTitle=%u9996%u9875&r=0.7431527419997419 -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script type="text/javascript" src="./jquery.min(3).js"></script>
+    <script type="text/javascript" src="./jquery.cookie(3).js"></script>
+    <script type="text/javascript" src="./jquery.extend(3).js"></script>
+    <script type="text/javascript" src="./jquery.easyui.min(3).js"></script>
+    <script type="text/javascript" src="./common(3).js"></script>
+    <script type="text/javascript" src="./constant(3).js"></script>
+    <script type="text/javascript" src="./audit.js"></script>
+    <script type="text/javascript" src="./Dictionary(2).js"></script>
+    <script type="text/javascript" src="./JSEncrypt(3).js"></script>
+    <!--[if lt IE 9]>
+        <script type="text/javascript" src="../Scripts/json2.js?r=2020042213495310"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" href="./base(3).css">
+    <link rel="stylesheet" href="./easyui(3).css">
+
+    <title>提交指导记录-- 学生角色</title>
+</head>
+<body>
+    <!-- 时间限制提示 -->
+    <div id="timeLimit" class="gxf_tips" style="display:none;">
+        <div class="gxf_tip">
+            <i></i>信息提示
+        </div>
+        <div>
+            <p style="margin-top: 10px; font-size:14px;" id="timeText"></p>
+        </div>
+    </div>
+    <div class="main" id="main">
+        <!-- 题目基本信息 -->
+        <div id="gxf-project-information"><div class="gxf_problem gxf_problem_detail"><div><h2><span></span>题目基本信息</h2></div><div class="gxf_pro_content gxf_content_table"><ul class="clearfix gxf_project_detadil_ul"><li style="width:100%;position: relative;padding: 0;padding-left: 120px;box-sizing: border-box;   -moz-box-sizing: border-box;-webkit-box-sizing: border-box;-o-box-sizing: border-box;-ms-box-sizing: border-box;"><div style="position: absolute;left: 0; width: 120px; text-align: right; line-height: 30px;"> 题目：</div><div style="width:100%;" class="detadil_txt_right proTitle"><span>基于微服务的安全管理监控分析系统</span></div></li><li><span class="detadil_txt_left"> 可选专业：</span><span class="detadil_txt_right" title="计算机与软件工程学院(信息安全)">计算机与软件工程学院(信息安全)</span></li><li><span class="detadil_txt_left"> 题目申报时间：</span><span class="detadil_txt_right">2019-11-14</span></li><li><span class="detadil_txt_left"> 题目类型：</span><span class="detadil_txt_right">应用研究</span></li><li><span class="detadil_txt_left"> 题目来源：</span><span class="detadil_txt_right">其他</span></li><li><span class="detadil_txt_left"> 选择模式：</span><span class="detadil_txt_right">团队课题</span></li><li><span class="detadil_txt_left"> 题目所属专业：</span><span class="detadil_txt_right">计算机与软件工程学院-信息安全</span></li><li><span class="detadil_txt_left"> 指导教师：</span><span class="detadil_txt_right">牛宪华（0120120029）(组长)</span></li><li><span class="detadil_txt_left"> 教师职称：</span><span class="detadil_txt_right">教授</span></li><li><span class="detadil_txt_left"> 导师联系邮箱：</span><span class="detadil_txt_right"></span></li><li><span class="detadil_txt_left"> 学生姓名：</span><span class="detadil_txt_right">钟俊吉（3120160906111）,周鑫（3120160906119）,李锐平（3120160906124）,林庆（3120160906129）</span></li><li><span class="detadil_txt_left"> 学生院系专业：</span><span class="detadil_txt_right">计算机与软件工程学院-信息安全</span></li></ul></div></div></div>
+
+        <div class="gxf_problem gxf_problem_require">
+            <div id="tit"><h2><span></span>学生<i class="dictionary_3">指导记录</i>列表</h2></div>
+            <div id="Submit_GuideRecord" style="margin-bottom:10px;display:none;">
+                <input id="submit" class="formBtn" type="button" value="添加指导记录">
+            </div>
+
+            <div id="div_talble" class="table" style="width:100%;">
+                <div class="panel datagrid panel-htop easyui-fluid" style="width: 1629px;"><div class="datagrid-wrap panel-body panel-body-noheader" title="" style="width: 1627px;"><div class="datagrid-view" style="width: 1627px; height: 596px;"><div class="datagrid-view1" style="width: 30px;"><div class="datagrid-header" style="width: 30px; height: 34px;"><div class="datagrid-header-inner" style="display: block;"><table class="datagrid-htable" border="0" cellspacing="0" cellpadding="0" style="height: 35px;"><tbody><tr class="datagrid-header-row"><td rowspan="0"><div class="datagrid-header-rownumber"></div></td></tr></tbody></table></div></div><div class="datagrid-body" style="width: 30px; margin-top: 0px; height: 560px;"><div class="datagrid-body-inner"><table class="datagrid-btable" cellspacing="0" cellpadding="0" border="0" style=""><tbody><tr id="datagrid-row-r1-1-0" datagrid-row-index="0" class="datagrid-row"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">1</div></td></tr><tr id="datagrid-row-r1-1-1" datagrid-row-index="1" class="datagrid-row datagrid-row-alt "><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">2</div></td></tr><tr id="datagrid-row-r1-1-2" datagrid-row-index="2" class="datagrid-row"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">3</div></td></tr><tr id="datagrid-row-r1-1-3" datagrid-row-index="3" class="datagrid-row datagrid-row-alt "><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">4</div></td></tr><tr id="datagrid-row-r1-1-4" datagrid-row-index="4" class="datagrid-row"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">5</div></td></tr><tr id="datagrid-row-r1-1-5" datagrid-row-index="5" class="datagrid-row datagrid-row-alt"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">6</div></td></tr><tr id="datagrid-row-r1-1-6" datagrid-row-index="6" class="datagrid-row"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">7</div></td></tr><tr id="datagrid-row-r1-1-7" datagrid-row-index="7" class="datagrid-row datagrid-row-alt"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">8</div></td></tr><tr id="datagrid-row-r1-1-8" datagrid-row-index="8" class="datagrid-row"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">9</div></td></tr><tr id="datagrid-row-r1-1-9" datagrid-row-index="9" class="datagrid-row datagrid-row-alt"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">10</div></td></tr><tr id="datagrid-row-r1-1-10" datagrid-row-index="10" class="datagrid-row"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">11</div></td></tr><tr id="datagrid-row-r1-1-11" datagrid-row-index="11" class="datagrid-row datagrid-row-alt"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">12</div></td></tr><tr id="datagrid-row-r1-1-12" datagrid-row-index="12" class="datagrid-row"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">13</div></td></tr><tr id="datagrid-row-r1-1-13" datagrid-row-index="13" class="datagrid-row datagrid-row-alt"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">14</div></td></tr><tr id="datagrid-row-r1-1-14" datagrid-row-index="14" class="datagrid-row"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">15</div></td></tr><tr id="datagrid-row-r1-1-15" datagrid-row-index="15" class="datagrid-row datagrid-row-alt datagrid-row-checked datagrid-row-selected"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">16</div></td></tr><tr id="datagrid-row-r1-1-16" datagrid-row-index="16" class="datagrid-row datagrid-row-checked datagrid-row-selected"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">17</div></td></tr><tr id="datagrid-row-r1-1-17" datagrid-row-index="17" class="datagrid-row datagrid-row-alt"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">18</div></td></tr><tr id="datagrid-row-r1-1-18" datagrid-row-index="18" class="datagrid-row"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">19</div></td></tr><tr id="datagrid-row-r1-1-19" datagrid-row-index="19" class="datagrid-row datagrid-row-alt"><td class="datagrid-td-rownumber"><div class="datagrid-cell-rownumber">20</div></td></tr></tbody></table></div></div><div class="datagrid-footer" style="width: 30px;"><div class="datagrid-footer-inner" style="display: block;"><table class="datagrid-ftable" cellspacing="0" cellpadding="0" border="0" style=""><tbody></tbody></table></div></div></div><div class="datagrid-view2" style="width: 1597px;"><div class="datagrid-header" style="width: 1597px; height: 34px;"><div class="datagrid-header-inner" style="display: block;"><table class="datagrid-htable" border="0" cellspacing="0" cellpadding="0" style="height: 35px;"><tbody><tr class="datagrid-header-row"><td field="名称"><div class="datagrid-cell datagrid-cell-c1-名称" style="text-align: center;"><span>题目</span><span class="datagrid-sort-icon"></span></div></td><td field="创建时间"><div class="datagrid-cell datagrid-cell-c1-创建时间" style="text-align: center;"><span>提交时间</span><span class="datagrid-sort-icon"></span></div></td><td field="指导记录提交次数"><div class="datagrid-cell datagrid-cell-c1-指导记录提交次数" style="text-align: center;"><span>提交次序</span><span class="datagrid-sort-icon"></span></div></td><td field="审核"><div class="datagrid-cell datagrid-cell-c1-审核" style="text-align: center;"><span>审核状态</span><span class="datagrid-sort-icon"></span></div></td><td field="成绩" style="display: none;"><div class="datagrid-cell datagrid-cell-c1-成绩" style="text-align: center;"><span>平时成绩</span><span class="datagrid-sort-icon"></span></div></td><td field="操作"><div class="datagrid-cell datagrid-cell-c1-操作" style="text-align: center;"><span>操作 </span><span class="datagrid-sort-icon"></span></div></td></tr></tbody></table></div></div><div class="datagrid-body" style="width: 1597px; margin-top: 0px; height: 560px; overflow-x: hidden;"><table class="datagrid-btable" cellspacing="0" cellpadding="0" border="0" style=""><tbody><tr id="datagrid-row-r1-2-0" datagrid-row-index="0" class="datagrid-row"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-03-07 21:56:26</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">1</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_green">审核通过</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=203904&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;</div></td></tr><tr id="datagrid-row-r1-2-1" datagrid-row-index="1" class="datagrid-row datagrid-row-alt "><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-03-11 20:51:05</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">2</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_green">审核通过</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=204471&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;</div></td></tr><tr id="datagrid-row-r1-2-2" datagrid-row-index="2" class="datagrid-row"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-03-16 10:38:48</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">3</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_green">审核通过</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=206339&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;</div></td></tr><tr id="datagrid-row-r1-2-3" datagrid-row-index="3" class="datagrid-row datagrid-row-alt "><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-03-20 14:28:29</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">4</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_green">审核通过</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=208734&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;</div></td></tr><tr id="datagrid-row-r1-2-4" datagrid-row-index="4" class="datagrid-row"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-03-22 20:00:25</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">5</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_green">审核通过</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=210206&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;</div></td></tr><tr id="datagrid-row-r1-2-5" datagrid-row-index="5" class="datagrid-row datagrid-row-alt"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-03-25 15:52:41</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">6</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_green">审核通过</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=211993&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;</div></td></tr><tr id="datagrid-row-r1-2-6" datagrid-row-index="6" class="datagrid-row"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-03-29 14:12:10</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">7</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_green">审核通过</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=213878&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;</div></td></tr><tr id="datagrid-row-r1-2-7" datagrid-row-index="7" class="datagrid-row datagrid-row-alt"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-04-02 17:24:27</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">8</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_green">审核通过</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=215837&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;</div></td></tr><tr id="datagrid-row-r1-2-8" datagrid-row-index="8" class="datagrid-row"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-04-10 18:16:27</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">9</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_yellow">等待指导教师审核</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=219134&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;<a class="listA" href="javascript:openframe(&#39;修改指导记录&#39;, &#39;Student/AddGuideRecord.html?sid=120421927&amp;ProjectId=87968&amp;LogID=219134&amp;stuAcademyNum=null&amp;tid=null&amp;flag=1&amp;num=20&#39;,false)">修改</a></div></td></tr><tr id="datagrid-row-r1-2-9" datagrid-row-index="9" class="datagrid-row datagrid-row-alt"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-04-15 15:59:57</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">10</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_yellow">等待指导教师审核</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=222363&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;<a class="listA" href="javascript:openframe(&#39;修改指导记录&#39;, &#39;Student/AddGuideRecord.html?sid=120421927&amp;ProjectId=87968&amp;LogID=222363&amp;stuAcademyNum=null&amp;tid=null&amp;flag=1&amp;num=20&#39;,false)">修改</a></div></td></tr><tr id="datagrid-row-r1-2-10" datagrid-row-index="10" class="datagrid-row"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-04-23 19:47:07</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">11</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_yellow">等待指导教师审核</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=228108&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;<a class="listA" href="javascript:openframe(&#39;修改指导记录&#39;, &#39;Student/AddGuideRecord.html?sid=120421927&amp;ProjectId=87968&amp;LogID=228108&amp;stuAcademyNum=null&amp;tid=null&amp;flag=1&amp;num=20&#39;,false)">修改</a></div></td></tr><tr id="datagrid-row-r1-2-11" datagrid-row-index="11" class="datagrid-row datagrid-row-alt"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-04-23 23:33:13</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">12</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_yellow">等待指导教师审核</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=228263&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;<a class="listA" href="javascript:openframe(&#39;修改指导记录&#39;, &#39;Student/AddGuideRecord.html?sid=120421927&amp;ProjectId=87968&amp;LogID=228263&amp;stuAcademyNum=null&amp;tid=null&amp;flag=1&amp;num=20&#39;,false)">修改</a></div></td></tr><tr id="datagrid-row-r1-2-12" datagrid-row-index="12" class="datagrid-row"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-04-24 23:28:58</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">13</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_yellow">等待指导教师审核</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=228795&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;<a class="listA" href="javascript:openframe(&#39;修改指导记录&#39;, &#39;Student/AddGuideRecord.html?sid=120421927&amp;ProjectId=87968&amp;LogID=228795&amp;stuAcademyNum=null&amp;tid=null&amp;flag=1&amp;num=20&#39;,false)">修改</a></div></td></tr><tr id="datagrid-row-r1-2-13" datagrid-row-index="13" class="datagrid-row datagrid-row-alt"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-05-15 18:05:12</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">14</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_yellow">等待指导教师审核</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=244601&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;<a class="listA" href="javascript:openframe(&#39;修改指导记录&#39;, &#39;Student/AddGuideRecord.html?sid=120421927&amp;ProjectId=87968&amp;LogID=244601&amp;stuAcademyNum=null&amp;tid=null&amp;flag=1&amp;num=20&#39;,false)">修改</a></div></td></tr><tr id="datagrid-row-r1-2-14" datagrid-row-index="14" class="datagrid-row"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-05-15 18:13:25</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">15</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_yellow">等待指导教师审核</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=244635&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;<a class="listA" href="javascript:openframe(&#39;修改指导记录&#39;, &#39;Student/AddGuideRecord.html?sid=120421927&amp;ProjectId=87968&amp;LogID=244635&amp;stuAcademyNum=null&amp;tid=null&amp;flag=1&amp;num=20&#39;,false)">修改</a></div></td></tr><tr id="datagrid-row-r1-2-15" datagrid-row-index="15" class="datagrid-row datagrid-row-alt datagrid-row-checked datagrid-row-selected"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间">2020-05-19 22:34:28</div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">16</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class="txt_yellow">等待指导教师审核</span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;指导记录详情&#39;, &#39;../Student/ProjectLogDetail.html?sid=120421927&amp;ProjectId=87968&amp;LogID=255614&amp;stuAcademyNum=null&amp;tid=null&amp;num=20&#39;,false)">查看详情</a>&nbsp;&nbsp;<a class="listA" href="javascript:openframe(&#39;修改指导记录&#39;, &#39;Student/AddGuideRecord.html?sid=120421927&amp;ProjectId=87968&amp;LogID=255614&amp;stuAcademyNum=null&amp;tid=null&amp;flag=1&amp;num=20&#39;,false)">修改</a></div></td></tr><tr id="datagrid-row-r1-2-16" datagrid-row-index="16" class="datagrid-row datagrid-row-checked datagrid-row-selected"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间"></div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">17</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class=""></span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;添加指导记录&#39;, &#39;Student/AddGuideRecord.html?num=17 &#39;,false)">提交</a></div></td></tr><tr id="datagrid-row-r1-2-17" datagrid-row-index="17" class="datagrid-row datagrid-row-alt"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间"></div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">18</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class=""></span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;添加指导记录&#39;, &#39;Student/AddGuideRecord.html?num=18 &#39;,false)">提交</a></div></td></tr><tr id="datagrid-row-r1-2-18" datagrid-row-index="18" class="datagrid-row"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间"></div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">19</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class=""></span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;添加指导记录&#39;, &#39;Student/AddGuideRecord.html?num=19 &#39;,false)">提交</a></div></td></tr><tr id="datagrid-row-r1-2-19" datagrid-row-index="19" class="datagrid-row datagrid-row-alt"><td field="名称"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-名称">基于微服务的安全管理监控分析系统</div></td><td field="创建时间"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-创建时间"></div></td><td field="指导记录提交次数"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-指导记录提交次数">20</div></td><td field="审核"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-审核"><span class=""></span></div></td><td field="成绩" style="display: none;"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-成绩"></div></td><td field="操作"><div style="text-align:center;white-space:normal;height:auto;" class="datagrid-cell datagrid-cell-c1-操作"><a class="listA" href="javascript:openframe(&#39;添加指导记录&#39;, &#39;Student/AddGuideRecord.html?num=20 &#39;,false)">提交</a></div></td></tr></tbody></table></div><div class="datagrid-footer" style="width: 1597px;"><div class="datagrid-footer-inner" style="display: block;"><table class="datagrid-ftable" cellspacing="0" cellpadding="0" border="0" style=""><tbody></tbody></table></div></div></div><table id="list" style="display: none;" class="datagrid-f"> </table><style type="text/css" easyui="true">
+.datagrid-header-rownumber{width:29px}
+.datagrid-cell-rownumber{width:29px}
+.datagrid-cell-c1-名称{width:6px}
+.datagrid-cell-c1-创建时间{width:1px}
+.datagrid-cell-c1-指导记录提交次数{width:1px}
+.datagrid-cell-c1-审核{width:6px}
+.datagrid-cell-c1-成绩{width:1px}
+.datagrid-cell-c1-操作{width:6px}
+</style></div></div></div>
+                
+            </div>
+        </div>
+        <!-- 列表 -->
+    </div>
+
+    <script type="text/javascript">
+        var current_role = get_current_role(); //角色ID
+        var sid = getUrlParam("sid");//sid
+        var tid = getUrlParam("tid");//Tid        
+        var ProjectId = getUrlParam("ProjectId"); //学生题目编号
+        var stuAcademyNum = getUrlParam("stuAcademyNum"); //学生题目编号
+        $(function () {
+            $(".dictionary_3").html(SetDictionary(3));
+            //获取题目基本信息
+            if (current_role == 2) {//学生
+                getProjectInformation("", "task");
+            };
+            if (current_role == 3) {//教师
+                getProjectInformation(ProjectId);
+                paramsData = {
+                    action: "GetProjectLogSystemData",
+                    sid: sid,
+                    ProjectId: ProjectId,
+                    stuAcademyNum: stuAcademyNum
+                };
+            };
+            $.when(GteTable(list, url, columnData, paramsData, idField, false, true))
+                .done(function (data) {
+                    if (data && (data.errorCode == 993 || data.errorCode == 990)) {
+                        myMessage(data.message);
+                        return false;
+                    }
+                    if (data && data.errorCode == 995) {
+                        //没有题目;
+                        if (current_role == 2) {//学生提交
+                            openframe('添加' + SetDictionary(3), 'Student/AddGuideRecord.html?flag=0');
+                        }
+                        if (current_role == 3) {//教师提交
+                            openframe('添加' + SetDictionary(3), 'Student/AddGuideRecord.html?flag=0&sid=' + sid + '&ProjectId=' + ProjectId + '&stuAcademyNum=' + stuAcademyNum + '&tid=' + tid);
+                        }
+                        var tabTitle = getCurrentTabTitle();
+                        closeTab(tabTitle);
+                        return;
+                    };
+                    var rows = $("#list").datagrid("getRows");
+                    //myMessage(rows[1]["指导记录设置"]);&& checkValIsUndefinedOrNull(rows[1]["指导记录设置"])
+                    if (!rows || rows.length <= 0) {
+                        $("#Submit_GuideRecord>input").click();
+                        var tabTitle = getCurrentTabTitle();
+                        closeTab(tabTitle);
+                    };
+                })
+            .fail(function () {
+                myMessage("出错啦！");
+            });
+            GetHideList();//是否显示平时成绩
+            isDateAndSubmitted(); //验证时间和是否显示左上提交按钮
+        });
+       
+        function isDateAndSubmitted() {// 时间限制提示
+            $.ajax({
+                url: "../Handler/ProjectLog.ashx",
+                data: {
+                    "action": "IsSubmittedBtn",
+                    "type": 4,
+                    "sid": sid,
+                    "ProjectId": ProjectId,
+                    "stuAcademyNum": stuAcademyNum
+                },
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                    if (data.isSuccess) {
+                        //是否显示提交按钮
+                        if (data.rows[0]["是否显示提交按钮"] == 1) {
+                            $("#Submit_GuideRecord").show();
+                        } else {
+                            $("#Submit_GuideRecord").hide();
+                        };
+                        if (data.rows[0]["是否有时间限制"] == 1) {
+                            // 到期提交
+                            var nowTime = +(new Date());                         //当前时间毫秒数
+                            var startTime = data.rows[0]["开始时间"].replace(new RegExp("-", "gm"), "/");
+                            startTime = (new Date(startTime)).getTime();        //开始时间毫秒数
+                            var endTime = data.rows[0]["结束时间"].replace(new RegExp("-", "gm"), "/");
+                            endTime = (new Date(endTime)).getTime();        //结束时间毫秒数
+                            
+                            //if (nowTime >= startTime && nowTime <= endTime) {//后台控制是否超时显示按钮
+                            //    $("#Submit_GuideRecord").show();
+                            //} else {
+                            //    $("#Submit_GuideRecord").hide();
+                            //};
+                            $("#timeLimit").show();
+                            //$("#tit").hide();
+                            $("#timeText").html("您所在学校或者院系设置的" + SetDictionary(3)+"提交时间为【 <span style='color:#f00;'>"
+                                + data.rows[0]["开始时间"] + "</span> 至 <span style='color:#f00;'> " + data.rows[0]["结束时间"] + "</span> 】，请在该时间范围内进行操作。");
+                        };
+                        if (!checkValIsUndefinedOrNull(data.message)) {//错误提示
+                            $("#timeText").html(data.message);
+                            $("#tit").hide();
+                            $("#timeLimit").show();
+                        };
+                    } else {
+                        $("#div_talble,#tit").hide();
+                        $("#timeText").html(data.message);
+                        $("#timeLimit").show();
+                    };
+                },
+                error: function (err) {
+                    console.log(err);
+                }
+            });
+        };
+        var rowsrole = GetGrade();
+        var list_pscj = GetGradeNames(10, rowsrole);//平时成绩       
+        //初始化列表
+        var columnData = [[
+            { field: '名称', align: 'center', title: '题目', width: 15 },
+            { field: '创建时间', align: 'center', title: '提交时间', width: 10 },
+            {
+                field: '指导记录提交次数', align: 'center', title: '提交次序', width: 10,
+                formatter: function (value, row, index) {
+                    var str = null;
+                    if (checkValIsUndefinedOrNull(row["指导记录设置"])) {
+                        str = row["指导记录提交次数"];
+                    } else {
+                        if (row["指导记录设置"] == "1" && row["指导记录是否启用时间"] == "1") {
+                            str = row["设置提交次数"] + "<br>";
+                            if (!checkValIsUndefinedOrNull(row["开始时间"]) && !checkValIsUndefinedOrNull(row["结束时间"])) {
+                                str += row["开始时间"] + "--" + row["结束时间"];
+                            }
+                        };
+                        if (row["指导记录设置"] == "1" && row["指导记录是否启用时间"] == "0") {
+                            str = row["指导记录提交次数"];
+                        };
+                    };
+                    return str;
+                }
+            },
+            {
+                field: '审核', align: 'center', title: '审核状态', width: 15,
+                formatter: function (value, row, index) {
+                    var curclass = getAuditCss(row["审核"]);
+                    var words = getAuditStateText(row["审核"], 3);
+                    return "<span class=\"" + curclass + "\">" + words + "</span>";
+                }
+            },
+            {
+                field: '成绩', align: 'center', title: list_pscj, width: 10,
+                formatter: function (value, row, index) {
+                    return row["成绩"] > 0 ? row["成绩"] : '';
+                }
+                
+            },
+            {
+                field: '操作', title: '操作 ', align: 'center', width: 15,
+                formatter: function (value, row, index) {
+                    var str = "";
+                    if (!checkValIsUndefinedOrNull(row["指导记录设置"]) && row["指导记录设置"] == "1" && row["指导记录是否启用时间"] == "1") {//如果管理员开启了次数时间限制
+                        if (!checkValIsUndefinedOrNull(row["是否显示提交按钮"]) && row["是否显示提交按钮"] == "1") {
+                            if (checkValIsUndefinedOrNull(row["ID"])) {
+                                if (current_role == 2) {//学生
+                                    str = '<a class="listA"  href="javascript:openframe(\'添加' + SetDictionary(3)+'\', \'Student/AddGuideRecord.html?num=' + row["设置提交次数"] + ' \',false)">提交</a>';
+                                }
+                                if (current_role == 3) {//教师
+                                    str = '<a class="listA"  href="javascript:openframe(\'添加' + SetDictionary(3)+'\', \'Student/AddGuideRecord.html?num=' + row["设置提交次数"]
+                                        + '&sid=' + sid + '&ProjectId=' + ProjectId + '&stuAcademyNum=' + stuAcademyNum + '&tid=' + tid
+                                        + ' \',false)">提交</a>';
+                                }
+                            } else {
+                                str = '<a class="listA"  href="javascript:openframe(\'' + SetDictionary(3)+'详情\', \'../Student/ProjectLogDetail.html?sid=' + row["SID"] + '&ProjectId=' + row["课题编号"] + '&LogID=' + row["ID"]
+                                     + '&stuAcademyNum=' + stuAcademyNum + '&tid=' + tid + '\',false)">查看详情</a>&nbsp;&nbsp;';
+                                if (row["允许修改"] == 1 || checkValIsUndefinedOrNull(row["审核时间"]) || row["审核"] == -1) {
+                                    str += '<a class="listA"  href="javascript:openframe(\'修改' + SetDictionary(3)+'\', \'Student/AddGuideRecord.html?sid=' + row["SID"] + '&ProjectId=' + row["课题编号"] + '&LogID=' + row["ID"]
+                                        + '&stuAcademyNum=' + stuAcademyNum + '&tid=' + tid + '&flag=1&num=' + row["设置提交次数"] + '\',false)">修改</a>';
+                                };
+                            };
+                        } else {
+                            if (!checkValIsUndefinedOrNull(row["ID"])) {
+                                str = '<a class="listA"  href="javascript:openframe(\'' + SetDictionary(3)+'详情\', \'../Student/ProjectLogDetail.html?sid=' + row["SID"] + '&ProjectId=' + row["课题编号"] + '&LogID=' + row["ID"]
+                                    + '&stuAcademyNum=' + stuAcademyNum + '&tid=' + tid + '&num=' + row["设置提交次数"] + '\',false)">查看详情</a>&nbsp;&nbsp;';
+                                if (row["允许修改"] == 1 || checkValIsUndefinedOrNull(row["审核时间"]) || row["审核"] == -1) {
+                                    str += '<a class="listA"  href="javascript:openframe(\'修改' + SetDictionary(3)+'\', \'Student/AddGuideRecord.html?sid=' + row["SID"] + '&ProjectId=' + row["课题编号"] + '&LogID=' + row["ID"]
+                                        + '&stuAcademyNum=' + stuAcademyNum + '&tid=' + tid + '&flag=1&num=' + row["设置提交次数"] + '\',false)">修改</a>';
+                                };
+                            } else {
+                                str = "";
+                            };
+                        };
+                    } else if (row["指导记录设置"] == "1" && row["指导记录是否启用时间"] == "0") {//开启次数限制 不开启时间控制
+                        if (checkValIsUndefinedOrNull(row["ID"])) {
+                            if (current_role == 2) {//学生
+                                str = '<a class="listA"  href="javascript:openframe(\'添加' + SetDictionary(3)+'\', \'Student/AddGuideRecord.html?num=' + row["指导记录提交次数"] + ' \',false)">提交</a>';
+                            }
+                            if (current_role == 3) {//教师
+                                str = '<a class="listA"  href="javascript:openframe(\'添加' + SetDictionary(3)+'\', \'Student/AddGuideRecord.html?num=' + row["指导记录提交次数"]
+                                    + '&sid=' + sid + '&ProjectId=' + ProjectId + '&stuAcademyNum=' + stuAcademyNum + '&tid=' + tid
+                                    + ' \',false)">提交</a>';
+                            }
+                        } else {
+                            str = '<a class="listA"  href="javascript:openframe(\'' + SetDictionary(3)+'详情\', \'../Student/ProjectLogDetail.html?sid=' + row["SID"] + '&ProjectId=' + row["课题编号"] + '&LogID=' + row["ID"]
+                                + '&stuAcademyNum=' + stuAcademyNum + '&tid=' + tid + '&num=' + row["设置提交次数"] + '\',false)">查看详情</a>&nbsp;&nbsp;';
+                            if (row["允许修改"] == 1 || checkValIsUndefinedOrNull(row["审核时间"]) || row["审核"] == -1) {
+                                str += '<a class="listA"  href="javascript:openframe(\'修改' + SetDictionary(3)+'\', \'Student/AddGuideRecord.html?sid=' + row["SID"] + '&ProjectId=' + row["课题编号"] + '&LogID=' + row["ID"]
+                                    + '&stuAcademyNum=' + stuAcademyNum + '&tid=' + tid + '&flag=1&num=' + row["设置提交次数"] + '\',false)">修改</a>';
+                            };
+                        };
+                    } else {//没有开启次数时间控制
+                        str = '<a class="listA"  href="javascript:openframe(\'' + SetDictionary(3)+'详情\', \'../Student/ProjectLogDetail.html?sid=' + row["SID"] + '&ProjectId=' + row["课题编号"] + '&LogID=' + row["ID"]
+                            + '&stuAcademyNum=' + stuAcademyNum + '&tid=' + tid + '\',false)">查看详情</a>&nbsp;&nbsp;';
+                        if (row["允许修改"] == 1 || checkValIsUndefinedOrNull(row["审核时间"]) || row["审核"] == -1) {
+                            str += '<a class="listA"  href="javascript:openframe(\'修改' + SetDictionary(3)+'\', \'Student/AddGuideRecord.html?sid=' + row["SID"] + '&ProjectId=' + row["课题编号"] + '&LogID=' + row["ID"]
+                                + '&stuAcademyNum=' + stuAcademyNum + '&tid=' + tid + '&flag=1' + '\',false)">修改</a>';
+                        };
+                    };
+                    if (current_role == 3 && (row["审核"] == 1001 || row["审核"] == -1)) {
+                        str += '&nbsp;&nbsp;<a class="listA" href="javascript:remove(\'' + index + '\')">删除</a>&nbsp;&nbsp;';
+                    }
+                    return str;
+                }
+            }
+        ]];
+        var list = $("#list");
+        var url = "../Handler/ProjectLog.ashx";
+        var paramsData = {
+            action: "GetProjectLogSystemData"
+        };
+        var idField = "课题编号";
+        //获取成绩自定义名称
+        
+        function GetHideList() {
+            $.ajax({
+                url: "../Handler/ReviewHandler.ashx",
+                type: "post",
+                data: {
+                    action: 'GetReviewColumn'
+                },
+                dataType: "json",
+                success: function (data) {
+                    if (data.isSuccess) {
+                        if (data.dataList[0]["不显示平时成绩"] == 0) {
+                            $("#list").datagrid('hideColumn', '成绩');
+                        };
+                    };
+                }
+            });
+        };
+
+        $("#submit").click(function () {
+            //onclick="openframe('添加指导记录', 'Student/AddGuideRecord.html')"
+            if (get_current_role() == 2) {//学生
+                openframe('添加' + SetDictionary(3)+'', 'Student/AddGuideRecord.html');
+            };
+            if (get_current_role() == 3) {//教师
+                openframe('添加' + SetDictionary(3)+'', 'Student/AddGuideRecord.html?flag=0&sid=' + sid + '&ProjectId=' + ProjectId + '&stuAcademyNum=' + stuAcademyNum + '&tid=' + tid);
+            };
+        });
+
+        //点击删除操作
+        function remove(index) {
+            $('#delmessagebox').text("您确定要删除该条信息吗?").dialog({
+                title: '删除',
+                buttons: [{
+                    text: '确定',
+                    handler: function () {
+                        $.ajax({
+                            url: "../Handler/ProjectLog.ashx",
+                            type: "post",
+                            dataType: "json",
+                            data: {
+                                action: "DeleteProjectslog",
+                                id: $("#list").datagrid("getData").rows[index]["ID"]
+                            },
+                            success: function (data) {
+                                if (data.isSuccess == true) {
+                                    myMessage(data.message, function () {
+                                        try {
+                                            reloadTable(getUrlParam("prevTitle"));
+                                        } catch (e) {
+                                            console.log(e);
+                                        };
+                                        $("#delmessagebox").dialog("close");
+                                        $('#list').datagrid("clearSelections").datagrid('reload');//重新加载
+                                    }, true);
+                                } else {
+                                    myMessage(data.message);
+                                }
+                            },
+                            error: function (err) {
+                                console.log(err);
+                            }
+                        });
+                    }
+                }, {
+                    text: '取消',
+                    handler: function () {
+                        $("#delmessagebox").dialog("close");
+                        $('#list').datagrid("clearSelections");
+                    }
+                }]
+            }).dialog("open").window('center');
+        };
+    </script><div class="panel window panel-htop" style="display: none; width: 400px; left: 635px; top: 299px; z-index: 9002;"><div class="panel-header panel-header-noborder window-header" style="width: 400px;"><div class="panel-title">提示</div><div class="panel-tool"></div></div></div><div class="window-shadow" style="display: none; left: 635px; top: 299px; width: 400px; height: 205px; z-index: 9001;"></div><div class="window-mask" style="display: none; z-index: 9000; width: 1669px; height: 802px;"></div>
+
+
+<div class="panel window panel-htop" style="display: none; width: 400px; left: 635px; top: 301px;"><div class="panel-header panel-header-noborder window-header" style="width: 392px;"><div class="panel-title">New Dialog</div><div class="panel-tool"><a href="javascript:;" class="panel-tool-close"></a></div></div><div id="delmessagebox" class="easyui-dialog panel-body panel-body-noborder window-body" style="width: 398px; height: 163px;" data-options="closed:true" title=""></div></div><div class="window-shadow" style="display: none; left: 635px; top: 301px; width: 400px; height: 200px;"></div><div class="panel window panel-htop" style="display: none; width: 400px; left: 635px; top: 301px; z-index: 9008;"><div class="panel-header panel-header-noborder window-header" style="width: 392px;"><div class="panel-title">提示</div><div class="panel-tool"></div></div></div><div class="window-shadow" style="display: none; left: 635px; top: 301px; width: 400px; height: 200px; z-index: 9007;"></div><div class="window-mask" style="display: none; z-index: 9006; position: fixed;"></div><div class="panel window panel-htop" style="display: none; width: 400px; left: 635px; top: 301px; z-index: 9014;"><div class="panel-header panel-header-noborder window-header" style="width: 392px;"><div class="panel-title">提示</div><div class="panel-tool"></div></div></div><div class="window-shadow" style="display: none; left: 635px; top: 301px; width: 400px; height: 200px; z-index: 9013;"></div><div class="window-mask" style="display: none; z-index: 9012; position: fixed;"></div><div class="panel window panel-htop" style="display: none; width: 400px; left: 635px; top: 301px; z-index: 9017;"><div class="panel-header panel-header-noborder window-header" style="width: 392px;"><div class="panel-title">提示</div><div class="panel-tool"></div></div></div><div class="window-shadow" style="display: none; left: 635px; top: 301px; width: 400px; height: 200px; z-index: 9016;"></div><div class="window-mask" style="display: none; z-index: 9015; position: fixed;"></div></body></html>
