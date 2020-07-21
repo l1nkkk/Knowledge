@@ -562,7 +562,7 @@ from:跳过开始的结果数,默认0
 > 自动判断规则
 
 <div align="center">
-<img src="pic/6.png">
+<img src="pic/6.png" style="transform:rotate(90deg);">
 </div>
 
 > ES支持的类型
