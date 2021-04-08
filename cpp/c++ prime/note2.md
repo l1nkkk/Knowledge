@@ -51,9 +51,14 @@
     - [类型别名](#%E7%B1%BB%E5%9E%8B%E5%88%AB%E5%90%8D)
     - [关联容器迭代器](#%E5%85%B3%E8%81%94%E5%AE%B9%E5%99%A8%E8%BF%AD%E4%BB%A3%E5%99%A8)
     - [增删改查](#%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5)
+      - [添加](#%E6%B7%BB%E5%8A%A0)
+      - [删除元素](#%E5%88%A0%E9%99%A4%E5%85%83%E7%B4%A0-1)
+      - [map的下标操作](#map%E7%9A%84%E4%B8%8B%E6%A0%87%E6%93%8D%E4%BD%9C)
+      - [查找访问](#%E6%9F%A5%E6%89%BE%E8%AE%BF%E9%97%AE)
     - [pair](#pair)
   - [无序容器](#%E6%97%A0%E5%BA%8F%E5%AE%B9%E5%99%A8)
     - [管理桶](#%E7%AE%A1%E7%90%86%E6%A1%B6)
+    - [无序容器对关键字类型的需求](#%E6%97%A0%E5%BA%8F%E5%AE%B9%E5%99%A8%E5%AF%B9%E5%85%B3%E9%94%AE%E5%AD%97%E7%B1%BB%E5%9E%8B%E7%9A%84%E9%9C%80%E6%B1%82)
 - [动态内存](#%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98)
   - [动态内存与智能指针](#%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98%E4%B8%8E%E6%99%BA%E8%83%BD%E6%8C%87%E9%92%88)
     - [shared_ptr类](#sharedptr%E7%B1%BB)
@@ -90,13 +95,13 @@
 <div align="center"><img style="zoom:60%" src="pic/2-1.png"></div>
 <div align="center"><img style="zoom:60%" src="pic/2-2.png"></div>
 
-> 将其当条件来使用
-- 可以判断一个流是否有效（或是否错误），但是不能知道具体发生什么。
+> 直接将其当条件来使用
+- 可以判断一个流是否有效（或是否错误），但是不能知道具体发生什么（不知道细节）。
 
 > 查询流的细节
 - iostate类型：作为一个位的集合来使用。
   - badbit：不可恢复，系统级错误
-  - failbit：可恢复，读错，eg：要int来char。当badbit和eofbit被置位，其都会被置位。
+  - failbit：可恢复，读错，eg：要int来char。eofbit被置位，其也会被置位。
   - eofbit：读到EOF
   - goodbit：值为0，表示流未发生错误
 - `badbit和failbit和eofbit任意个被置位，当条件的时候就会为false。`等价于，`!fail()`
@@ -108,9 +113,12 @@
 
 > 管理条件状态
 - rdstate()方法：返回iostate
+- setstate()方法：设置iostate
 - clear()方法：
   - 不带参数：清除所有的错误标记位，good()会返回true，也就是goodbit置0
   - 接收iostate值：eg，cin.rdstate和cin.failbit等成员的位操作结合，用来设置流的新状态。
+  
+<div align="center"><img style="zoom:60%" src="pic/1-2.jpg"></div>
 
 ```cpp
 int main(){
@@ -166,13 +174,13 @@ cout << "hello" << flush;
 
 ## 文件输入输出
 > fstream 特有操作
-<div align="center"><img style="zoom:80%" src="pic/2-9.png"></div>
+<div align="center"><img style="zoom:80%" src="pic/2-10.png"></div>
 
 > open和close
 
-- open失败，failbit会被置位。如果对一个已经打开的文件流进行open，也会失败。
+- open失败，failbit会被置位。如果对一个已经打开的文件流进行open，也会失败，并置位failbit。
 - open之后也需要将流对象作为条件来检查。
-- 如果要让一个文件流关联到另外一个文件，需要先关闭，再open新文件。重新open之后可以重新指定文件模式。
+- 如果要让一个文件流关联到另外一个文件，需要先关闭，再open新文件。重新open之后可以重新指定文件模式。如果open时不指定模式，将用隐式的设置
 - 当一个fstream对象被销毁，close会自动调用。
 
 ### 文件模式
@@ -326,6 +334,7 @@ int main(){
 - 允许从一个不同但相容的类型赋值，或者从容器的一个子序列，容器内容还可以不同。
 - 用法
   - 给一个容器范围
+  - 初始化列表
   - 给一个整型值和一个元素值。等价与clear和insert的组合
 ```cpp
 // 给一个容器范围
@@ -424,6 +433,7 @@ int main(){
   - max_size：返回一个大于或者等于该类型容器的最大元素数的值。
 
 ### 容器大小的比较
+- 所有的容器都支持`==`和`!=`，但是只有顺序容器支持`> < <= >=`
 - 和string的比较规则是一样的
 - 只有当其元素类型也定义了比较运算的时候才能进行比较
 > 比较规则
@@ -507,6 +517,7 @@ int main(){
 ```
 
 > emplace
+- c++11
 - 分别有emplace_front、emplace、emplace_back，与insert_front、insert、insert_back。
 - 区别：不是将元素类型对象传递给他们，然后拷贝到容器中。而是在emplace时，调用元素类型的构造函数，在容器管理的内存空间中直接构造函数。
   - push_back是创建一个临时对象，然后再将其拷贝到容器中。
@@ -540,6 +551,7 @@ int main(){
   - bach不适用与forward_list
   - 分别返回首元素和尾元素的引用。注意：不是尾后元素
   - 在调用的时候，应该注意要确保容器非空，不然的话接下来的行为未定义的
+  - `auto &a = c.back()`,如果希望使用此变量改变元素的值，记得用引用类型
 - begin和end：
   - 返回的是迭代器,而且end返回的是尾后指针
   - 要使用元素需要`*`
@@ -597,13 +609,23 @@ int main(){
 <div align="center"><img style="zoom:80%" src="pic/2-28.png"></div>
 
 - 考虑erase和insert，因为其可以返回迭代器
-- 不要缓存end()
+- 不要缓存end()，直接v.end()
 
 ### vector和string对象是如何增长的
+> vector和string管理容量的成员函数
+- c.shrink_to_fit：容容器的容量减少为size()。不保证一定退回内存空间
+- c.capacity：返回容器容量
+- c.reserve：设置容器容量，设置的比目前的容量大才会生效。分配的大小至少为需要的内存大小，可能比这个值大。
+
+
+-----------
+
 - 随着元素的增加，用一定的算法自动扩容。
 <div align="center"><img style="zoom:80%" src="pic/2-29.png"></div>
 
 ## 额外的string操作
+
+
 - 提供了其他顺序容器所没有的操作
 - 详见9.5章节
 
@@ -691,7 +713,7 @@ int main(){
 > accumulate
 
 - 定义在numeric中
-- 参数：前两个是范围，最后一个是初始值
+- 参数：前两个是范围，最后一个是和的初始值
   - 元素类型不用严格匹配
 - 返回：累加的结果
 - 功能：累加
@@ -735,7 +757,7 @@ int main(){
 - 返回：void
 - 功能：从迭代器开始，将赋予给定数量的值。
 
-- 这段代码将带来灾难
+- 这段代码将带来灾难，因为a中还没有元素，其是空的，结果未定义。
 ```cpp
 int main(){
     vector<int> a;
@@ -846,8 +868,8 @@ for(auto t:a){
 
 ### 向算法传递函数
 - 谓词分两类：
-  - 一元谓词：只接受一个谓词
-  - 二元谓词：接受两个谓词
+  - 一元谓词：只接受一个参数
+  - 二元谓词：接受两个参数
 
 > sort和stable_sort
 - 传给sort一个二元谓词
@@ -855,6 +877,10 @@ for(auto t:a){
 - stable_sort:如果相等则用原本的比较方式
   - 好奇怪啊，不是我想要的感觉
 ```cpp
+// 二元谓词
+bool isShorter(const string &s1,const string &s2){
+    return s1.size() < s2.size();
+}
 int main(){
     vector<string> vs{"the","quick","red","fox","jumps","over","the","slow","red","turtle","aaa","aax"};
     vector<string> vs1 = vs;
@@ -885,6 +911,23 @@ int main(){
 }
 ```
 
+> find_if
+
+- 功能：查找容器范围满足要求的元素
+- 参数：迭代器范围（2），谓词
+- 返回：返回一个迭代器（第一个满足条件的）,如果没找到，返回最后一个迭代器位置
+```cpp
+auto wc = find_if(words.begin(), words.end(), [sz](const string &a){return a.size() >= sz;})
+```
+
+> for_each
+- 功能：对迭代器范围的每个元素，进行统一处理
+- 参数：迭代器范围（2），谓词
+- 返回：void
+```cpp
+for_each(words.begin(),words.end(),[](const string &s){cout << s << " "});
+```
+
 ### lambda表达式
 > 可调用对象
 
@@ -907,13 +950,13 @@ int main(){
 <div align="center"><img style="zoom:80%" src="pic/2-42.png"></div>
 
 - 如果忽略了参数列表，则表示无形参
-- 如果忽略了返回**且只有一条return语句**，则会自己进行类型推断。如过包含除了return之外的语句，则编译器假定该lambda返回void。
+- 如果忽略了返回类型。**且函数体只有一条return语句**，则会自己进行类型推断。如果包含除了return之外的语句，则编译器假定该lambda返回void。
 - `[]捕获列表只用于局部非static变量，lambda中可以直接使用局部static变量和所在函数之外声明的名字。`
-
+- 关于参数：不能有默认参数，其他差不多
 > 捕获和返回
 - 捕获的都是局部变量
 - 值捕获
-  - 前提：变量可以捕获，如ostream就不行
+  - 前提：变量可以捕获
   - 和参数不同的是，是在lambda创建的时候拷贝，而不是在调用的时候。`随后的修改不会影响到lambda内对应的值`
   - 默认不可对该变量进行修改
 
@@ -921,6 +964,9 @@ int main(){
   - 可不可以对变量进行修改取决于捕获的是不是const 引用。
   - 必须确保在lambda执行的时候引用对象存在  
   - 如果函数返回一个lambda，则lambda不能包含引用捕获
+- 建议：
+  - 如果我们捕获一个指针或迭代器，或者采用引用捕获方式，就必须确保当lambda执行时，绑定的迭代器、指针或引用的对象仍然给存在。而且，要确保有预期的值。
+  - 尽量减少捕获的数据量。如果可能，避免捕获指针和引用。
 
 - demo1
 ```cpp
@@ -983,12 +1029,13 @@ int main(){
 
 - 可变lambda
   - 对于值捕获：加入mutable
-  - 对于引用捕获：关键在于引用指向的是宇哥const还是非const
+  - 对于引用捕获：关键在于引用指向的是一个const还是非const
 
 - 指定lambda返回类型
   - 如果不止有return的时候，那么就要显示指定返回类型
 
 ### 参数绑定
+- 对于很多条语句才能完成的操作，使用函数而不是lambada更好
 - 引入：对于捕获局部变量的lambda，用函数来替代他没那么简单，需要使用bind。
 
 > bind
@@ -1001,7 +1048,8 @@ int main(){
 
 - 使用`placeholders`名字
   - _n定义在`std`命名空间中的`placeholders`命名空间中。
-  - `using std::placeholders::1`;
+  - `using std::placeholders::_1`;
+  - `using namespace std::placeholders`
 
 
 
@@ -1011,13 +1059,13 @@ int main(){
 void test(int a, int b, int c, int d, int e){ cout << a << " " << b << " " << c << " " << d << " " << e;}
 
 int main(){
-    auto f = bind(test,_5,_4,_3,_2,_1);
-    // out:5 4 3 2 1
-    f(1,2,3,4,5);
+    auto f = bind(test,3,3,_2,3,_1);
+    // out:3 3 2 3 1
+    f(1,2);
 }
 ```
 
-- demo2:修正参数
+- **demo2:修正参数**
 
 ```cpp
 int main(){
@@ -1045,10 +1093,11 @@ int main(){
 }
 ```
 
-- 绑定引用参数
-  - ref：引用
-  - cref：常引用
-  - 定义在：functional中
+> 绑定引用参数
+- 默认情况下，bind的哪些不是占位符的参数被拷贝到bind返回的可调用对象中。
+- ref：引用
+- cref：常引用
+- 定义在：functional中
 
 
 ```cpp
@@ -1168,7 +1217,8 @@ cout << accumulate(istIt,eof,0);
 ```
 
 > ostream_iterator
-
+- 只要有`<<` 运算符,就能使用
+- \*和++对其没影响，但是还是推荐使用`*p++`的形式，因为和其他迭代器的使用保持一直，修改起来也方便，读起来也方便。
 <div align="center"><img style="zoom:80%" src="pic/2-49.png"></div>
 
 - demo1:
@@ -1201,15 +1251,15 @@ class Student{
     string name;
     string sex;
     int age;
-    friend ostream & operator << (ostream & out, Student aStudent);
-    friend istream & operator >> (istream & in, Student aStudent);
+    friend ostream & operator << (ostream & out, const Student &aStudent);
+    friend istream & operator >> (istream & in, Student &aStudent);
 };
 
-ostream & operator << (ostream & out, Student aStudent){
+ostream & operator << (ostream & out,const Student &aStudent){
     out << "Name:" << aStudent.name << " Sex:" << aStudent.sex << " Age:" << aStudent.age << endl;
     return out;
 }
-istream & operator >> (istream & in, Student aStudent){
+istream & operator >> (istream & in, Student &aStudent){
     in >> aStudent.name >> aStudent.sex >> aStudent.age;
     return in;
 }
@@ -1222,22 +1272,22 @@ int main(){
     vector<Student> vs(istIte,eof);
 
     // 2. 输出数据,注意这里的捕获
-    for_each(vs.begin(),vs.end(),[&ostIte](const Student& s){*ostIte++=s;});
-
+    //for_each(vs.begin(),vs.end(),[&ostIte](const Student& s){*ostIte++=s;});
+    copy(vs.begin(),vs.end(),ostIte);
 }
 ```
 
 ```sh
 # 输入输出
-linqing man 20
+l1nkkk man 20
 liyuyi woman 18
 xx man 11
 ^D
-Name: Sex: Age:687018624
+Name:l1nkkk Sex:man Age:20
 
-Name: Sex: Age:687018624
+Name:liyuyi Sex:woman Age:18
 
-Name: Sex: Age:687018624
+Name:xx Sex:man Age:11
 ```
 
 ### 反向迭代器
@@ -1283,8 +1333,8 @@ int main(){
 - 迭代器按他们的操作来分类，而这种分类形成了一个层次，高层的支持底层的所有操作，除了输出迭代器之后，也就是从前向迭代器开始适用。
 
 - 如果用错类别的迭代器，一般编译器不会警告。
+  
 <div align="center"><img style="zoom:60%" src="pic/2-52.png"></div>
-
 <div align="center"><img style="zoom:60%" src="pic/2-53.png"></div>
 <div align="center"><img style="zoom:60%" src="pic/2-54.png"></div>
 <div align="center"><img style="zoom:60%" src="pic/2-55.png"></div>
@@ -1305,6 +1355,7 @@ int main(){
 - 链表类型：list和forward_list定义了几个成员函数形式的算法。如sort、merge、remove、reverse和unique
 - 通用版本的sort要求随机访问迭代器，所以链表类型的不能用。
 - 对于链表类型的应该优先考虑其使用的成员函数版本，而不是通用算法。
+- 链表特有版本与通用版本一个至关重要的区别在于`链表版本会改变底层容器`，如remove会删除指定的元素，unique会删除第二个和后继的重复元素。
 
 <div align="center"><img style="zoom:60%" src="pic/2-59.png"></div>
 <div align="center"><img style="zoom:60%" src="pic/2-60.png"></div>
@@ -1315,6 +1366,10 @@ int main(){
 <div align="center"><img style="zoom:60%" src="pic/2-61.png"></div>
 
 # 关联容器
+- 8个容器，三个维度
+  - 是set还是map
+  - 可以重复否
+  - 保存是否有序
 - set与map
 <div align="center"><img style="zoom:60%" src="pic/2-62.png"></div>
 
@@ -1378,6 +1433,13 @@ int main(){
     return 0;
 }
 ```
+- 如果word还没在map中，下标运算符会创建一个新元素，之后进行值初始化.
+```cpp
+map<string, size_T> word_count;
+string word;
+while(cin >> word)
+    ++word_count[word];
+```
 
 ## 使用
 
@@ -1388,26 +1450,29 @@ int main(){
 <div align="center"><img style="zoom:60%" src="pic/2-64.png"></div>
 
 ### 关联容器迭代器
+map中每个元素是一个pair对象
 - 当解引用关联容器的迭代器的时候，将返回value_type
   - map返回的是pair，first成员变量是const类型的
   - set返回的是const的
 - 可以用迭代器遍历关联的容器，和顺序容器一样写法。
+  - 迭代器俺关键字升序遍历元素。
 - 通常不对关联容器使用泛型算法。关联容器定义一个名为`find`的成员函数，用这个比一般泛型find快很多。
+- 虽然set定义了iterator和const_iterator类型，但两种类型都**只允许只读**访问set中的元素。对于map中的关键字也一样。
 
 <div align="center"><img style="zoom:60%" src="pic/2-65.png"></div>
 
 ### 增删改查
-> 添加
+#### 添加
 
 - 方式
   - 添加一个元素
   - 添加一个范围
   - 存入一个迭代器ｐ作为提示，指出从哪里开始搜索新元素应该存储的位置
 
-- emplace里面的参数是用来产生构造函数的
 - 返回类型由依赖与传入insert(或emplace)的参数和容器的类型。
   - （`如果是不可重复关键字的容器`）添加单一元素的时候，返回一个`pair`，first为一个迭代器，指向给定关键字的元素，second为一个`bool`值，false表示本来就存在，什么都没做；true表示插入成功。
   - （`如果是可重复关键字的容器`）添加单一元素的时候，返回一个指向`新元素的迭代器`。
+- 下面的操作是关联容器共有的操作
 
 <div align="center"><img style="zoom:80%" src="pic/2-66.png"></div>
 
@@ -1452,17 +1517,48 @@ for(auto it = mss2.cbegin();it != mss2.cend();it++){
     cout << "Key:"<< it->first << " Value:" << it->second << " ; ";
 }
 ```
+> map检查insert返回
 
-> 删除元素
+- demo：
+  - 其中`++ret.first->second`解析为`++((ret.first)->second)`
+```cpp
+int main(){
+    map<string, size_t> word_count;
+    string word;
+    while(cin >> word){
+        auto ret = word_count.insert({word,1});
+        if(!ret.second)
+            ++ret.first->second;
+    }
+    for(const auto & t : word_count){
+        cout << t.first << " " << t.second << "\n";
+    }
+}
+```
+```sh
+#输入输出
+abc
+def
+abc
+abc
+^D
+abc 3
+def 1
+
+Process finished with exit code 0
+
+```
+
+#### 删除元素
 - 方式
-  - 指定关键字
+  - 指定关键字（与顺序容器的不同）
   - 指定迭代器
   - 指定迭代器范围
 
 <div align="center"><img style="zoom:80%" src="pic/2-67.png"></div>
 
-> map的下标操作
-- 只能对不能关键字重复的map执行下标运算符和at函数
+#### map的下标操作
+- 只能对map和unordered_map执行`下标运算符[]和at函数`
 - map的下标运算符返回的类型与解引用map迭代器得到的类型不同。
 - 下标运算符步骤`：a["test"]=1`
   - 搜索关键字是否存在
@@ -1470,15 +1566,15 @@ for(auto it = mss2.cbegin();it != mss2.cend();it++){
 
 <div align="center"><img style="zoom:80%" src="pic/2-68.png"></div>
 
-> 查找访问
+#### 查找访问
 
-- 对于map如果只想要单纯的查找的话，使用find。
+- 对于map如果只想要单纯的查找的话，使用find。因为使用下标运算符会创建一个值初始化的元素。
 <div align="center"><img style="zoom:80%" src="pic/2-69.png"></div>
 <div align="center"><img style="zoom:80%" src="pic/2-70.png"></div>
 
 - 如果multimap或multiset中有多个元素具有给定关键字，则这些元素在容器中会相邻存储
 
-- demo:遍历可重复关联容器
+- demo:查找可重复关联容器中的元素
 ```cpp
 // 7-1 可重复关联容器的遍历：通过find+count
 auto endcount = ms1.count("1");
@@ -1514,6 +1610,10 @@ cout << "\n--------end" << endl;
 
 - pair的数据成员是public的，两个成员分别为first和second
 - make_pair返回类型从参数的类型推断出来
+- 初始化
+  - pair的默认构造函数对数据成员进行值初始化。
+  - 也可以使用初始化器：`pair<string, string> author("l1nkkk","www")`，特殊在于，其居然等价于`pair<string, string> author{"l1nkkk","www"}`
+  
 <div align="center"><img style="zoom:60%" src="pic/2-63.png"></div>
 
 - demo1:return pair
@@ -1528,16 +1628,23 @@ testpait(){
 
 ## 无序容器
 - 使用的不再是`<`来组织，而是使用`==`和一个hash函数
+  - `==`用于比较hash返回值一样的情况
+  - hash用来分配桶。
 - 曾经用于`map和set`的操作都能用于`unordered_map和unordered_set`。
 - 要求关键字类型有==运算。如果没有，需要自定义，或者给他传入一个方法。
 - 如果想要为一个自定义的类构造无序容器，需要提供一个`==`的重载或者函数来替代，以及hash函数。
 
 ### 管理桶
-- 无序容器在存储上为`一组桶`，每个桶保存零个或多个元素。
+- 无序容器在存储上为`一组桶`，每个桶保存零个或多个元素。关键字的hash相同的在同一个桶。
 - 性能依赖于hash函数质量和桶的数量和大小
 - 桶的操作如下所示
 
 <div align="center"><img style="zoom:80%" src="pic/2-71.png"></div>
+
+### 无序容器对关键字类型的需求
+- 需要有==运算符
+- 需要hash函数，标准库为内置类型（包括指针），一些标准库类型如string和只能指针等定义了hash，提供了hash模板。
+<div align="center"><img style="zoom:60%" src="pic/2-92.png"></div>
 
 # 动态内存
 - 使用动态内存的原因：
@@ -1566,6 +1673,7 @@ testpait(){
 > make_share
 - 和emplace成员函数一样，make_share使用其参数来构造给定类型的对象。
 - 不传任何参数，对象就会进行值初始化
+- make_share之后的的指针就是有对象的了
 ```cpp
 // 1. 定义share_ptr，默认初始化。初始化智能指针保存一个nullptr
 shared_ptr<int> p1;
@@ -1595,7 +1703,7 @@ cout << *p4 << endl;
 - 如果有一个指向这个对象，所占用的内存就不会被释放
 <div align="center"><img style="zoom:60%" src="pic/2-74.png"></div>
 
-- 如果将shared_ptr存放在一个容器中，而后不再需要全部元素，而只使用其中一部分，要记得用erase删除不再需要的哪些元素。不然其内存不会释放
+- share_ptr在无用之后仍然保留的一种可能情况：如果将shared_ptr存放在一个容器中，而后不再需要全部元素，而只使用其中一部分，要记得用erase删除不再需要的哪些元素。不然其内存不会释放
 
 ### demo1:共享内存数据
 ```cpp
@@ -1658,9 +1766,9 @@ cout << *p4 << endl;
 
 - 注：
   - 只有括号中仅有单一初始化器的时候才可以使用auto
-  - 
+
 ```cpp
-// 1.默认初始化
+// 1.默认初始化，*p1的值未定义
 int *p1 = new int;
 // 2.值初始化
 int *p2 = new int();
@@ -1706,17 +1814,18 @@ int *p2 = new (nothrow) int;
 - 返回指向动态内存的指针的函数给调用者一个负担——必须记得释放内存。
 
 
-- 空悬指针：保存了一块已经被释放了的内存数据的指针
+- 空悬指针：保存了一块已经被释放（delete）了的内存数据的指针
   - 避免空悬指针问题：在指针即将要离开其作用域之前释放掉他所关联的内存。如果需要继续使用指针，可以在delete之后将其用nullptr赋值。但是这个方法只是只对这个指针有效，对其他任何指向内存的指针是没有作用的。
+  - 技巧：`delete之后将其指针设为nullptr`
 <div align="center"><img style="zoom:60%" src="pic/2-76.png"></div>
 
 ### shared_ptr 和new结合使用
 - 可以用new返回的指针，来初始化只能指针。
-- 不能进行内置指针到智能指针的隐式转换
-- 只能指针默认使用delete来释放锁关联的对象，但是可以给他传递可调用对象来代替delete
+- 不能进行内置指针到智能指针的隐式转换，因为设置了explicit
+- 默认情况下，初始化智能指针的必须指向动态内存。默认使用delete来释放所关联的对象，但是可以给他传递可调用对象来代替delete
 ```cpp
 // error:必须直接初始化
-shared_ptr<int> p1 = new int(1024)
+// shared_ptr<int> p1 = new int(1024)
 // legal
 shared_ptr<int> p1(new int(1024))
 ```
@@ -1726,7 +1835,7 @@ shared_ptr<int> p1(new int(1024))
 <div align="center"><img style="zoom:60%" src="pic/2-77.png"></div>
 <div align="center"><img style="zoom:60%" src="pic/2-78.png"></div>
 
-- 不要混合使用普通指针和智能指针
+- 不要混合使用普通指针和智能指针，推荐使用make_shared来初始化
   - 因为`可能将同一块内存绑定到多个独立创建的shared_ptr`,从而造成当一个销毁的时候出现空悬指针。
 - 下面的两个例子对比体现混用的危险
 ```cpp
@@ -1775,7 +1884,7 @@ int main(){
 
 ### 智能指针和异常
 - 在发生异常后，资源是否正确释放和处理是一个值得考虑的问题。
-  - 比较简单确保其被释放的方法：使用只能指针
+  - 比较简单确保其被释放的方法：使用智能指针
 
 > demo来体会
 
@@ -1807,7 +1916,7 @@ int main(){
 <div align="center"><img style="zoom:60%" src="pic/2-83.png"></div>
 
 ### unique_ptr
-- unique_ptr与shared_ptr不同，某一个时刻智能有一个unique_ptr指向一个给定的对象。
+- unique_ptr与shared_ptr不同，某一个时刻只能有一个unique_ptr指向一个给定的对象。
 - 没有make_shared类似的操作进行初始化，只能通过new返回的指针。
 - 不支持unique_ptr的普通拷贝和赋值操作。
 
@@ -1825,18 +1934,19 @@ p0 = p1;
 // 2. 将所有权从p1转到p2
 p0.reset(p1.release());
 ```
+
 - 如果不用另一个智能指针来保存release返回的指针，资源的释放就交给了我们
 
 <div align="center"><img style="zoom:60%" src="pic/2-85.png"></div>
 
-> 传递unique_ptr参数返回unique_ptr
-- 可以拷贝或赋值一个将要销毁的unique_ptr
+> 传递unique_ptr参数和返回unique_ptr
+- 不能拷贝的一个例外，可以拷贝或赋值一个将要销毁的unique_ptr
 - 编译器知道要返回的对象将要被销毁，所以进行一种`特殊的拷贝`，在13.6.2介绍
 <div align="center"><img style="zoom:60%" src="pic/2-86.png"></div>
 
-> 像unique_ptr传递删除器
+> 向unique_ptr传递删除器
 - 管理删除器的方式和shared_ptr不同，原因在16.1.6介绍
-- 重载一个unique_ptr中的删除器会影响到unique_ptr的类型以及如何构造（或reset）该类型的对象。
+
 
 ```cpp
 void close(FILE *fp){
@@ -1860,6 +1970,7 @@ int main(){
 - 如果要初始化，要用shared_ptr来初始化。
 <div align="center"><img style="zoom:60%" src="pic/2-87.png"></div>
 
+- expired为true表示对象已经被销毁
 - 不能使用weak_ptr直接访问对象，必须用lock
 ```cpp
 if (shared_ptr<int> np = wp.lock){//如果np不为空则条件成立
@@ -1869,9 +1980,42 @@ if (shared_ptr<int> np = wp.lock){//如果np不为空则条件成立
 
 > 为什么要weak_ptr
 - 对象被析构了，weakptr会自动等于nullptr
-- weakptr可以还原成sharedptr而不会让引用计数错乱(注：指的是load函数的功能)  
-这两者普通指针都是做不到的
+- weakptr可以还原成sharedptr而不会让引用计数错乱(注：指的是load函数的功能)  这两者普通指针都是做不到的
+- 下面这代码可以体现为什么需要weak_ptr
+```cpp
+// from:https://www.cnblogs.com/DswCnblog/p/5628314.html
+#include <iostream>
+#include <memory>
+#include <vector>
+using namespace std;
 
+class ClassB;
+
+class ClassA
+{
+public:
+    ClassA() { cout << "ClassA Constructor..." << endl; }
+    ~ClassA() { cout << "ClassA Destructor..." << endl; }
+    shared_ptr<ClassB> pb;  // 在A中引用B
+};
+
+class ClassB
+{
+public:
+    ClassB() { cout << "ClassB Constructor..." << endl; }
+    ~ClassB() { cout << "ClassB Destructor..." << endl; }
+    shared_ptr<ClassA> pa;  // 在B中引用A
+};
+
+int main() {
+    shared_ptr<ClassA> spa = make_shared<ClassA>();
+    shared_ptr<ClassB> spb = make_shared<ClassB>();
+    spa->pb = spb;
+    spb->pa = spa;
+    std::cout << "spa use_cout:" << spa.use_count() << " spb use_cout:" << spb.use_count() << std::endl;　　//spa: 2 spb:2
+
+　　// 函数结束，思考一下：spa和spb会释放资源么？ 超过作用于时引用计数减一，此时为2，减一后不为0，所以内存不释放}
+```
 > 知乎上一个回答
 - 智能指针一个很重要的概念是“所有权”，所有权意味着当这个智能指针被销毁的时候，它指向的内存（或其它资源）也要一并销毁。这技术可以利用智能指针的生命周期，来自动地处理程序员自己分配的内存，避免显示地调用delete，是自动资源管理的一种重要实现方式。
 - 为什么要引入“弱引用”指针呢？弱引用指针就是没有“所有权”的指针。有时候我只是想找个指向这块内存的指针，但我不想把这块内存的生命周期与这个指针关联。这种情况下，弱引用指针就代表“我指向这东西，但这东西什么时候释放不关我事儿……”
@@ -1884,8 +2028,10 @@ if (shared_ptr<int> np = wp.lock){//如果np不为空则条件成立
 
 ---
 ### demo2:weak_ptr的运用
+- 这个例子非常好
 ```cpp
 class ShareStrPtr;
+// 这是一个可以多个对象共享统一资源的类，共享vector<string>
 class ShareStr{
 public:
     typedef vector<string>::size_type size_type;
@@ -1933,6 +2079,7 @@ void ShareStr::pop_back(){
     data->pop_back();
 }
 
+// 伴随指针类
 class ShareStrPtr{
 public:
     ShareStrPtr():curr(0){}
@@ -1994,12 +2141,15 @@ int main(){
 ```
 ## 动态数组
 - new
+  - 分配并初始化化
 - allocator
+  - 分配和初始化分离。会提供更好的性能和更灵活的内存管理能力
 ### new和数组
 
 > 动态分配一个数组
-- 实际上返回的是一个指针，所以不能调用begin和end，也不可以用在范围for
+- 实际上返回的是一个元素类型的指针，不是一个数组类型，所以不能调用begin和end，也不可以用在范围for
 - 默认情况是默认初始化，如果加了`()`就是值初始化了
+  - 不能在`()`中给出初始化器，所以不能用auto分配数组
 - 可以使用初始化器，如果初始化器规模过大将抛出`bad_array_new_length`异常
 - 可以使用数组类型的别名来分配一个数组
 
@@ -2017,7 +2167,7 @@ typedef int[10] intten;
 int *p = new intten;
 ```
 
-- 动态扥配一个大小为0的数组是合法的
+- 动态分配一个大小为0的数组是合法的
   - 此指针保证与new返回的其他任何指针都不相同
   - 可以让这个指针像尾后迭代器一样使用
   - 注：感觉没什么用
@@ -2029,7 +2179,7 @@ char *cp = new char[0];//legal
 
 > 释放动态数组
 
-- 销毁需要在delete后面加上`[]`
+- 销毁需要在delete后面加上`[]`，如果忽略了行为是未定义的
 - 数组中的元素按逆序销毁。
 
 ```cpp
@@ -2084,9 +2234,9 @@ for(size_t i = 0; i != 10; ++i){
 
 ### allocator类
 - 引入
-  - new的时候，内存分配和对象的构造是绑在一起的
+  - new的时候，内存分配和对象的构造（初始化）是绑在一起的
   - delete的时候，析构和内存释放也是绑在一起的
-  - 有时候我们要���������配一个大内存，然后用的时候再创建数据，但是使用new会直接就构造了，而且对于没有默认构造函数的还很棘手。
+  - 有时候我们要配一个大内存，然后用的时候再创建数据，但是使用new会直接就构造了，而且对于没有默认构造函数的还很棘手。
 - 为了将这些步骤分离，引入allocator类，其定义在头文件`memory`
 <div align="center"><img style="zoom:80%" src="pic/2-89.png"></div>
 
@@ -2121,7 +2271,15 @@ int main(){
 ```
 
 > 拷贝和填充为初始化的内存和算法
-- 在用copy和fill的时候，都是对初始化过的进行拷贝和填充，现在我们对没有初始化过的进行填充和拷贝。
+- 在用copy和fill的时候，都是对初始化过的进行拷贝和填充，现在我们是对没有初始化过的进行填充和拷贝。
+- 与copy不同，uninitialized_copy在给定目的的位置初始化。
 <div align="center"><img style="zoom:80%" src="pic/2-90.png"></div>
 
 - 返回都是返回最后一个构造的元素之后的位置
+```cpp
+auto p = alloc.allocate(vi.size()*2);
+// 拷贝
+auto q = uninitialized_copy(vi.begin(),vi.end,p);
+// 剩余的部分用42填充
+uninitialized_fill_n(q, vi.size(),42);
+```

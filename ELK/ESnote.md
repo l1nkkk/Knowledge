@@ -144,6 +144,13 @@ bootstrap.system_call_filter: false
 
 ```
 
+- 7.x版本
+  - https://michael728.github.io/2020/04/12/elk-es-install/
+```sh
+#the default discovery settings are unsuitable for production use; at least one of [discovery.seed_hosts, discovery.seed_providers, cluster.initial_master_nodes] must be configured
+discovery.seed_hosts : []
+```
+
 ### 启动
 
 ./elasticsearch 或./elasticsearch -d #后台系统
@@ -562,7 +569,7 @@ from:跳过开始的结果数,默认0
 > 自动判断规则
 
 <div align="center">
-<img src="pic/6.png" style="transform:rotate(90deg);">
+<img src="pic/6.png" style="transform:rotate;">
 </div>
 
 > ES支持的类型
