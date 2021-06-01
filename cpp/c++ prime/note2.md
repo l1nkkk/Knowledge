@@ -1083,7 +1083,7 @@ int main(){
     string::size_type sz = 4;
     auto it = find_if(vs.begin(), vs.end(), bind(
             [](const string & s,const string::size_type sz)
-            { return s.size() > 4;}
+            { return s.size() > sz;}
             , _1, sz));
     vs.erase(it,vs.end());
     for(auto ts : vs){
@@ -1094,7 +1094,7 @@ int main(){
 ```
 
 > 绑定引用参数
-- 默认情况下，bind的哪些不是占位符的参数被拷贝到bind返回的可调用对象中。
+- 默认情况下，bind的哪些不是占位符的参数被拷贝到bind返回的可调用对象中。std::thread 也一样
 - ref：引用
 - cref：常引用
 - 定义在：functional中

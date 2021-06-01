@@ -1,0 +1,4 @@
+/home/l1nkkk/tmp/lib/libhello.so.1.2
+/home/l1nkkk/tmp/lib/libhello.so.1
+/home/l1nkkk/tmp/lib/libhello.so
+/home/l1nkkk/tmp/lib/libhello_static.a

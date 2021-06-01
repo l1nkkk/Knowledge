@@ -1,0 +1,5 @@
+/home/l1nkkk/tmp/share/doc/cmake/t2/COPYRIGHT
+/home/l1nkkk/tmp/share/doc/cmake/t2/README
+/home/l1nkkk/tmp/bin/hellobin
+/home/l1nkkk/tmp/bin/runhello.sh
+/home/l1nkkk/tmp/share/doc/cmake/t2/hello.txt

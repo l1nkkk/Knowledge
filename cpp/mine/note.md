@@ -1,3 +1,13 @@
+- [前置声明&交叉引用](#%E5%89%8D%E7%BD%AE%E5%A3%B0%E6%98%8E%E4%BA%A4%E5%8F%89%E5%BC%95%E7%94%A8)
+- [enable_shared_from_this](#enablesharedfromthis)
+- [lexical_cast](#lexicalcast)
+- [std::dynamic_pointer_cast](#stddynamicpointercast)
+
+
+
+
+
+
 # 前置声明&交叉引用
 
 
@@ -13,7 +23,7 @@ https://www.cnblogs.com/mx113/articles/1603985.html
 
 # std::dynamic_pointer_cast
 
-- 这啥玩意啊
+- 这是什么
   - auto tmp = std::dynamic_pointer_cast<ConfigVar<T> >(it->second);
 
 $$

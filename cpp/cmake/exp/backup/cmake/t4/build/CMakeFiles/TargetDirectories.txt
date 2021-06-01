@@ -1,0 +1,5 @@
+/home/l1nkkk/Documents/github/Knowledge/cpp/cmake/exp/backup/cmake/t4/build/CMakeFiles/rebuild_cache.dir
+/home/l1nkkk/Documents/github/Knowledge/cpp/cmake/exp/backup/cmake/t4/build/CMakeFiles/edit_cache.dir
+/home/l1nkkk/Documents/github/Knowledge/cpp/cmake/exp/backup/cmake/t4/build/src/CMakeFiles/rebuild_cache.dir
+/home/l1nkkk/Documents/github/Knowledge/cpp/cmake/exp/backup/cmake/t4/build/src/CMakeFiles/edit_cache.dir
+/home/l1nkkk/Documents/github/Knowledge/cpp/cmake/exp/backup/cmake/t4/build/src/CMakeFiles/main.dir

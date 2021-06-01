@@ -1,0 +1,1 @@
+/usr/bin/cc   -rdynamic CMakeFiles/main.dir/main.o  -o main   -L/home/l1nkkk/tmp/lib  -Wl,-rpath,/home/l1nkkk/tmp/lib -Wl,-Bstatic -lhello_static -Wl,-Bdynamic 
