@@ -1,4 +1,0 @@
-- 查看端口和其占用的进程
-  - netstat -plunt
-- 查看端口被哪个进程占用
-  - sudo lsof -i TCP:9008 | grep LISTEN
