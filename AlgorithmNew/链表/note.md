@@ -68,3 +68,53 @@ ListNode reverseBetween(ListNode head, int m, int n) {
 ```
 如果 m != 1 怎么办？如果我们把 head 的索引视为 1，那么我们是想从第 m 个元素开始反转对吧；如果把 head.next 的索引视为 1 呢？那么相对于 head.next，反转的区间应该是从第 m - 1 个元素开始的；那么对于 head.next.next 呢……
 ```
+
+# 回文链表
+- 参考：https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye/pan-duan-hui-wen-lian-biao
+## 字符串判断回文
+- **双指针技巧**
+  - 不需要考虑奇偶问题
+
+```cpp
+bool isPalindrome(string s) {
+    int left = 0, right = s.length - 1;
+    while (left < right) {
+        if (s[left] != s[right])
+            return false;
+        left++; right--;
+    }
+    return true;
+}
+```
+
+## 解法
+- **链表其实也可以有前序遍历和后序遍历**
+  - 意义：如果我想正序打印链表中的val值，可以在前序遍历位置写代码；反之，如果想倒序遍历链表，就可以在后序遍历位置操作
+```cpp
+void traverse(ListNode head) {
+    // 前序遍历代码
+    traverse(head.next);
+    // 后序遍历代码
+}
+```
+
+### 模仿双指针
+- **实际上就是把链表节点放入一个栈**，然后再拿出来，这时候元素顺序就是反的，只不过我们利用的是递归函数的堆栈而已
+```cpp
+// 左侧指针
+ListNode left;
+
+boolean isPalindrome(ListNode head) {
+    left = head;
+    return traverse(head);
+}
+
+boolean traverse(ListNode right) {
+    if (right == null) return true;
+    boolean res = traverse(right.next);
+    // 后序遍历代码
+    res = res && (right.val == left.val);
+    left = left.next;
+    return res;
+}
+```

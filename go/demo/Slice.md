@@ -9,6 +9,10 @@ func updateSlice(s []int) {
 	s[0] = 100
 }
 
+// arr[2:6] =  [2 3 4 5]
+// arr[:6] =  [0 1 2 3 4 5]
+// arr[2:] =  [2 3 4 5 6 7]
+// arr[:] =  [0 1 2 3 4 5 6 7]
 func testSlice1() {
 	// 1. 初始化数组
 	var a = [...]int{0, 1, 2, 3, 4, 5, 6, 7}
@@ -20,6 +24,20 @@ func testSlice1() {
 	fmt.Println("arr[:] = ", a[:])
 }
 
+// arr[2:] =  [2 3 4 5 6 7]
+// arr[:] =  [0 1 2 3 4 5 6 7]
+// Update s1:
+// s1: [100 3 4 5 6 7]
+// s2: [0 1 100 3 4 5 6 7]
+// Update s2:
+// s1: [100 3 4 5 6 7]
+// s2: [100 1 100 3 4 5 6 7]
+// ReSlice:
+// [100 1 100 3 4]
+// [100 3 4]
+// Extending slice
+// s1 =  [2 3 4 5]
+// s2 =  [5 6]
 func testSlice2() {
 	// 1. 初始化数组
 	var a = [...]int{0, 1, 2, 3, 4, 5, 6, 7}
@@ -59,6 +77,12 @@ func testSlice2() {
 
 }
 
+// s1 = [0 0 0 0 0 0 0], cap = 10,len = 7
+// s2 = [1 2 3 4], cap = 4,len = 4
+// After S2 append:
+// s2 = [1 2 3 4 100 200 300], cap = 8,len = 7
+// After  S2 append To S1:
+// s1 = [0 0 0 0 0 0 0 1 2 3 4 100 200 300], cap = 20,len = 14
 func testSlice3() {
 	fmt.Println("-----------testSlice 3")
 	// 1. 定义和初始化
@@ -76,8 +100,18 @@ func testSlice3() {
 	s1 = append(s1, s2...)
 	fmt.Printf("s1 = %v, cap = %d,len = %d\n", s1, cap(s1), len(s1))
 
-}
 
+}
+// s1 =  [1 2 3 4 5 6 7]
+// s2 =  [1 2 3]
+// Delect elements:
+// [1 3 4 5 6 7]
+// Popping from front:
+// front: 1
+// s1 =  [3 4 5 6 7]
+// Popping from tail:
+// tail: 7
+// s1 =  [3 4 5 6]
 func testSlice4() {
 	fmt.Println("-----------testSlice 4")
 	// 1.定义和初始化
