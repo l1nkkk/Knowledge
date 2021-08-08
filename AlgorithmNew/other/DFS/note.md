@@ -1,3 +1,16 @@
+- [概述](#概述)
+- [demo](#demo)
+  - [全排列](#全排列)
+    - [DFS 决策树](#dfs-决策树)
+    - [字典序法](#字典序法)
+  - [划分为k个相等的子集](#划分为k个相等的子集)
+    - [以桶的视角](#以桶的视角)
+  - [子集](#子集)
+    - [数学归纳法](#数学归纳法)
+    - [dfs](#dfs)
+  - [组合](#组合)
+  - [括号问题](#括号问题)
+
 - 参考：https://labuladong.gitbook.io/algo/mu-lu-ye-3/mu-lu-ye/hui-su-suan-fa-xiang-jie-xiu-ding-ban
 # 概述
 - **回溯算法**其实就是我们常说的**DFS 算法**，本质上就是一种**暴力穷举**算法。
@@ -30,7 +43,7 @@ def backtrack(路径, 选择列表):
 先固定第一位为 1，然后第二位可以是 2，那么第三位只能是 3；然后可以把第二位变成 3，第三位就只能是 2 了；然后就只能变化第一位，变成 2，然后再穷举后两位……
 ```
 
-> 决策树
+### DFS 决策树
 
 <div align="center" style="zoom:80%"><img src="./pic/1.png"></div>
 
@@ -94,5 +107,240 @@ public:
             nowChoose.pop_back();
         }
     }
+};
+```
+
+### 字典序法
+<div align="center" style="zoom:80%"><img src="./pic/5.png"></div>
+
+- 以下代码可以处理重复
+  - leetcode47
+
+```
+class Solution {
+public:
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+int pre,next;
+        vector<vector<int>> res;
+        sort(nums.begin(), nums.end());
+        res.push_back(vector<int>(nums.begin(), nums.end()));
+
+
+        while(true){
+            next = nums.size()-1;
+            pre = next-1;
+            // 1.从右到左，找到递增的
+            while(pre >= 0){
+                if(nums[pre] < nums[next]){
+                    break;
+                }
+                --pre;
+                --next;
+            }
+            if(pre < 0)// 一直没找到的情况
+                break;
+
+            // 2.找到比该数大最小且最靠右边的一个。eg:0122的情况找最后一个2
+            int i = nums.size()-1;
+            while(i >= next){
+                if(nums[i] > nums[pre])
+                    break;
+                --i;
+            }
+            if(i < next)
+                break;
+
+            swap(nums[pre], nums[i]);
+            // 3.倒叙
+            int start,end;
+            start = next;
+            end = nums.size()-1;
+            while(start < end){
+                swap(nums[start], nums[end]);
+                ++start;
+                --end;
+            }
+
+            res.push_back(vector<int>(nums.begin(),nums.end()));
+        }
+        return res;
+    }
+};
+```
+
+## 划分为k个相等的子集
+<div align="center" style="zoom:80%"><img src="./pic/6.png"></div>
+
+- 用背包思想去解题的套路只能用在两个划分上，多个划分解法一般只能通过暴力穷举。
+
+- 将 n 个数字分配到 k 个桶里，我们可以有两种视角：
+  - **以数字的视角**：如果我们切换到这 n 个数字的视角，每个数字都要**选择**进入到 k 个桶中的某一个（**选择的是桶**）
+  - **以桶的视角**：如果我们切换到这 k 个桶的视角，对于每个桶，都要遍历 nums 中的 n 个数字，然后**选择**是否将当前遍历到的数字装进自己这个桶里（**选择的是数字**）
+
+
+```java
+// 主函数
+public boolean canPartitionKSubsets(int[] nums, int k) {
+    // 排除一些基本情况
+    if (k > nums.length) return false;
+    int sum = 0;
+    for (int v : nums) sum += v;
+    if (sum % k != 0) return false;
+
+    // k 个桶（集合），记录每个桶装的数字之和
+    int[] bucket = new int[k];
+    // 理论上每个桶（集合）中数字的和
+    int target = sum / k;
+    // 穷举，看看 nums 是否能划分成 k 个和为 target 的子集
+    return backtrack(nums, 0, bucket, target);
+}
+
+// 递归穷举 nums 中的每个数字
+boolean backtrack(
+    int[] nums, int index, int[] bucket, int target) {
+
+    if (index == nums.length) {
+        // 检查所有桶的数字之和是否都是 target
+        for (int i = 0; i < bucket.length; i++) {
+            if (bucket[i] != target) {
+                return false;
+            }
+        }
+        // nums 成功平分成 k 个子集
+        return true;
+    }
+
+    // 穷举 nums[index] 可能装入的桶
+    for (int i = 0; i < bucket.length; i++) {
+        // 剪枝，桶装装满了
+        if (bucket[i] + nums[index] > target) {
+            continue;
+        }
+        // 将 nums[index] 装入 bucket[i]
+        bucket[i] += nums[index];
+        // 递归穷举下一个数字的选择
+        if (backtrack(nums, index + 1, bucket, target)) {
+            return true;
+        }
+        // 撤销选择
+        bucket[i] -= nums[index];
+    }
+
+    // nums[index] 装入哪个桶都不行
+    return false;
+}
+```
+
+- **如果我们让尽可能多的情况命中剪枝的那个 if 分支，就可以减少递归调用的次数，一定程度上减少时间复杂度**。如何更容易触发剪枝
+  - **方法**：提前对 nums 数组排序，把大的数字排在前面，那么大的数字会先被分配到 bucket 中，对于之后的数字，bucket[i] + nums[index] 会更大，更容易触发剪枝的 if 条件
+
+### 以桶的视角
+- 以桶的视角进行穷举，每个桶需要遍历 nums 中的所有数字，决定是否把当前数字装进桶中；当装满一个桶之后，还要装下一个桶，直到所有桶都装满为止
+
+## 子集
+- https://mp.weixin.qq.com/s/qT6WgR6Qwn7ayZkI3AineA
+```
+给你一个整数数组 nums ，数组中的元素 互不相同 。返回该数组所有可能的子集（幂集）。
+
+解集 不能 包含重复的子集。你可以按 任意顺序 返回解集。
+
+示例 1：
+输入：nums = [1,2,3]
+输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+
+
+示例 2：
+输入：nums = [0]
+输出：[[],[0]]
+```
+### 数学归纳法
+<div align="center" style="zoom:80%"><img src="./pic/7.png"></div>
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> subsets(vector<int>& nums) {
+        if(nums.empty()){
+            return  {{}};
+        }
+        int n = nums.back();
+        nums.pop_back();
+        auto res = subsets(nums);
+        int size = res.size();
+
+        for(int i = 0; i < size; ++i){
+            res.push_back(res[i]);
+            res.back().push_back(n);
+        }
+        return res;
+    }
+};
+```
+
+### dfs
+- 方法1:选or不选（二叉决策树）
+- 方法2：如下图所示
+  
+<div align="center" style="zoom:80%"><img src="./pic/8.png"></div>
+
+## 组合
+
+```
+给定两个整数 n 和 k，返回范围 [1, n] 中所有可能的 k 个数的组合。
+
+你可以按 任何顺序 返回答案。
+```
+- 分析：
+  - 路径：K
+  - 选择：n
+- 决策树
+  - k 限制了树的高度，n 限制了树的宽度
+<div align="center" style="zoom:80%"><img src="./pic/9.png"></div>
+
+## 括号问题
+- 题目如下
+```
+数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。
+
+示例 1：
+输入：n = 3
+输出：["((()))","(()())","(())()","()(())","()()()"]
+
+示例 2：
+输入：n = 1
+输出：["()"]
+
+
+```
+
+- 有关括号问题，你只要记住以下性质，思路就很容易想出来：
+  - 一个「合法」括号组合的左括号数量一定等于右括号数量，这个很好理解。
+  - 对于一个「合法」的括号字符串组合 p，必然对于任何 `0 <= i < len(p)` 都有：子串 `p[0..i]` 中左括号的数量都大于或等于右括号的数量
+
+
+- 算法输入一个整数 n，让你计算 n 对儿括号能组成几种合法的括号组合，可以改写成如下问题：
+  - **现在有 2n 个位置，每个位置可以放置字符 `(` 或者 `)`，组成的所有括号组合中，有多少个是合法的？**
+
+
+```cpp
+class Solution {
+public:
+    void generator(string ins,int lnum, int rnum){
+        if(rnum == 0 && lnum == rnum ){
+            res.push_back(ins);
+            return;
+        }
+        if(lnum > 0)
+            generator(ins+'(', lnum-1, rnum);
+        if(rnum > lnum)
+            generator(ins+')', lnum, rnum-1);
+    }
+    vector<string> generateParenthesis(int n) {
+        generator("", n, n);
+        return res;
+    }
+private:
+    vector<string> res;
+
 };
 ```
