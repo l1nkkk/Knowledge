@@ -9,7 +9,6 @@
     - [数学归纳法](#数学归纳法)
     - [dfs](#dfs)
   - [组合](#组合)
-  - [括号问题](#括号问题)
 
 - 参考：https://labuladong.gitbook.io/algo/mu-lu-ye-3/mu-lu-ye/hui-su-suan-fa-xiang-jie-xiu-ding-ban
 # 概述
@@ -297,50 +296,3 @@ public:
   - k 限制了树的高度，n 限制了树的宽度
 <div align="center" style="zoom:80%"><img src="./pic/9.png"></div>
 
-## 括号问题
-- 题目如下
-```
-数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。
-
-示例 1：
-输入：n = 3
-输出：["((()))","(()())","(())()","()(())","()()()"]
-
-示例 2：
-输入：n = 1
-输出：["()"]
-
-
-```
-
-- 有关括号问题，你只要记住以下性质，思路就很容易想出来：
-  - 一个「合法」括号组合的左括号数量一定等于右括号数量，这个很好理解。
-  - 对于一个「合法」的括号字符串组合 p，必然对于任何 `0 <= i < len(p)` 都有：子串 `p[0..i]` 中左括号的数量都大于或等于右括号的数量
-
-
-- 算法输入一个整数 n，让你计算 n 对儿括号能组成几种合法的括号组合，可以改写成如下问题：
-  - **现在有 2n 个位置，每个位置可以放置字符 `(` 或者 `)`，组成的所有括号组合中，有多少个是合法的？**
-
-
-```cpp
-class Solution {
-public:
-    void generator(string ins,int lnum, int rnum){
-        if(rnum == 0 && lnum == rnum ){
-            res.push_back(ins);
-            return;
-        }
-        if(lnum > 0)
-            generator(ins+'(', lnum-1, rnum);
-        if(rnum > lnum)
-            generator(ins+')', lnum, rnum-1);
-    }
-    vector<string> generateParenthesis(int n) {
-        generator("", n, n);
-        return res;
-    }
-private:
-    vector<string> res;
-
-};
-```

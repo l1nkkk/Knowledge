@@ -13,6 +13,7 @@
 - [单调栈](#单调栈)
   - [Leetcode96：「下一个更大元素 I」](#leetcode96下一个更大元素-i)
 - [常数时间下 删除/等概论查找/添加](#常数时间下-删除等概论查找添加)
+- [单调队列](#单调队列)
 # 双指针技巧总结
 - https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye-3/shuang-zhi-zhen-ji-qiao
 ## 快慢指针
@@ -303,3 +304,15 @@ vector<int> nextGreaterElement(vector<int>& nums) {
 
 - 如果想高效地，**等概率**地随机获取元素，就要**使用数组作为底层容器**。
 - 如何做到删除速度为O(1):**如果要保持数组元素的紧凑性，可以把待删除元素换到最后**，然后 pop 掉末尾的元素，这样时间复杂度就是 O(1) 了。当然，我们需要额外的哈希表记录值到索引的映射。
+
+# 单调队列
+- https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye-2/dan-tiao-dui-lie
+- leetcode239.滑动窗口最大值
+  - 处理起来复杂度O(n)，每次取最大的复杂度为O(1)
+- 「单调栈」主要解决 Next Great Number 一类算法问题，而「单调队列」这个数据结构可以解决滑动窗口相关的问题
+
+- `push`：`void push(int n)`。「单调队列」的核心思路和「单调栈」类似，push 方法依然在队尾添加元素，但是要把前面比自己小的元素都删掉：
+  - 你可以想象，加入数字的大小代表人的体重，把前面体重不足的都压扁了，直到遇到更大的量级才停住。
+<div align="center" style="zoom:60%"><img src="./pic/3.png"></div>
+
+- `pop`：`void pop(int n)`。要判断 data.front() == n，因为我们想删除的队头元素 n 可能已经被「压扁」了，可能已经不存在了，所以这时候就不用删除了。
