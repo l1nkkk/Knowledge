@@ -24,7 +24,6 @@
     - [最大子数组](#最大子数组)
     - [*最长公共子序列(Longest Common Subsequence，简称 LCS)](#最长公共子序列longest-common-subsequence简称-lcs)
     - [最长回文子序列](#最长回文子序列)
-    - [最长回文子序列](#最长回文子序列-1)
   - [背包问题](#背包问题)
 # 概述
 - **一般形式**：求最值，如最长递增子序列呀，最小编辑距离等等
@@ -33,6 +32,7 @@
   - 存在 **「重叠子问题」**
   - 具备 **「最优子结构」**：通过子问题的最值得到原问题的最值，**子问题间必须互相独立**
   - 存在 **「状态转移方程」**：只有列出正确的「状态转移方程」，**才能正确地穷举**
+    - **写出状态转移方程是最困难的**
 
 
 - **递归算法的时间复杂度**：就是用子问题个数乘以解决一个子问题需要的时间。
@@ -41,8 +41,8 @@
 - **自底向上**：从问题规模最小的  **base case** f(1) 和 f(2) 开始往上推，直到推到我们想要的答案 f(20)，**这就是动态规划的思路**，`这也是为什么动态规划一般都脱离了递归，而是由循环迭代完成计算`。
 
 - dp数组的遍历方向，记住两点
-  1. 遍历的过程中，所需的状态必须是已经计算出来的。
-  2. 遍历的终点必须是存储结果的那个位置。
+  1. **过程**：遍历的过程中，所需的状态必须是已经计算出来的。
+  2. **终点**：遍历的终点必须是存储结果的那个位置。
 
 ## 状态转移方程
 - **写出状态转移方程是最困难的**，以下是思考状态转移方程的思维框架：
@@ -156,6 +156,7 @@ for (int i = 0; i < n; i++) {
 ```
 
 ### 编辑距离
+- 72.编辑距离：https://leetcode-cn.com/problems/edit-distance/
 > 题目
 ```
 给你两个单词 word1 和 wor0d2，请你计算出将 word1 转换成 word2 所使用的最少操作数 。
@@ -189,6 +190,33 @@ def dp(i, j):
 ```
 - **状态压缩**：既然每个 `dp[i][j]` 只和它附近的三个状态有关，空间复杂度是可以压缩成 O(min(M, N)) 的（M，N 是两个字符串的长度）
   - 但是可读性大大降低。
+> 代码
+```cpp
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        vector<vector<int>> dp(505,vector<int>(505,1000));
+        // 初始化
+        for(int i = 0; i < 505; ++i){
+            dp[i][0] = i;
+            dp[0][i] = i;
+        }
+        // 状态1
+        for(int i = 1; i <= word2.size(); ++i){
+            // 状态2
+            for(int j = 1; j <= word1.size(); ++j){
+                if(word1[j-1] == word2[i-1])
+                    dp[i][j] = min(dp[i-1][j-1],dp[i][j]); // skip
+                else
+                    dp[i][j] = min(dp[i-1][j-1]+1,dp[i][j]); // 换
+                dp[i][j] = min(dp[i][j-1]+1,dp[i][j]); // 删
+                dp[i][j] = min(dp[i-1][j]+1,dp[i][j]); // 增
+            }
+        }
+        return dp[word2.size()][word1.size()];
+    }
+};
+```
 
 ### 最长递增子序列（Longes Increasing Subsequence，简写为 LIS）
 > https://labuladong.gitbook.io/algo/mu-lu-ye-2/mu-lu-ye-1/dong-tai-gui-hua-she-ji-zui-chang-di-zeng-zi-xu-lie
@@ -199,16 +227,43 @@ def dp(i, j):
 <div align="center" style="zoom:60%"><img src="./pic/3.png"></div>
 
 ### 信封嵌套问题
+> https://labuladong.gitbook.io/algo/mu-lu-ye-2/mu-lu-ye-1/xin-feng-qian-tao-wen-ti
+- 354.俄罗斯套娃信封问题:https://leetcode-cn.com/problems/russian-doll-envelopes/
+- 有点区间问题的味道
 - 转化为 ： **最长递增子序列LIS**
 - 这个解法的关键在于，对于宽度 w 相同的数对，**要对其高度 h 进行降序排序**。因为两个宽度相同的信封不能相互包含的，逆序排序保证在 w 相同的数对中最多只选取一个。
 
 <div align="center" style="zoom:80%"><img src="./pic/4.png"></div>
 
 ### 最大子数组
+- 53.最大子序和：https://leetcode-cn.com/problems/maximum-subarray/
 - 思路和最长递增子序列很像。
 - 学了滑动窗口，回过来看，了解为什么不能用滑动窗口
   - https://labuladong.gitbook.io/algo/mu-lu-ye-2/mu-lu-ye-1/zui-da-zi-shu-zu
+  - 因为没办法确定什么时候收缩窗口
 <div align="center" style="zoom:80%"><img src="./pic/5.jpg"></div>
+
+> 代码
+```cpp
+int maxSubArray(int[] nums) {
+    int n = nums.length;
+    if (n == 0) return 0;
+    int[] dp = new int[n];
+    // base case
+    // 第一个元素前面没有子数组
+    dp[0] = nums[0];
+    // 状态转移方程
+    for (int i = 1; i < n; i++) {
+        dp[i] = Math.max(nums[i], nums[i] + dp[i - 1]);
+    }
+    // 得到 nums 的最大子数组
+    int res = Integer.MIN_VALUE;
+    for (int i = 0; i < n; i++) {
+        res = Math.max(res, dp[i]);
+    }
+    return res;
+}
+```
 
 ### *最长公共子序列(Longest Common Subsequence，简称 LCS)
 - 参考：https://mp.weixin.qq.com/s/ZhPEchewfc03xWv9VP3msg
@@ -247,20 +302,6 @@ else
     // s[i+1..j] 和 s[i..j-1] 谁的回文子序列更长？
     dp[i][j] = max(dp[i + 1][j], dp[i][j - 1]);
 ```
-
-### 最长回文子序列
-- 参考：https://mp.weixin.qq.com/s/zNai1pzXHeB2tQE6AdOXTA
-
-- DP定义：在子串s[i..j]中，最长回文子序列的长度为dp[i][j]
-- 状态转移：
-  ```py
-    if (s[i] == s[j])
-        // 它俩一定在最长回文子序列中
-        dp[i][j] = dp[i + 1][j - 1] + 2;
-    else
-        // s[i+1..j] 和 s[i..j-1] 谁的回文子序列更长？
-        dp[i][j] = max(dp[i + 1][j], dp[i][j - 1]);
-  ```
 <div align="center" style="zoom:80%"><img src="./pic/7.png"></div>
 <div align="center" style="zoom:80%"><img src="./pic/8.png"></div>
 
