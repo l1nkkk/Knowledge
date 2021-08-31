@@ -11,13 +11,14 @@
   - [内部构建和外部构建](#内部构建和外部构建)
   - [外部构建](#外部构建)
 - [构建目标文件](#构建目标文件)
-  - [编译可执行目标文件：add_executable](#编译可执行目标文件add_executable)
+  - [编译可执行目标文件：ADD_EXECUTABLEe](#编译可执行目标文件add_executablee)
   - [编译共享库：ADD_LIBRARY](#编译共享库add_library)
     - [解析](#解析)
     - [demo](#demo)
     - [设置目标文件输出的名称：SET_TARGET_PROPERTIES](#设置目标文件输出的名称set_target_properties)
     - [动态库版本号：SET_TARGET_PROPERTIES](#动态库版本号set_target_properties)
     - [安装](#安装)
+  - [换个地方保存目标二进制](#换个地方保存目标二进制)
 - [导入](#导入)
   - [头文件搜索路径：INCLUDE_DIRECTORIES](#头文件搜索路径include_directories)
   - [导入共享库](#导入共享库)
@@ -25,7 +26,6 @@
     - [添加共享库：TARGET_LINK_LIBRARIES](#添加共享库target_link_libraries)
       - [demo](#demo-1)
   - [添加项目子目录：ADD_SUBDIRECTORY](#添加项目子目录add_subdirectory)
-  - [换个地方保存目标二进制](#换个地方保存目标二进制)
 - [安装](#安装-1)
   - [安装路径前缀：CMAKE_INSTALL_PREFIX](#安装路径前缀cmake_install_prefix)
   - [定义安装规则：INSTALL](#定义安装规则install)
@@ -77,15 +77,23 @@ CMakeFiles      CMakeLists.txt       Makefile
   2. 建立**编译目录** build，**可以在任何地方建立**，不一定再工程目录中
   3. 进入build目录，执行`cmake [CMakeLists.txt所在目录]`
   4. 这时候已经产生了make需要的中间文件，运行make构建工程
-- 注：`HELLO_SOURCE_DIR` 仍然指代工程路径，即` /backup/cmake/t1` 而H`ELLO_BINARY_DIR` 则指代编译路径，即`/backup/cmake/t1/build`
+- 注：`HELLO_SOURCE_DIR` 仍然指代工程路径，即` /backup/cmake/t1` 而`HELLO_BINARY_DIR` 则指代编译路径，即`/backup/cmake/t1/build`
 
 
 # 构建目标文件
-## 编译可执行目标文件：add_executable
-- 指定生成目标和参与生成的源文件：**add_executable**
-  - eg：`add_executable(Demo main.cc)`： 将名为 main.cc 的源文件编译成一个名称为 Demo 的可执行文件
-  - **一个目录多个源文件**：`add_executable(Demo main.cc MathFunctions.cc)`
+## 编译可执行目标文件：ADD_EXECUTABLEe
+- 指定生成目标和参与生成的源文件：**ADD_EXECUTABLE**
+  - eg：`ADD_EXECUTABLE(Demo main.cc)`： 将名为 main.cc 的源文件编译成一个名称为 Demo 的可执行文件
+  - **一个目录多个源文件**：`ADD_EXECUTABLE(Demo main.cc MathFunctions.cc)`
     - 分别编译成目标文件后参与链接
+  - 不一定要在项目根目录下的`CMakeLists.txt`中。如下所示:
+    ```cmake
+    # -------src目录下
+    ADD_EXECUTABLE(hello main.c)
+    # -------项目根目录下
+    PROJECT(HELLO)
+    ADD_SUBDIRECTORY(src bin)
+    ```
 
 ## 编译共享库：ADD_LIBRARY
 
@@ -166,6 +174,22 @@ ARCHIVE DESTINATION lib)
 INSTALL(FILES hello.h DESTINATION include/hello)
 ```
 
+## 换个地方保存目标二进制
+- 不论是**SUBDIRS**还是**ADD_SUBDIRECTORY**指令，都可以通过SET指令重新定义**EXECUTABLE_OUTPUT_PATH**和**LIBRARY_OUTPUT_PATH**变量来指定**最终的目标二进制的位置**
+- 下面分别指定可执行文件 和 共享库的位置
+  - 不包含编译生成的中间文件
+```cmake
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+```
+- **在哪里加**
+  - 在哪里`ADD_EXECUTABLE`或`ADD_LIBRARY`，如果需要改变目标存放路径，就在哪里加入上述的定义
+
+
+> `<projectname>_BINARY_DIR`和`PROJECT_BINARY_DIR`
+-  `<projectname>_BINARY_DIR`和`PROJECT_BINARY_DIR`变量，他们指的编译发生的当前目录，两种情况
+   - 内部编译：PROJECT_SOURCE_DIR也就是工程代码所在目录
+   - 外部编译：指的是外部编译所在目录，也就是执行cmake时的所在目录
 
 # 导入
 
@@ -234,11 +258,11 @@ $ ldd ./src/main
 
 ## 添加项目子目录：ADD_SUBDIRECTORY
 - `ADD_SUBDIRECTORY(source_dir [binary_dir] [EXCLUDE_FROM_ALL])`
-  - 这个指令用于向当前工程添加存放源文件的子目录
+  - 这个指令用于向当前工程(工程根目录下的CMakeList.txt)添加存放源文件的子目录
   - 并可以指定中间二进制和目标二进制存放的位置。
     - `ADD_SUBDIRECTORY(src bin)`：相当于向当前工程添加存放源文件的子目录`src`，把编译过程中的中间二进制和目标二进制存放在 **${PROJECT_BINARY_DIR}/bin** 下面
       - **如果不进行`bin`目录的指定**，那么编译结果(包括中间结果)都将存放在`build/src`目录(这个目录跟原有的src目录对应)，指定`bin`目录后，**相当于在编译时将`src`重命名为`bin`**，所有的中间结果和目标二进制都将存放在`bin`目录。
-  - `EXCLUDE_FROM_ALL`参数的含义是将这个目录从编译过程中排除，比如，工程的example，可能就需要工程构建完成后，再进入example目录单独进行构建\
+  - `EXCLUDE_FROM_ALL`参数的含义是将这个目录从编译过程中排除，比如，工程的example，可能就需要工程构建完成后，再进入example目录单独进行构建(不然会出现example调用的还没被编译)
 
 - 指明本项目包含一个**子目录**，这样该子目录下的CMakeLists.txt文件也会被处理：add_subdirectory
   - 注：当前子目录
@@ -252,22 +276,6 @@ $ ldd ./src/main
 - 如果我们在上面的例子中将`ADD_SUBDIRECTORY (src bin)修改为SUBDIRS(src)`。那么在build目录中将出现一个src目录，生成的目标代码hello将存放在src目录中。
 
 
-## 换个地方保存目标二进制
-- 不论是**SUBDIRS**还是**ADD_SUBDIRECTORY**指令，都可以通过SET指令重新定义**EXECUTABLE_OUTPUT_PATH**和**LIBRARY_OUTPUT_PATH**变量来指定**最终的目标二进制的位置**
-- 下面分别指定可执行文件 和 共享库的位置
-  - 不包含编译生成的中间文件
-```cmake
-SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-```
-- **在哪里加**
-  - 在哪里`ADD_EXECUTABLE`或`ADD_LIBRARY`，如果需要改变目标存放路径，就在哪里加入上述的定义
-
-
-> `<projectname>_BINARY_DIR`和`PROJECT_BINARY_DIR`
--  `<projectname>_BINARY_DIR`和`PROJECT_BINARY_DIR`变量，他们指的编译发生的当前目录，两种情况
-   - 内部编译：PROJECT_SOURCE_DIR也就是工程代码所在目录
-   - 外部编译：指的是外部编译所在目录，也就是执行cmake时的所在目录
 
 
 
@@ -425,7 +433,7 @@ INSTALL(CODE "MESSAGE(\"Sample install message.\")")
 ## 项目名称
 - 项目信息，表示项目的名称：PROJECT(projectname [CXX] [C] [Java])
   - 可指定工程支持的语言，支持的语言列表是可以忽略的
-  - 隐式的定义了两个cmake变量:`<projectname>_BINARY_DIR `以及 `<projectname>_SOURCE_DIR`，分别是二进制
+  - 隐式的定义了两个cmake变量:`<projectname>_BINARY_DIR `以及 `<projectname>_SOURCE_DIR`，分别是**编译路径和工程路径**
   - eg：`project (Demo1)`，定义了两个变量：`Demo1_BINARY_DIR `以及 `Demo1_SOURCE_DIR`
 
 - 注：生成的可执行文件名称，与项目名没有关系。eg：`ADD_EXECUTABLE(t1 main.c)` 生成的可执行文件名称为t1
@@ -462,4 +470,7 @@ add_executable(Demo ${DIR_SRCS})
 
 
 # 命令
-- `cmake .`：在当前目录下执行，生成Makefile后，使用，make命令进行编译，得到可执行文件
+- `cmake .`：在当前目录下执行，生成Makefile后，使用，`make`命令进行编译，得到可执行文件
+- `make clean`：对make后产生的文件进行清理。清除`make`产生的文件
+  - 不能清除cmake产生的中间文件
+  - 

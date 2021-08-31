@@ -1,0 +1,3 @@
+/home/l1nkkk/Documents/github/Knowledge/cpp/cmake/exp/backup/cmake/t1/CMakeFiles/rebuild_cache.dir
+/home/l1nkkk/Documents/github/Knowledge/cpp/cmake/exp/backup/cmake/t1/CMakeFiles/edit_cache.dir
+/home/l1nkkk/Documents/github/Knowledge/cpp/cmake/exp/backup/cmake/t1/CMakeFiles/hello.dir
