@@ -17,7 +17,6 @@
     - [demo](#demo)
     - [设置目标文件输出的名称：SET_TARGET_PROPERTIES](#设置目标文件输出的名称set_target_properties)
     - [动态库版本号：SET_TARGET_PROPERTIES](#动态库版本号set_target_properties)
-    - [安装](#安装)
   - [换个地方保存目标二进制](#换个地方保存目标二进制)
 - [导入](#导入)
   - [头文件搜索路径：INCLUDE_DIRECTORIES](#头文件搜索路径include_directories)
@@ -25,14 +24,16 @@
     - [添加共享库目录：LINK_DIRECTORIES](#添加共享库目录link_directories)
     - [添加共享库：TARGET_LINK_LIBRARIES](#添加共享库target_link_libraries)
       - [demo](#demo-1)
+  - [特殊的环境变量：`CMAKE_INCLUDE_PATH` 和 `CMAKE_LIBRARY_PATH`](#特殊的环境变量cmake_include_path-和-cmake_library_path)
   - [添加项目子目录：ADD_SUBDIRECTORY](#添加项目子目录add_subdirectory)
-- [安装](#安装-1)
+- [安装](#安装)
   - [安装路径前缀：CMAKE_INSTALL_PREFIX](#安装路径前缀cmake_install_prefix)
   - [定义安装规则：INSTALL](#定义安装规则install)
     - [**目标文件安装解析**](#目标文件安装解析)
     - [**普通文件安装**](#普通文件安装)
     - [**非目标文件的可执行程序安装（如脚本）**](#非目标文件的可执行程序安装如脚本)
     - [**目录的安装**](#目录的安装)
+    - [安装共享库和头文件](#安装共享库和头文件)
     - [其他](#其他)
 - [工程制作](#工程制作)
 - [其他](#其他-1)
@@ -154,25 +155,7 @@ libhello.so.1->libhello.so.1.2
 
 
 
-### 安装
-- 原目录结构
-```
-.
-├── CMakeLists.txt
-└── lib
-    ├── CMakeLists.txt
-    ├── hello.c
-    └── hello.h
 
-```
-
-- 命令
-```cmake
-INSTALL(TARGETS hello hello_static
-LIBRARY DESTINATION lib
-ARCHIVE DESTINATION lib)
-INSTALL(FILES hello.h DESTINATION include/hello)
-```
 
 ## 换个地方保存目标二进制
 - 不论是**SUBDIRS**还是**ADD_SUBDIRECTORY**指令，都可以通过SET指令重新定义**EXECUTABLE_OUTPUT_PATH**和**LIBRARY_OUTPUT_PATH**变量来指定**最终的目标二进制的位置**
@@ -204,6 +187,7 @@ INCLUDE_DIRECTORIES([AFTER|BEFORE] [SYSTEM] dir1 dir2 ...)
 ## 导入共享库
 ### 添加共享库目录：LINK_DIRECTORIES
 - 添加非标准的共享库搜索路径
+  - 如果是相对路径的时候，是**相对于执行命令的路径**（如build目录），而不是相对于源码（CMakeList）的路径
 - 可以是一个可执行文件，但是同样可以用于为自己编写的共享库添加共享库链接
 ```cmake
 LINK_DIRECTORIES(directory1 directory2 ...)
@@ -222,8 +206,9 @@ LINK_DIRECTORIES(directory1 directory2 ...)
 ```cmake
 TARGET_LINK_LIBRARIES(target library1<debug | optimized> library2...)
 ```
-- 如果是静态的则使用：`TARGET_LINK_LIBRARIES(main libhello.a)`
-- 动态的可以直接：`TARGET_LINK_LIBRARIES(main hello)`
+- 默认链接动态库
+  - 如果是静态的则使用：`TARGET_LINK_LIBRARIES(main libhello.a)`
+  - 动态的可以直接：`TARGET_LINK_LIBRARIES(main hello)`
 #### demo
 - 这几句的顺序不能乱，不然就要出现问题
 ```cmake
@@ -254,6 +239,19 @@ $ ldd ./src/main
 	/lib64/ld-linux-x86-64.so.2 (0x00007f489c1c3000)
 
 ```
+## 特殊的环境变量：`CMAKE_INCLUDE_PATH` 和 `CMAKE_LIBRARY_PATH`
+- 注意是系统环境变量，而不是CMAKE变量
+- 作用：如果头文件没有存放在常规路径(`/usr/include, /usr/local/include`等)，则可以通过这些变量就行弥补（但不是设置了就行了，还要配合CMAKE的其他命令），比如下面的例子
+```cmake
+FIND_PATH(myHeader hello.h)
+IF(myHeader)
+INCLUDE_DIRECTORIES(${myHeader})
+ENDIF(myHeader)
+```
+- **`FIND_PATH`**：用来在指定路径中搜索文件名，eg：`FIND_PATH(myHeader NAMES hello.h PATHS /usr/include/usr/include/hello)`
+  - 但是上面的例子并没有指定路径，这时cmake就会从`CMAKE_INCLUDE_PATH`中寻找
+
+- `CMAKE_LIBRARY_PATH`和`FIND_LIBRARY`和上面一样
 
 
 ## 添加项目子目录：ADD_SUBDIRECTORY
@@ -389,6 +387,26 @@ GROUP_EXECUTE GROUP_READ)
 将icons目录安装到 <prefix>/share/myproj，将scripts/中的内容安装到<prefix>/share/myproj不包含目录名为CVS的目录，对于scripts/*文件指定权限为 OWNER_EXECUTE OWNER_WRITE OWNER_READ ROUP_EXECUTE GROUP_READ。
 ```
 
+### 安装共享库和头文件
+- 原目录结构
+```
+.
+├── CMakeLists.txt
+└── lib
+    ├── CMakeLists.txt
+    ├── hello.c
+    └── hello.h
+
+```
+
+- 命令
+```cmake
+INSTALL(TARGETS hello hello_static
+LIBRARY DESTINATION lib
+ARCHIVE DESTINATION lib)
+INSTALL(FILES hello.h DESTINATION include/hello)
+```
+
 ### 其他
 ```
 INSTALL([[SCRIPT <file>] [CODE <code>]] [...])
@@ -473,4 +491,5 @@ add_executable(Demo ${DIR_SRCS})
 - `cmake .`：在当前目录下执行，生成Makefile后，使用，`make`命令进行编译，得到可执行文件
 - `make clean`：对make后产生的文件进行清理。清除`make`产生的文件
   - 不能清除cmake产生的中间文件
-  - 
+- `make install`：将编译构建好的文件安装（复制）到指定目录
+- `make VERBOSE=1`：查看更多细节
