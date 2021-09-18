@@ -2270,7 +2270,7 @@ int main(){
 }
 ```
 
-> 拷贝和填充为初始化的内存和算法
+> 拷贝和填充未初始化的内存的算法
 - 在用copy和fill的时候，都是对初始化过的进行拷贝和填充，现在我们是对没有初始化过的进行填充和拷贝。
 - 与copy不同，uninitialized_copy在给定目的的位置初始化。
 <div align="center"><img style="zoom:80%" src="pic/2-90.png"></div>

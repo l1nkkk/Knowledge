@@ -54,6 +54,8 @@ int binarySearch(vector<int> nums, int target){
   - 因为搜索区间是左闭右闭区间 **[left, right]**。如果接下来是搜索 **[left, mid]**，那么mid已经知道不符合，肯定不用继续搜索
 
 ## 寻找左侧边界的二分搜索
+- 特殊性质：**当 val 不存在时，得到的索引恰好是比 val 大的最小元素索引**。（感觉这么说不是很好，还是要依赖具体实现）
+  - https://labuladong.gitbook.io/algo/mu-lu-ye-4/er-fen-cha-zhao-pan-ding-zi-xu-lie
 ```cpp
 int binarySearch(vector<int> nums, int target){
     int left, right, mid;
@@ -74,18 +76,6 @@ int binarySearch(vector<int> nums, int target){
     return nums[left] == target ? left : -1;
 }
 ```
-
-- `while`中为什么是`<`
-  - 因为是左闭右开区间 **[left, right)**，**[left, left)**区间为空
-
-- 搜索偏向左侧的关键：
-  - `else if( target == nums[mid] )   return right=mid; // 搜素左侧的关键`
-
-- 为什么是 `left = mid + 1，right = mid`
-  - 因为是左闭右开区间 **[left, right)**
-
-- 为什么要左闭右开，可以左闭右闭吗
-  - 比较普遍。当然可以，只要你明白了「搜索区间」这个概念，就能有效避免漏掉元素，随便你怎么改都行。
 
 
 > 左闭右闭的代码
