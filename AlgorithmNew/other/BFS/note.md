@@ -51,6 +51,7 @@ int BFS(Node start, Node target) {
 <div align="center" style="zoom:80%"><img src="./pic/773-1.png"></div>
 
 - 对于这种计算最小步数的问题，我们就要敏感地想到 BFS 算法。
-- BFS 算法并不只是一个寻路算法，而是一种暴力搜索算法，只要涉及暴力穷举的问题，BFS 就可以用，而且可以最快地找到答案
+- BFS 算法并不只是一个寻路算法，而是一种暴力搜索算法，只要涉及暴力穷举的问题，BFS 就可以用，而且可以最快地找到答案.
+  - 什么情况没法完成呢？就是要维护一个记录，已经有了的状态就不再放入队列，这样队列为空就退出
 - 决策树如下
 <div align="center" style="zoom:80%"><img src="./pic/773-2.png"></div>

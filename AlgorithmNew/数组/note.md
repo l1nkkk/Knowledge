@@ -6,27 +6,34 @@
       - [删除有序数组中重复的](#删除有序数组中重复的)
   - [左右指针](#左右指针)
     - [二分查找](#二分查找)
-    - [两数之和](#两数之和)
+    - [twoSum](#twosum)
+    - [反转数组](#反转数组)
   - [滑动窗口](#滑动窗口)
+    - [最小覆盖子串](#最小覆盖子串)
+    - [最长无重复子串](#最长无重复子串)
 - [哈希表](#哈希表)
   - [twosum问题](#twosum问题)
 - [单调栈](#单调栈)
   - [Leetcode96：「下一个更大元素 I」](#leetcode96下一个更大元素-i)
+  - [最难去重题（去重后要字典序最小）](#最难去重题去重后要字典序最小)
 - [常数时间下 删除/等概论查找/添加](#常数时间下-删除等概论查找添加)
+  - [380. O(1) 时间插入、删除和获取随机元素](#380-o1-时间插入删除和获取随机元素)
 - [单调队列](#单调队列)
+  - [239. 滑动窗口最大值](#239-滑动窗口最大值)
 # 双指针技巧总结
 - https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye-3/shuang-zhi-zhen-ji-qiao
 ## 快慢指针
-- 主要解决链表中的问题，比如典型的判定链表中是否包含环。或者判断回文链表
-  - leetcode141
-  - leetcode234
-- 除此之外还用在**原地修改数组**上
-  - leetcode26.删除有序数组中的重复项
-  - 参考：https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye-3/yuan-di-xiu-gai-shu-zu
+- 应用
+  - 主要解决链表中的问题，比如典型的判定链表中是否包含环。或者判断回文链表
+    - leetcode141
+    - leetcode234
+  - 除此之外还用在**原地修改数组**上
+    - leetcode26.删除有序数组中的重复项
+    - 参考：https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye-3/yuan-di-xiu-gai-shu-zu
 
-- 快慢指针一般都初始化指向链表的头结点 head，前进时快指针 fast 在前，慢指针 slow 在后，巧妙解决一些链表中的问题。
-- 一般：快指针的速度为慢指针两倍
-  - 列外:删除链表的倒数第n个节点
+- 思路：快慢指针一般都初始化指向链表的头结点 head，前进时快指针 fast 在前，慢指针 slow 在后，巧妙解决一些链表中的问题。
+- 一般：（用在链表时）快指针的速度为慢指针两倍
+  - 例外:删除链表的倒数第n个节点
 
 > 模板
 ```cpp
@@ -44,6 +51,8 @@ Type hasCycle(ListNode head) {
 
 
 ### 环型链表：只判断不记录
+<div align="center" style="zoom:80%"><img src="./pic/88-1.png"></div>
+
 ```cpp
 class Solution {
 public:
@@ -54,6 +63,7 @@ public:
         while(fast != nullptr && fast->next != nullptr){
             fast = fast->next->next;
             slow = slow->next;
+            // 快和慢遇到了，说明有环的存在
             if(fast == slow)
                 return true;
         }
@@ -99,6 +109,12 @@ public:
 ```
 
 ### 原地修改数组
+- 下面四道题，一样的套路
+  - 26.删除排序数组中的重复项（简单）
+  - 83.删除排序链表中的重复元素（简单）
+  - 27.移除元素（简单）
+  - 283.移动零（简单）
+
 #### 删除有序数组中重复的
 > 题目
 ```
@@ -131,8 +147,10 @@ int removeDuplicates(int[] nums) {
 
 
 ## 左右指针
-- 左右指针在数组中实际是指两个索引值，一般初始化为 `left = 0, right = nums.length - 1 `。
-- 只要数组有序，就应该想到双指针技巧。
+- 思路：只要数组有序，就应该想到双指针技巧。
+- 应用：
+  - 左右指针在数组中实际是指两个索引值，一般初始化为 `left = 0, right = nums.length - 1 `。
+
 
 > 框架
 ```cpp
@@ -163,7 +181,9 @@ int binarySearch(int[] nums, int target) {
 }
 ```
 
-### 两数之和
+### twoSum
+<div align="center" style="zoom:70%"><img src="./pic/167-1.png"></div>
+
 - https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/solution/yi-zhang-tu-gao-su-ni-on-de-shuang-zhi-zhen-jie-fa/
   - 这个题解很好解释，为什么可以用左右指针
 
@@ -188,9 +208,38 @@ public:
 };
 ```
 
-## 滑动窗口
-- 参考：https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye-3/hua-dong-chuang-kou-ji-qiao-jin-jie
 
+### 反转数组
+<div align="center" style="zoom:70%"><img src="./pic/344-1.png"></div>
+
+```cpp
+class Solution {
+public:
+    void reverseString(vector<char>& s) {
+        int left,right;
+        left = 0;
+        right = s.size()-1;
+        while(left < right){
+            s[left] ^= s[right];
+            s[right] ^= s[left];
+            s[left] ^= s[right];
+            ++left;
+            --right;
+        }
+    }
+};
+```
+
+## 滑动窗口
+- 参考：https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye-4/hua-dong-chuang-kou-ji-qiao-jin-jie
+
+
+- 应用：
+  - 一大类子字符串匹配的问题，eg：
+    - 76.最小覆盖子串（困难）
+    - 567.字符串的排列（中等）
+    - 438.找到字符串中所有字母异位词（中等）
+    - 3.无重复字符的最长子串（中等）
 > 套模板时，应该考虑的问题
 1. 当移动 right 扩大窗口，即加入字符时，应该更新哪些数据？
 2. 什么条件下，窗口应该暂停扩大，开始移动 left 缩小窗口？
@@ -229,7 +278,92 @@ void slidingWindow(string s, string t){
     }
 }
 ```
+### 最小覆盖子串
+<div align="center" style="zoom:70%"><img src="./pic/76-1.png"></div>
 
+
+- 注意这里是覆盖的子串。而不是要求子序列
+> 代码
+```cpp
+class Solution {
+public:
+string minWindow(string s, string t) {
+    map<char, int> need, window;
+    int left = 0;
+    int right = 0;
+    int valid = 0;
+
+    // 重点：记录所需要要满足的条件
+    for(auto it:t)
+        ++need[it];
+
+    constexpr int MAX=1000000;
+    int start,len = MAX;
+    while(right < s.size()){
+        char c = s[right];
+        ++right;
+        // 重点：扩大窗口，更新数据
+        ++window[c];
+        if(need.find(c) != need.end() && window[c] == need[c])
+            ++valid;
+
+        while(valid == need.size()){// 重点：窗口收缩的时机
+            // 重点：记录结果
+            if(right - left < len){
+                len = right - left;
+                start = left;
+            }
+            char c = s[left];
+            ++left;
+            // 重点:缩小窗口，更新数据
+            if(need.find(c) != need.end() && window[c] == need[c])
+                --valid;
+            --window[c];
+        }
+    }
+    return len== MAX? "":s.substr(start, len);
+}
+};
+```
+
+> 字符串的排列
+
+- 同样也是涉及子串，而不是子序列
+<div align="center" style="zoom:70%"><img src="./pic/567-1.png"></div>
+
+> 找所有字母异位词
+
+<div align="center" style="zoom:70%"><img src="./pic/438-1.png"></div>
+
+
+### 最长无重复子串
+- 只有一个子串的题型，处理起来其实更简单
+<div align="center" style="zoom:70%"><img src="./pic/3-1.png"></div>
+
+```cpp
+int lengthOfLongestSubstring(string s) {
+    unordered_map<char, int> window;
+
+    int left = 0, right = 0;
+    int res = 0; // 记录结果
+    while (right < s.size()) {
+        char c = s[right];
+        right++;
+        // 进行窗口内数据的一系列更新
+        window[c]++;
+        // 判断左侧窗口是否要收缩
+        while (window[c] > 1) {
+            char d = s[left];
+            left++;
+            // 进行窗口内数据的一系列更新
+            window[d]--;
+        }
+        // 在这里更新答案
+        res = max(res, right - left);
+    }
+    return res;
+}
+```
 # 哈希表
 ## twosum问题
 - hash表的应用，减少时间复杂度
@@ -261,24 +395,28 @@ public:
 # 单调栈
 - 参考：https://mp.weixin.qq.com/s/KYfjBejo84AmajnPZNs5nA
 
-- 单调栈实际上就是栈，只是利用了一些巧妙的逻辑，**使得每次新元素入栈后，栈内的元素都保持有序（单调递增或单调递减）**。
+- 思路：单调栈实际上就是栈，只是利用了一些巧妙的逻辑，**使得每次新元素入栈后，栈内的元素都保持有序（单调递增或单调递减）**。
+
+- 应用：
+  - 处理下一个更大的元素
 
 > 模板
-- 也是下面题目的解法
+- 从后面开始往前索引，因为要知道下一个比其大的元素，得知道后面的情况
+- 保持栈里面的元素单调。实现：如果当前值比栈顶大，把栈顶弹开
 ```cpp
 vector<int> nextGreaterElement(vector<int>& nums) {
     vector<int> res(nums.size()); // 存放答案的数组
     stack<int> s;
-    // 因为判断每个元素要知道它后面的情况，所以从后索引
+    // 重点1：因为判断每个元素要知道它后面的情况，所以从后索引
     for (int i = nums.size() - 1; i >= 0; i--) {
-        // 保持单调：把比当前矮的到遇到第一个比当前大的之间的元素弹出
+        // 重点2：保持单调：把比当前矮的到遇到第一个比当前大的之间的元素弹出
         while (!s.empty() && s.top() <= nums[i]) {
             // 矮个起开，反正也被挡着了。。。
             s.pop();
         }
         // nums[i] 身后的 next great number
         res[i] = s.empty() ? -1 : s.top();
-        // 
+    
         s.push(nums[i]);
     }
     return res;
@@ -286,7 +424,9 @@ vector<int> nextGreaterElement(vector<int>& nums) {
 ```
 
 > 单调栈处理环形数组
-- 最简单的实现方式当然可以把这个双倍长度的数组构造出来，然后套用算法模板。但是，我们可以不用构造新数组，而是利用循环数组的技巧来模拟数组长度翻倍的效果
+- 最简单的实现方式当然可以把这个双倍长度的数组构造出来，然后套用算法模板。**但是，我们可以不用构造新数组，而是利用循环数组的技巧来模拟数组长度翻倍的效果**
+- 这方法有点顶：（不用扩大数组可以达到扩大数组的效果）
+  - 注意下面的索引处理手法
 ```cpp
 class Solution {
 public:
@@ -296,7 +436,7 @@ vector<int> nextGreaterElements(vector<int>& nums) {
     stack<int> s;
     // 假装这个数组长度翻倍了
     for (int i = 2 * n - 1; i >= 0; i--) {
-        // 索引要求模，其他的和模板一样
+        // 重点：索引要求模，其他的和模板一样
         while (!s.empty() && s.top() <= nums[i % n])
             s.pop();
         res[i % n] = s.empty() ? -1 : s.top();
@@ -320,20 +460,210 @@ vector<int> nextGreaterElements(vector<int>& nums) {
 - 这个问题可以这样抽象思考：把数组的元素想象成并列站立的人，元素大小想象成人的身高。这些人面对你站成一列，如何求元素「2」的 Next Greater Number 呢？很简单，如果能够看到元素「2」，那么他后面可见的第一个人就是「2」的 Next Greater Number，因为比「2」小的元素身高不够，都被「2」挡住了，第一个露出来的就是答案。 
 <div align="center" style="zoom:60%"><img src="./pic/2.png"></div>
 
+
+## 最难去重题（去重后要字典序最小）
+> 去重类型题目小结
+- 最简单的：单纯去重，往hash表里塞就完事了
+- 要求原地去重：双指针
+
+
+> 题目
+- 参考：https://leetcode-cn.com/problems/remove-duplicate-letters/solution/you-qian-ru-shen-dan-diao-zhan-si-lu-qu-chu-zhong-/
+
+<div align="center" style="zoom:80%"><img src="../字符串/pic/316-1.png"></div>
+
+> 分析：
+- 三个要求
+  - 去重
+  - 不能打乱相对顺序
+  - 字典序最小的作为结果
+- 用到了单调栈思路，实际上不是单调栈。因为决定pop的不止是`当前值和栈顶的大小`，还包括了pop栈顶之后，后面的字符串还有该字符吗
+> 代码
+```cpp
+class Solution {
+public:
+    string removeDuplicateLetters(string s) {
+        if (s == "") return "";
+
+        stack<char> stk;
+        int pos = 0;
+        // 初始化记录
+        map<char, int> record;  // 记录后面剩下的字符及其个数
+        bool exist[256]{false};
+        for (auto c : s) {
+            ++record[c];
+        }
+
+        // 单调栈（增）
+        // 重点：从前往后的单调栈
+        for (int i = 0; i < s.length(); ++i) {
+            if (exist[s[i]]) {
+                --record[s[i]];
+                continue;
+            }
+            // 重点：前面的越小越好，所以我们尽量让前面取最小的
+            while (!stk.empty() && s[i] < stk.top()) {
+                if (record[stk.top()] != 0) {
+                    exist[stk.top()] = false;
+                    stk.pop();
+                }else{
+                    break;
+                }
+            }
+            stk.push(s[i]);
+            exist[s[i]] = true;
+            --record[s[i]];
+        }
+
+        string rtn;
+        while (!stk.empty()) {
+            rtn += stk.top();
+            stk.pop();
+        }
+
+        // 反转
+        int left = 0,right = rtn.length()-1;
+        while(left <right){
+            auto t = rtn[right];
+            rtn[right] = rtn[left];
+            rtn[left] = t;
+            ++left;
+            --right;
+        }
+        return rtn;
+    }
+};
+```
+
 # 常数时间下 删除/等概论查找/添加
+> https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye-4/sui-ji-ji-he
+
 - 解决：数组+hash表
 
 - 如果想高效地，**等概率**地随机获取元素，就要**使用数组作为底层容器**。
 - 如何做到删除速度为O(1):**如果要保持数组元素的紧凑性，可以把待删除元素换到最后**，然后 pop 掉末尾的元素，这样时间复杂度就是 O(1) 了。当然，我们需要额外的哈希表记录值到索引的映射。
 
+## 380. O(1) 时间插入、删除和获取随机元素
+> 题目
+<div align="center" style="zoom:60%"><img src="./pic/380-1.png"></div>
+
+> 分析
+- 通过要求，可以逐点分析需要什么数据结构
+  - insert的时候要查在不在，时间是o(1)；插入的时候时间也要是o(1)====>`hashtable`。
+  - remove的时候，查看在不在（时间o(1)），再进行删除(时间o(1))===>`hashtable`
+  - 重点：能够o(1)时间内，**随机**返回一个数===>`只能是数组了`
+    - 问题来到了：数组怎么天剑和删除是O(1)====>`hashtable + array`
+```cpp
+class RandomizedSet {
+public:
+    vector<int> data;
+    unordered_map<int, int> record;
+    /** Initialize your data structure here. */
+    RandomizedSet() {
+    }
+
+    /** Inserts a value to the set. Returns true if the set did not already contain the specified element. */
+    bool insert(int val) {
+        if(record.find(val) != record.end())
+            return false;
+
+        data.push_back(val);
+        record[val] = data.size()-1;
+        return true;
+    }
+
+    /** Removes a value from the set. Returns true if the set contained the specified element. */
+    bool remove(int val) {
+        if(record.find(val) == record.end())
+            return false;
+
+        record[data.back()] = record[val];
+        data[record[val]] ^= data.back();
+        data.back() ^= data[record[val]];
+        data[record[val]] ^= data.back();
+
+        data.pop_back();
+        record.erase(val);
+        return true;
+    }
+
+    /** Get a random element from the set. */
+    int getRandom() {
+        return data[rand()%data.size()];
+    }
+};
+```
+
+
 # 单调队列
 - https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye-2/dan-tiao-dui-lie
-- leetcode239.滑动窗口最大值
-  - 处理起来复杂度O(n)，每次取最大的复杂度为O(1)
-- 「单调栈」主要解决 Next Great Number 一类算法问题，而「单调队列」这个数据结构可以解决滑动窗口相关的问题
 
-- `push`：`void push(int n)`。「单调队列」的核心思路和「单调栈」类似，push 方法依然在队尾添加元素，但是要把前面比自己小的元素都删掉：
-  - 你可以想象，加入数字的大小代表人的体重，把前面体重不足的都压扁了，直到遇到更大的量级才停住。
+- 应用：「单调栈」主要解决 `Next Great Number` 一类算法问题，而「单调队列」这个数据结构可以解决滑动窗口相关的问题
+  - leetcode239.滑动窗口最大值
+    - 要求：处理起来复杂度O(n)，每次取最大的复杂度为O(1)
+- 思路：就是一个「队列」，只是使用了一点巧妙的方法，使**得队列中的元素全都是单调递增（或递减）的**
+  - `push`：`void push(int n)`。「单调队列」的核心思路和「单调栈」类似，push 方法依然在队尾添加元素，但是要把前面比自己小的元素都删掉：
+    - 你可以想象，加入数字的大小代表人的体重，把前面体重不足的都压扁了，直到遇到更大的量级才停住。
 <div align="center" style="zoom:60%"><img src="./pic/3.png"></div>
 
 - `pop`：`void pop(int n)`。要判断 data.front() == n，因为我们想删除的队头元素 n 可能已经被「压扁」了，可能已经不存在了，所以这时候就不用删除了。
+
+## 239. 滑动窗口最大值
+> 题目
+<div align="center" style="zoom:60%"><img src="./pic/239-1.png"></div>
+
+> 思路
+- 题目重点：这道题不复杂，难点在于**如何在 O(1) 时间算出每个「窗口」中的最大值**，使得整个算法在线性时间完成。
+- 可以通过单调队列。如**果滑动窗口移出的那位等于对头**（注：这个判断很重要），将对头输出。下一个对头就是该窗口目前最大的。
+
+> 代码
+
+```cpp
+class MonotonicQueue{
+public:
+    // 从队尾插入，如果小于它的都弹出
+    void push(int n){
+        while(!data.empty()&&data.back() < n){// 注意：这里不能等于哦，等于的值必须共存，不然窗口和队列不一致
+            data.pop_back();
+        }
+        data.push_back(n);
+    }
+    // 注意：如果对头是n，则弹出
+    void pop(int n){
+        if(data.front() == n)
+            data.pop_front();
+    }
+
+    // 对头是最大的
+    int getMax(){
+        return data.front();
+    }
+private:
+    list<int> data;
+};
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        int lo,hi;
+        vector<int> res;
+        MonotonicQueue mq;
+        // [lo, hi）
+        lo = 0;
+        hi = 0;
+        while(hi < nums.size()){
+            if(hi-lo != k){
+                mq.push(nums[hi]);
+                ++hi;
+            }else{
+                res.push_back(mq.getMax());
+                mq.push(nums[hi]);
+                ++hi;
+                mq.pop(nums[lo]);
+                ++lo;
+            }
+        }
+        res.push_back(mq.getMax());
+        return res;
+    }
+};
+```

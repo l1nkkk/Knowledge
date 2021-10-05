@@ -25,8 +25,8 @@ public:
                 int p2 = p1 + 1;
                 int sum = res[p2] + mul;
                 res[p2] = sum%10;
-                res[p1] += sum/10;
-                // 注：这里不用计算p1的进位，后面的操作中会自动被处理。这个算法的特点、
+                res[p1] += sum/10;  // 处理进位
+                // 注：这里不用计算p1的进位，最后面的操作中会自动被处理。这个算法的特点、
                 // 因为最后一个乘出来相加res[p1]肯定不用进位
             }
         }
@@ -42,6 +42,60 @@ public:
             rtn += res[pos++]+'0';
         }
         return rtn;
+    }
+};
+```
+
+# 回文字符串
+- 中心扩散法
+- 由中心扩向四周
+
+<div align="center" style="zoom:80%">
+<img src="pic/2.png">
+</div>
+
+1. 如果传入重合的索引编码，进行中心扩散，此时得到的回文子串的长度是奇数；
+
+2. 如果传入相邻的索引编码，进行中心扩散，此时得到的回文子串的长度是偶数。
+
+```
+执行用时：
+228 ms, 在所有 C++ 提交中击败了53.22%的用户
+内存消耗：
+241.5 MB, 在所有 C++ 提交中击败了5.19%的用户
+```
+
+
+
+```cpp
+class Solution {
+public:
+    string check(string s,int left, int right){
+        while(left >= 0 && right < s.length()){
+            if(s[left] != s[right]){
+                break;
+            }
+            else{
+                --left;
+                ++right;
+            }
+        }
+
+        return left + 1 == right?"":s.substr(left+1,right-left-1);
+    }
+
+    string longestPalindrome(string s) {
+        if(s.length() < 2)return s;
+        string res;
+        string tmp;
+        // 最后一个字符可以不遍历
+        for(int i = 0;i < s.length()-1;i++){
+            tmp = check(s,i,i);
+            if(tmp.length() > res.length()) res = tmp;
+            tmp = check(s,i,i+1);
+            if(tmp.length() > res.length()) res = tmp;
+        }
+        return res;
     }
 };
 ```
@@ -138,29 +192,31 @@ private:
 - 通过维护对右括号的需求数 need，来计算最小的插入次数
 <div align="center" style="zoom:60%"><img src="./pic/5.png"></div>
 
+- 注意`)))(((`的情况
 ```cpp
 class Solution {
 public:
-    int minAddToMakeValid(string s) {
-        int need=0; // 需要的右括号数
-        int res = 0;
-        for(int i = 0; i <s.size();++i){
-            if(s[i] == '('){
-                ++need;
-            }else if(s[i] == ')'){
-                --need;
-                if(need == -1){
-                    ++res;
-                    need = 0;   // 补了一个左括号
-                }
+int minAddToMakeValid(string s) {
+    int need=0; // 需要的右括号数
+    int res = 0;
+    for(int i = 0; i <s.size();++i){
+        if(s[i] == '('){
+            ++need;
+        }else if(s[i] == ')'){
+            --need;
+            if(need == -1){
+                ++res;
+                need = 0;   // 补了一个左括号
             }
         }
-        if(need > 0)
-            res += need;
-        return res;
     }
+    if(need > 0)
+        res += need;
+    return res;
+}
 };
 ```
+
 
 ## 平衡括号2（leetcode1541）
 - 通过一个 need 变量记录对右括号的需求数，根据 need 的变化来判断是否需要插入
@@ -195,6 +251,65 @@ public:
             }
         }
         res += need;
+        return res;
+    }
+};
+```
+
+## 32. 最长有效括号
+> 题目
+<div align="center" style="zoom:80%"><img src="./pic/32-1.png"></div>
+
+> 思路：
+  - 最长，想到
+    - 动态规划
+    - 滑动窗口
+  - 括号，想到
+    - 括号的性质
+  
+
+> 代码
+
+```cpp
+class Solution {
+public:
+    int longestValidParentheses(string s) {
+        int slow, fast;
+        slow = 0;
+        fast = 0;
+
+        int valid = 0;
+        int res = 0;
+        while(fast < s.size()){
+            if(s[fast++] == '(')
+                valid++;
+            else
+                valid--;
+            if(valid < 0){
+                slow = fast;
+                valid = 0;
+            } else if(valid == 0){
+                res = max(res,fast-slow);
+            }
+        }
+
+        // 处理类似这种情况，valid>0,但是fast已经到最后了。情况：(()。反过来再算一遍，就好。
+        slow = s.size()-1;
+        fast = s.size()-1;
+        valid = 0;
+        while(fast >= 0){
+            if(s[fast--] == ')')
+                valid++;
+            else
+                valid--;
+            if(valid < 0){
+                slow = fast;
+                valid = 0;
+            } else if(valid == 0){
+                res = max(res,slow-fast);
+            }
+        }
+
         return res;
     }
 };

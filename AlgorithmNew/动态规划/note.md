@@ -1,8 +1,5 @@
 
 > 参考1：https://labuladong.gitbook.io/algo/mu-lu-ye-2/mu-lu-ye/dong-tai-gui-hua-xiang-jie-jin-jie    
-> 
-
-
 - [概述](#概述)
   - [状态转移方程](#状态转移方程)
 - [入门例子](#入门例子)
@@ -119,6 +116,7 @@ int maxVal(TreeNode root) {
 
 # 经典例题
 ## 子序列类型问题
+- 注意这里都是针对 `序列` ，而不是 `串`。
 ### 模板
 - 参考：https://mp.weixin.qq.com/s/zNai1pzXHeB2tQE6AdOXTA
 
@@ -159,7 +157,7 @@ for (int i = 0; i < n; i++) {
 - 72.编辑距离：https://leetcode-cn.com/problems/edit-distance/
 > 题目
 ```
-给你两个单词 word1 和 wor0d2，请你计算出将 word1 转换成 word2 所使用的最少操作数 。
+给你两个单词 word1 和 word2，请你计算出将 word1 转换成 word2 所使用的最少操作数 。
 
 你可以对一个单词进行如下三种操作：
 
@@ -181,7 +179,7 @@ rose -> ros (删除 'e')
 - **解决两个字符串的动态规划问题，一般都是用两个指针 i,j 分别指向两个字符串的最后，然后一步步往前走，缩小问题的规模。**
 - 操作不只有三个，其实还有第四个操作，就是什么都不要做（skip）
 - **怎么能一眼看出存在重叠子问题呢**？需要抽象出本文算法的递归框架：
-  - 对于子问题 dp(i-1, j-1)，如何通过原问题 dp(i, j) 得到呢？有不止一条路径，比如 dp(i, j) -> #1 和 dp(i, j) -> #2 -> #3。一旦发现一条重复路径，就说明存在巨量重复路径，也就是重叠子问题。
+  - 对于子问题 dp(i-1, j-1)，如何通过原问题 dp(i, j) 得到呢？有不止一条路径，比如 dp(i, j) -> #1 和 dp(i, j) -> #2 -> #3。一旦**发现一条重复路径**，就说明存在巨量重复路径，也就是重叠子问题。
 ```py
 def dp(i, j):
     dp(i - 1, j - 1) #1
@@ -226,12 +224,35 @@ public:
 
 <div align="center" style="zoom:60%"><img src="./pic/3.png"></div>
 
+```cpp
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        // 以num[i]为结尾时的最大递增子序列长度
+        // base case = 1
+        vector<int> dp(3000,1);
+        for(int i = 0; i < nums.size(); ++i){
+            for(int j = 0; j < i; ++j){
+                if(nums[i] > nums[j])
+                    dp[i] = max(dp[j]+1,dp[i]);
+            }
+        }
+
+        int res = 0;
+        for(int i = 0; i < nums.size(); ++i)
+            res = res < dp[i] ? dp[i] : res;
+        return res;
+    }
+};
+```
+
+
 ### 信封嵌套问题
 > https://labuladong.gitbook.io/algo/mu-lu-ye-2/mu-lu-ye-1/xin-feng-qian-tao-wen-ti
 - 354.俄罗斯套娃信封问题:https://leetcode-cn.com/problems/russian-doll-envelopes/
 - 有点区间问题的味道
 - 转化为 ： **最长递增子序列LIS**
-- 这个解法的关键在于，对于宽度 w 相同的数对，**要对其高度 h 进行降序排序**。因为两个宽度相同的信封不能相互包含的，逆序排序保证在 w 相同的数对中最多只选取一个。
+- 这个解法的关键在于，对于宽度 w 相同的数对，**要对其高度 h 进行降序排序**。因为两个宽度相同的信封不能相互包含的，**逆序排序保证在 w 相同的数对中最多只选取一个**。
 
 <div align="center" style="zoom:80%"><img src="./pic/4.png"></div>
 
@@ -268,6 +289,8 @@ int maxSubArray(int[] nums) {
 ### *最长公共子序列(Longest Common Subsequence，简称 LCS)
 - 参考：https://mp.weixin.qq.com/s/ZhPEchewfc03xWv9VP3msg
 - 参考：https://blog.csdn.net/hrn1216/article/details/51534607
+
+<div align="center" style="zoom:80%"><img src="./pic/1143.1.png"></div>
 
 - 相关题目:
   - 1143 583 172
