@@ -11,6 +11,8 @@
   - [滑动窗口](#滑动窗口)
     - [最小覆盖子串](#最小覆盖子串)
     - [最长无重复子串](#最长无重复子串)
+  - [双指针思想](#双指针思想)
+    - [349. 两个数组的交集](#349-两个数组的交集)
 - [哈希表](#哈希表)
   - [twosum问题](#twosum问题)
 - [单调栈](#单调栈)
@@ -20,6 +22,9 @@
   - [380. O(1) 时间插入、删除和获取随机元素](#380-o1-时间插入删除和获取随机元素)
 - [单调队列](#单调队列)
   - [239. 滑动窗口最大值](#239-滑动窗口最大值)
+- [搜索二维矩阵](#搜索二维矩阵)
+- [峰值](#峰值)
+  - [162. 寻找峰值](#162-寻找峰值)
 # 双指针技巧总结
 - https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye-3/shuang-zhi-zhen-ji-qiao
 ## 快慢指针
@@ -364,6 +369,52 @@ int lengthOfLongestSubstring(string s) {
     return res;
 }
 ```
+
+## 双指针思想
+### 349. 两个数组的交集
+> 题目
+<div align="center" style="zoom:70%"><img src="./pic/349-1.png"></div>
+
+> 思路
+- 方法1：使用两个集合装`nums1`，`nums2`。遍历nums1，判断是否该元素在nums2中，是的话就添加到结果中
+- 方法2：双指针。
+  - 先对数组排序，最初用两个双指针指向两个数组头部；
+  - 判断指针所指位置的值，对于较小的数，指针++。如果相等，则加入到结果集合中，改变双指针，使其指向第一个比该值大的数。
+
+> 代码
+```cpp
+class Solution {
+public:
+    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+        sort(nums1.begin(), nums1.end());
+        sort(nums2.begin(), nums2.end());
+        int x,y;
+        int preVal;
+        vector<int> res;
+        x = 0;
+        y = 0;
+
+        preVal = min(nums1[0], nums2[0]) - 1;
+        while(x < nums1.size() && y < nums2.size()){
+            // 判断之前是否已经加入，其是感觉可以不用preVal
+            if(nums1[x] == nums2[y] && nums1[x] != preVal){
+                res.push_back(nums1[x]);
+                preVal = nums1[x];
+                while(x < nums1.size() && nums1[x] == preVal)
+                    ++x;
+                while(y < nums2.size() && nums2[y] == preVal)
+                    ++y;
+            }else if(nums1[x] < nums2[y]){
+                ++x;
+            }else if (nums1[x] > nums2[y]){
+                ++y;
+            }
+        }
+        return res;
+    }
+};
+```
+
 # 哈希表
 ## twosum问题
 - hash表的应用，减少时间复杂度
@@ -664,6 +715,99 @@ public:
         }
         res.push_back(mq.getMax());
         return res;
+    }
+};
+```
+
+# 搜索二维矩阵
+
+<div align="center" style="zoom:80%"><img src="./pic/240-1.png"></div>
+
+- 思路1：暴力
+- 思路2：二分
+- 思路3：从左小角开始，一步步走
+  - 时间复杂度 o(m+n)
+  - https://leetcode-cn.com/problems/search-a-2d-matrix-ii/solution/sou-suo-er-wei-ju-zhen-ii-by-leetcode-2/
+
+```cpp
+class Solution {
+public:
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+        int m = matrix.size();
+        int n = matrix[0].size();
+        pair<int, int> pos;
+
+        // 从左下角开始
+        pos.first = m-1;
+        pos.second = 0;
+        while(pos.first >= 0 && pos.second < n){
+            if(matrix[pos.first][pos.second] < target){// 往右
+                ++pos.second;
+            }else if(matrix[pos.first][pos.second] > target){   // 往上
+                --pos.first;
+            }else{
+                return true;
+            }
+        }
+        return false;
+    }
+};
+```
+
+# 峰值
+## 162. 寻找峰值
+
+> 题目
+<div align="center" style="zoom:80%"><img src="./pic/162-1.png"></div>
+
+- 下面的条件很重要
+```
+1 <= nums.length <= 1000
+-231 <= nums[i] <= 231 - 1
+对于所有有效的 i 都有 nums[i] != nums[i + 1]
+```
+
+> 思路：
+- 方法1：找最大值
+  - O(n)
+- 方法2：找到`num[i-1] < num[i] < num[i+1]`
+  - O(n)
+- 方法3：方法2 + 二分法
+  - `num[i-1] < num[i] < num[i+1]`时，直接return
+  - `num[i] < num[i+1]`时，说明是上坡，取`[i+1, right]`
+  - `num[i] > num[i+1]`时，说明是下坡，取`[left, i-1]`
+
+```cpp
+class Solution {
+public:
+    int findPeakElement(vector<int>& nums) {
+
+        // 重点：pair可比较，先比较first，再比较last，通过这种方式，可以处理下标-1和n的情况
+        auto get = [&nums](int i)-> pair<int, int>{
+            if(i == -1 || i == nums.size()){
+                return {0,0};
+            }else{
+                return {1, nums[i]};
+            }
+        };
+        // 二分法
+        int left = 0;
+        int right = nums.size()-1;
+        // [left,right]
+        while(left < right){
+            int mid = left + (right - left)/2;
+            // 1.刚好是顶峰
+            if(get(mid-1) < get(mid) && get(mid) > get(mid+1)){
+                return mid;
+            }else if(get(mid) < get(mid+1)){
+                // 2. 上坡
+                left = mid +1;
+            }else {
+                // 3.下坡
+                right = mid -1;
+            }
+        }
+        return left;
     }
 };
 ```

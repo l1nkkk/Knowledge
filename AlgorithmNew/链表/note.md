@@ -69,6 +69,56 @@ ListNode reverseBetween(ListNode head, int m, int n) {
 如果 m != 1 怎么办？如果我们把 head 的索引视为 1，那么我们是想从第 m 个元素开始反转对吧；如果把 head.next 的索引视为 1 呢？那么相对于 head.next，反转的区间应该是从第 m - 1 个元素开始的；那么对于 head.next.next 呢……
 ```
 
+### 25.K个一组翻转链表
+- 重点：
+  - 别让特殊情况出现，增加自己的负担
+```cpp
+class Solution {
+public:
+    ListNode* reverseKGroup(ListNode* head, int k) {
+        auto size = getSize(head);
+        int i = 0;
+        while(size >= k){// 重点：不让特殊情况出现
+            head = reverseBetween(head, i*k, (i+1)*k);
+            ++i;
+            size -= k;
+        }
+
+        return head;
+    }
+
+    ListNode* reverseBetween(ListNode*head, int lo, int hi){
+        if(lo == 0){
+            return reverserPre(head, hi);
+        }
+        head->next = reverseBetween(head->next, lo-1, hi-1);
+        return head;
+    }
+    ListNode* successor = nullptr;
+    ListNode* reverserPre(ListNode* head, int n){
+        // base case
+        if( n == 1 ){
+            successor = head->next;
+            return head;
+        }
+        ListNode* last = reverserPre(head->next, n-1);
+        head->next->next = head;
+        head->next = successor;
+        return last;
+    }
+
+    int getSize(ListNode* head){
+        int rtn = 0;
+        while(head != nullptr){
+            ++rtn;
+            head = head->next;
+        }
+        return rtn;
+    }
+
+};
+```
+
 # 回文链表
 - 参考：https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye/pan-duan-hui-wen-lian-biao
 ## 字符串判断回文

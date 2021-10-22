@@ -15,7 +15,7 @@
   - heap
   - free store
 > C++的内存布局
-- 堆（`malloc/free`）、栈、自由存储区（`new delete`）、全局/静态存储区、常量存储区
+- 堆（`malloc/free`）、栈、自由存储区（`new delete`）、全局/静态存储区、常量存储区、代码区
 
 > free store 和 heap的区别（语言背景角度）
 - `malloc`在堆上分配的内存块，使用 `free` 释放内存，而 `new` 所申请的内存则是在自由存储区上，使用 `delete` 来释放

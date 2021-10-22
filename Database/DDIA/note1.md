@@ -358,10 +358,10 @@
   - `压缩`：交给后台进程，定期压缩合并。
 - 案例
   - 以上是LevelDB和RocksDB的本质
-    - 要用于嵌入到其他应用程序的**key-value**存储引擎库
+    - 应用于嵌入到其他应用程序的**key-value**存储引擎库
     - 都受到Google的BigTable启发
   - Lucene：Es和Solr等**全文搜索**（给定单词，给出匹配的文档）系统所使用的索引引擎。
-    - 键是单词（词条），值直是所有包含该单词的文档ID的列表 （倒排表，posting list）
+    - 键是单词（词条），值是所有包含该单词的文档ID的列表 （倒排表，posting list）
 
 - `LSM-Tree`：最初这个索引结构由 Patrick O’Neil等人以日志结构的合并树（Log-Structured MergeTree，或LSM-Tree)命名。
   - 因此，基于合并和压缩排序文件原理的存储引擎通常都被称为**LSM存储引擎**
