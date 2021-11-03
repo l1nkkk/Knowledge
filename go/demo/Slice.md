@@ -1,5 +1,5 @@
 
-
+# demo1
 ```go
 package main
 
@@ -9,6 +9,7 @@ func updateSlice(s []int) {
 	s[0] = 100
 }
 
+// 对数组/切片的各种切片姿势
 // arr[2:6] =  [2 3 4 5]
 // arr[:6] =  [0 1 2 3 4 5]
 // arr[2:] =  [2 3 4 5 6 7]
@@ -24,6 +25,7 @@ func testSlice1() {
 	fmt.Println("arr[:] = ", a[:])
 }
 
+// 切片后的数据是否是copy的？还是共享的？
 // arr[2:] =  [2 3 4 5 6 7]
 // arr[:] =  [0 1 2 3 4 5 6 7]
 // Update s1:
@@ -77,6 +79,7 @@ func testSlice2() {
 
 }
 
+// 增加元素，对slice容量的影响
 // s1 = [0 0 0 0 0 0 0], cap = 10,len = 7
 // s2 = [1 2 3 4], cap = 4,len = 4
 // After S2 append:
@@ -102,6 +105,8 @@ func testSlice3() {
 
 
 }
+
+// copy对slice的作用； slice是如何删除中间，最后和第一个元素的
 // s1 =  [1 2 3 4 5 6 7]
 // s2 =  [1 2 3]
 // Delect elements:
@@ -189,3 +194,37 @@ Popping from tail:
 tail: 7
 s1 =  [3 4 5 6]
 ```
+
+# demo2：array和slice，底层数据的依赖探究]
+```cpp
+// [1 2 3 4 100 6]
+// [2 3 4 100]
+// cap=5, size=4
+// cap=10, size=6
+// [1 2 3 4 100 7]
+// [2 3 200 100 7 8]
+func main() {
+	// Perform the search for the specified term.
+	// search.Run("president")
+	// 1.初始：共享底层数据
+    // var array = []int{1, 2, 3, 4, 5, 6}  // 一樣的效果
+	var array = [...]int{1, 2, 3, 4, 5, 6}
+	s1 := array[1:5]
+	s1[3] = 100
+	fmt.Println(array)
+	fmt.Println(s1)
+	fmt.Printf("cap=%d, size=%d\n", cap(s1), len(s1))
+
+	// 2.append使扩容
+	s1 = append(s1, 7)
+	s1 = append(s1, 8)
+	fmt.Printf("cap=%d, size=%d\n", cap(s1), len(s1))
+
+	// 3：slice扩容后，不再和slice共享
+	s1[2] = 200
+	fmt.Println(array)
+	fmt.Println(s1)
+}
+
+```
+

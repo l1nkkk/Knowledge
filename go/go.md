@@ -9,6 +9,7 @@
   - [类型转换](#类型转换)
   - [基本类型和string之间的转换](#基本类型和string之间的转换)
   - [值类型和引用类型](#值类型和引用类型)
+  - [指针](#指针)
   - [细节](#细节)
 - [常量](#常量)
   - [定义](#定义-1)
@@ -23,7 +24,12 @@
   - [定义](#定义-2)
   - [参数传递](#参数传递)
   - [细节](#细节-2)
-- [指针](#指针)
+  - [函数扩展](#函数扩展)
+    - [Init函数](#init函数)
+    - [匿名函数](#匿名函数)
+    - [闭包](#闭包)
+    - [defer](#defer)
+    - [内置函数](#内置函数)
 - [复杂数据类型](#复杂数据类型)
   - [数组](#数组)
   - [Slice切片](#slice切片)
@@ -37,26 +43,28 @@
     - [增删改查以及其他](#增删改查以及其他)
     - [集合set](#集合set)
     - [细节](#细节-4)
-- [函数扩展](#函数扩展)
-  - [Init函数](#init函数)
-  - [匿名函数](#匿名函数)
-  - [闭包](#闭包)
-  - [defer](#defer)
-  - [内置函数](#内置函数)
 - [面向对象](#面向对象)
   - [结构体](#结构体)
     - [结构体的定义](#结构体的定义)
+    - [封装](#封装)
     - [初始化和工厂函数](#初始化和工厂函数)
     - [方法](#方法)
-  - [封装](#封装)
-  - [面向接口编程](#面向接口编程)
+    - [方法值和方法表达式](#方法值和方法表达式)
+    - [has a：嵌套结构体获取方法](#has-a嵌套结构体获取方法)
+  - [接口](#接口)
+    - [方法集](#方法集)
+    - [接口值](#接口值)
+    - [类型断言](#类型断言)
 - [包](#包)
   - [环境变量](#环境变量)
   - [下载包](#下载包)
   - [如何扩充系统的类型或者第三方的类型](#如何扩充系统的类型或者第三方的类型)
-- [错误处理](#错误处理)
+- [错误与异常](#错误与异常)
+  - [错误](#错误)
+    - [错误处理](#错误处理)
+  - [异常](#异常)
+    - [异常处理](#异常处理)
 - [工具](#工具)
-- [接口](#接口)
 - [其他](#其他)
   - [随机数](#随机数)
   - [命令行参数](#命令行参数)
@@ -79,7 +87,7 @@
 - %T可以用来输出类型
 - %c可以用来让byte和int32(rune)类型以字符形式输出
 - 浮点：%g，全展开；%e，使用E表示，%f，随缘
-- %之后的[1]告诉printf函数再次使用第一个操作数
+- %之后的`[1]`告诉printf函数再次使用第一个操作数
 - %之后的#要求%o,%x,%X输出带0,0x,0X
 - %v：值的默认格式表示
 - %+v：类似%v，但输出结构体时会添加字段名
@@ -149,12 +157,19 @@ c = int(math.Sqrt(float64(a*a+b*b)))
   - 特点：存放在栈中
 - 引用类型：指针，slice切片，map，管道chan，interface
   - 特点：变量存储的是一个地址，具体数
+
+## 指针
+- go的指针很简单
+- 指针不能运算
+
 ## 细节
 > uintptr
 - 为整型，没指定具体的位数大小，但是足以容纳指针，主要用于底层编程
 
 > rune
 - rune有符号，与int32一样，可以看做其实就和int32一样。用来表示一个unicode码
+  - `fmt.Printf("%T", r)` 时，显示 int32。
+  - `rune` 为 `int32` 的type alias，是通过 `type rune = int32` 方式定义的
 - `string => []rune` 的过程中，底层执行`utf-8 => unicode`
   - `runeStr :=[]rune(str)`
 
@@ -162,7 +177,7 @@ c = int(math.Sqrt(float64(a*a+b*b)))
 - int和uintptr类型由**操作系统的位数**决定。
 
 > 编译器类型推断
-- 编译器推断类型的时候，浮点数：float64，整数：int，字符：int32
+- 编译器推断类型的时候，浮点数：float64，整数：int，**字符：int32**
 ```go
 // res:int,float64,int32
 a, b, c := 1, 2.2, 'c'
@@ -183,7 +198,8 @@ fmt.Printf("%T,%T,%T", a, b, c)
 > 关于`:=`
 - :=简短变量声明，如果左值有多个可以不都是未声明的
 - 在同一个语句块时，如果变量声明过的，相当于赋值。
-- 不在同一个语句块时，相当于重新定义一个变量
+- **不在同一个语句块时，相当于重新定义一个变量**
+  - 需要特别注意
 ```go
 var a int
 if a := 3; true{
@@ -223,13 +239,13 @@ Before := &a: 0xc0000b6010
 - 获取变量的字节数：`unsafe.Sizeof(n1)`
 
 > 栈 or 堆 分配
-- 编译器会自动选择再堆上还是栈上分配局部变量的存储空间。但是，这个选择不是取决于用var还是new声明变量的方式决定的。
+- 编译器会自动选择在堆上还是栈上分配局部变量的存储空间。但是，这个选择不是取决于用var还是new声明变量的方式决定的。
 
 > 元组赋值
 - x,y = y,x
 # 常量
 ## 定义
-- 一个常量初始化可以被这些函数的返回值初始化：len,cap,real,imag,complex,unsafe.Sizeof
+- 一个常量初始化可以被这些函数的返回值初始化：`len,cap,real,imag,complex,unsafe.Sizeof`
 - 和变量的定义一样，只是把该写`var`的地方换成了`const`，而且不能用`":"`的方式
 - 如果没有给其规定类型，可以作为各种类型使用
 - 一般在其他语言中我们用常量会全大写，但是在go中大写首字母有其他的含义。
@@ -383,6 +399,9 @@ for index,val := range array{
 > [标签demo](demo/标签.md)
 
 # 函数
+- 类型：引用类型
+- 比较：只可以与nil比较
+- 零值：nil
 ## 定义
 
 > 格式
@@ -400,7 +419,7 @@ func 函数名(变量名 ... 类型){
 ```
 ## 参数传递
 - **go语言只有值传递一种**
-  - 指针、Slice、Map、Channel这些的传递，也只是通过其本身数据结构特性，另其传递时，看似引用
+  - 指针、Slice、Map、Channel这些的传递，也**只是通过其本身数据结构特性**，另其传递时，**看似引用**
   - https://segmentfault.com/a/1190000015246182
 
 ## 细节
@@ -424,17 +443,120 @@ func f() *int{
 - go没有默认参数值，也没有通过参数名指定形参，故`参数名对于调用者没有意义`
 - 如果遇到没有函数体的函数声明，说明该函数不是Go实现的
   - 如`func Sin(x float64)float`
-# 指针
-- go的指针很简单
-- 指针不能运算
+
+## 函数扩展
+- Init函数
+- 匿名函数
+- 闭包
+- defer
+- 内置函数
+### Init函数
+> 介绍  
+
+每一个源文件可以有多个，完成初始化操作工作，同一个包中的init的调用顺序没有明确规定，不同包是根据依赖关系的顺序的（深度优先）
+
+> 格式
+```go
+func Init(){
+}
+```
+
+### 匿名函数
+> 介绍
+
+在只想用一次或懒得专门起名时使用
+> 使用方式：
+1. 直接用
+  ```go
+  res:=func(n1,n2 int)int{
+    return n1-n2
+  }(10,20)
+  ```
+2. 赋值给变量
+  ```go
+    a:=func(n1,n2,int)int{
+      return n1 - n2
+    }
+    res := a(10,20)
+  ```
+3. 全局匿名函数
+  ```go
+  var(
+    f1 = func(n1,n2 int)int{
+      ...
+    }
+  )
+  ```
+
+### 闭包
+> 介绍  
+
+- 使用函数范围外的变量
+
+> 用途
+
+有些变量不想每次调用都传输（eg：文件扩展名）
+
+> 例子
+```go
+func demo1(a int) func(int) int {
+  var astatic = a
+  return func(b int) int {
+    astatic += b
+    return astatic
+  }
+}
+func main() {
+  f1 := demo1(10)
+  fmt.Println(f1(3)) //13
+  fmt.Println(f1(2)) //15
+
+}
+```
+> 细节
+- **闭包中的变量和函数定义外的变量有着相同地址，也就是同一个**。
+
+### defer
+> 介绍
+
+可以在函数执行后，return之前执行
+> 细节
+
+- 执行是按先defer的先执行，栈的方式。
+- defer也会因为不及时而带来麻烦，如文件描述符耗尽
+  - 解决：用函数进行包装。go圣经p154
+- 异常处理
+- 将`defer file.close()`放在错误检测之后
+> 用途
+1. 及时关闭资源
+2. 处理异常
+
+> 注意：修改返回值的情况
+- [defer修改返回值demo](demo/defer修改返回值.md)
+- 如果有对 返回值命名的话，那么修改返回值是有效的
+  - 因此在处理panic时，修改err，需要err是 命名的返回值
+
+
+
+### 内置函数
+- len
+- cap
+- new
+- make
+
+> 关于new和make
+- new：分配值类型的内存
+- make：分配引用类型的内存
+
+
 
 # 复杂数据类型
 ## 数组
 - 零值：数组的零值就是所有内部元素的零值
-- 值类型
+- 类型：值类型
+  - [10]int和[20]int是不同的类型
+  - 数组是值类型：调用`func f(arr [10]int)`会拷贝数组
 - 比较：只可以用==在相同的数组类型间比较
-- [10]int和[20]int是不同的类型
-- 数组是值类型：调用`func f(arr [10]int)`会拷贝数组
 - golang中一般不用数组，而是用切片
 - [数组使用demo](demo/Array.md)
   - 定义
@@ -475,6 +597,7 @@ var s = []int{1,3,5}
 - slice修改对Array的影响
   - **如果在没有对slice进行append导致底层扩容的话，slice修改，array也会修改**
 
+
 ### Slice的增删改查等操作
 - reslice
   - 可以对Slice再进行slice
@@ -498,7 +621,7 @@ var s = []int{1,3,5}
 - 转换可以有两种类型，一种是rune类型一种是byte类型
   - rune：针对有中文的
   - byte：纯英文，`arr = []byte(str)`
-- string可以转slice：转换后底层已经重新分配了一块内存
+- string可以转slice：转换后底层已经重新分配了一块内存，并且进行`utf-8`和`unicode`之间的转换
 ```go
 arr = []rune(str)
 arr[0] = "北"
@@ -507,15 +630,19 @@ str  = string(arr)
 
 ### 细节
 - 零值：nil
-- 引用类型
-- 比较：slice不能进行比较，但是对于`[]byte`有`bytes.Equal`函数来判断。slice唯一合法的比较是和nil比较，一个nil值的slice，len和cap都为0，但是len和cap都为0的不一定是nil，如`[]int{},make([]int,3)[3:]`
-- 可以用`[]int(nil)`类型转换表达式生成一个对应类型slice的nil值
+- 类型：引用类型
+- 比较：slice不能进行比较，但是对于`[]byte`有`bytes.Equal`函数来判断。
+  - **slice唯一合法的比较是和nil比较，一个nil值的slice，len和cap都为0，但是len和cap都为0的不一定是nil**，如`[]int{},make([]int,3)[3:]`
+  - 可以用`[]int(nil)`类型转换表达式生成一个对应类型slice的nil值
 - 判断slice是否为空
   - 正确：`len(slice) == 0`
   - 错误：`slice == nil`
-- `x[m:n]`对于字符串生成一个新字符串；而对于[]byte和array生成的slice共享底层。
-- slice可以向后扩展，但是不可以向前扩展，向后扩展取决于cap，如果切片超出cap将产生panic.
+- `x[m:n]` 对于字符串生成一个新字符串；而对于[]byte和array生成的slice共享底层。
+- slice 可以向后扩展，但是不可以向前扩展，向后扩展取决于cap，如果切片超出cap将产生 panic.
+
+> array/slice 与slice
 ```go
+// 换成切片，结果不变
 var a = [...]int{0, 1, 2, 3, 4, 5, 6, 7}
 s1 := a[2:6]
 s2 := s1[3:5]
@@ -523,7 +650,7 @@ s2 := s1[3:5]
 // s1 =  [2 3 4 5]
 // s2 =  [5 6]
 ```
-<div align="center">
+<div align="center" style="zoom: 40%">
 <img src="pic/1.png">
 </div>
 
@@ -531,7 +658,7 @@ s2 := s1[3:5]
 - slice还可以继续切片
 - slice的零值为nil。当定义了没有初始化和make的时候，这个时候的slice变量的值就是nil。
 - slice内部实现，其底层有ptr，len，cap，如下图所示
-<div align="center">
+<div align="center" style="zoom: 60%">
 <img src="pic/2.png">
 </div>
 
@@ -559,8 +686,11 @@ a := map[T1]T2{
     1. 遍历后delete
     2. make另一个，原来的交给gc
 - 改：a[]=...
-- 查：val,ok := a["no2]
-  - 判断ok，true表示存在,不存在val返回0值
+- 查：
+  - `val,ok := a["no2"]`
+    - 判断ok，true表示存在,不存在val返回0值
+  - `val := a["no2"]`
+    - 不存在val 为 nil
 - 遍历：
   - `for key,value := range a`
 - 长度：`len()`
@@ -583,7 +713,7 @@ END:
 - set：`map[type]bool`
 ### 细节
 - 零值：nil
-- 引用类型
+- 类型：引用类型
 - 比较：map之间不能比较，只能与nil比较
 - 只有对nil进行增加数据会panic，其他都是安全的
 - key必须是支持`==`的类型，不能是map，slice，func。可以是结构体，只要不包含以上三种就可以了
@@ -592,111 +722,18 @@ END:
 
 
 
-# 函数扩展
-- Init函数
-- 匿名函数
-- 闭包
-- defer
-- 内置函数
-## Init函数
-> 介绍  
-
-每一个源文件可以有多个，完成初始化操作工作，同一个包中的init的调用顺序没有明确规定，不同包是根据依赖关系的顺序的（深度优先）
-
-> 格式
-```go
-func Init(){
-}
-```
-
-## 匿名函数
-> 介绍
-
-在只想用一次或懒得专门起名时使用
-> 使用方式：
-1. 直接用
-  ```go
-  res:=func(n1,n2 int)int{
-    return n1-n2
-  }(10,20)
-  ```
-2. 赋值给变量
-  ```go
-    a:=func(n1,n2,int)int{
-      return n1 - n2
-    }
-    res := a(10,20)
-  ```
-3. 全局匿名函数
-  ```go
-  var(
-    f1 = func(n1,n2 int)int{
-      ...
-    }
-  )
-  ```
-
-## 闭包
-> 介绍  
-
-类似一个穿着花哨的c++中带有静态变量的函数
-
-> 用途
-
-有些变量不想每次调用都传输（eg：文件扩展名）
-
-> 例子
-```go
-func demo1(a int) func(int) int {
-  var astatic = a
-  return func(b int) int {
-    astatic += b
-    return astatic
-  }
-}
-func main() {
-  f1 := demo1(10)
-  fmt.Println(f1(3)) //13
-  fmt.Println(f1(2)) //15
-
-}
-```
-> 细节
-- **闭包中的变量和函数定义外的变量有着相同地址，也就是同一个**。
-
-## defer
-> 介绍
-
-可以在函数执行后，return之前执行
-> 细节
-
-- 执行是按先defer的先执行，栈的方式。
-- defer也会因为不及时而带来麻烦，如文件描述符耗尽
-  - 解决：用函数进行包装。go圣经p154
-- 异常处理
-- 将`defer file.close()`放在错误检测之后
-> 用途
-
-1. 及时关闭资源
-2. 观察函数返回值；defer语句中的函数会在return语句更新返回变量后再执行
-   - 也就是说，在defer中对返回的变量进行修改，是没有效果的
-
-## 内置函数
-- len
-- cap
-- new
-- make
-
-> 关于new和make
-- new：分配值类型的内存
-- make：分配引用类型的内存
-
 
 # 面向对象
-- go语言仅支持封装，不支持继承和多态，继承和多态在go中是通过接口实现的
-- 没有class，只有struct
+- 面向对象三要素
+  - 继承：通过嵌套
+  - 封装：struct
+  - 多态：interface
 - 不论是地址还是结构本身，一律使用`"."`来访问成员
 ## 结构体
+- 零值：结构体的所有字段都为零值
+- 类型：值类型
+
+
 ### 结构体的定义
 ```go
 type student struct{
@@ -704,8 +741,50 @@ type student struct{
   Score float64
 }
 ```
+### 封装
+> 方式
+- 使用结构体进行封装，使用驼峰法命名
+- 首字母大写：public
+- 首字母小写：private
+- 结构体字段的 public和private是**针对包而言的**
+
+> demo：为什么对单个对象用struct进行包装
+- 为了更细粒度的封装
+- 对比下面的两种方式
+  - 方式1：包外用户可以对IntSet直接操作
+  - 方式2：封装，更好的隔离。包外并不可见细节
+- 我的理解：一般都是包外用户使用时，不让其知道细节就够了，因为自己开发的包，自己知道哪些对象不要直接修改
+```go
+type IntSet []uint64
+
+func (s *IntSet) Get(x int) uint64 {
+	return (*s)[x]
+}
+
+type IntsetStruct struct {
+	intSet []uint64
+}
+
+func (s *IntsetStruct) Get(x int) uint64 {
+	return s.intSet[x]
+}
+
+func main() {
+	// test1，方式1
+	var set = IntSet{1, 2, 3, 4}
+	fmt.Println(set.Get(1))
+
+	//test2，方式2
+	var set2 = IntsetStruct{
+		intSet: []uint64{1, 2, 3, 4},
+	}
+	// 注意：访问不到
+	// set.intSet
+	fmt.Println(set2.Get(1))
+}
+```
 ### 初始化和工厂函数
-当需要对结构体进行构造的时候，可以直接对其各个元素进行初始化，如果想要有更多的控制，可以自定义工厂函数。
+- 当需要对结构体进行构造的时候，可以直接对其各个元素进行初始化，如果想要有更多的控制，可以自定义工厂函数。
 - 注意：工厂函数返回了局部变量的地址，这里在go是允许的，其变量由编译器定夺在哪里分配内存空间，这里是分配在堆上。
 ```go
 func CreateStudent(n string, s float64) *Student {
@@ -713,13 +792,13 @@ func CreateStudent(n string, s float64) *Student {
 }
 
 func demo1() {
-  // 1.初始化1，指定元素赋值
+  // 1.初始化1，指定元素赋值。方式1
   aStudent := Student{
     Name: "linkkkk",
   }
-  // 2.初始化2，直接元素为空
+  // 2.初始化2，零值。方式2
   bStudent := Student{}
-  // 3.初始化3，顺序赋值
+  // 3.初始化3，顺序赋值。方式2
   cStudent := Student{"lin", 99}
   // 错误
   // cStudent := Student{"lin"}
@@ -733,11 +812,17 @@ func demo1() {
 ```
 
 ### 方法 
+
+> 细节
+- 接收器可以看成和 参数 等同，也是通过拷贝传参。
+  - 看参数类型是 引用类型 还是 值类型
 - 只有使用指针才能够改变结构的内容。
 - nil指针也可以调用方法
+  - 比如空链表，当运行nil为接收者，有必要指明其意义。
 - 没有this指针，而是引入了接收者的概念
 - 如果一个类型名本身是一个指针的话（如`type T *int32`），是不允许出现再接收器中的
 - `nil`也是一个合法的接收器
+
 > 实例
 ```go
 func (sp *Student) print() {
@@ -746,26 +831,196 @@ func (sp *Student) print() {
 ```
 - 这里sp是方法的接收者，这里是指针接收者，其实从某种意义上来说等同于`print(sp *Student)` 这样的函数。
 
-> 值接受者和指针接收者
+> 值接收者和指针接收者
 - 值接收者是go语言特有的
 - 值/指针接收者均可以接收值/指针，这里其实是一种语法糖
   - 注：也就是说现在定义的方法的接收者是结构体指针，但是可以用结构体来调用。
-  - 最终以接受者为准
+  - 最终以接收者为准
 
 有时候我们不知道到底该用的是值接收者还是指针接收者，可以从以下角度思考：
-- 要改变内容必须要用指针接收者
-- 结构过大也要考虑指针接收者
+- 要改变内容必须要用 指针接收者
+- 结构过大也要考虑 指针接收者
 - 一致性：如果有指針接收者，最好都是指針接收者
+- 用临时变量调用方法。必须使用值接收者
+  - 因为不能通过一个无法取到地址的接收器来调用 指针方法。
 
-## 封装
-- 使用结构体进行封装，使用驼峰法命名
-- 首字母大写：public
-- 首字母小写：private
-- public和private是针对包而言的
+### 方法值和方法表达式
+- 方法值：接收器被bind的 可调用对象
+- 方法表达式：获得一个 函数值，将接收器作为第一个参数
 
-## 面向接口编程
-- 由使用者来定义接口
+```go
+type Node struct {
+	x int64
+	y int64
+}
 
+func (n *Node) Connect(pn *Node) {
+	fmt.Println("connect...")
+}
+
+func Connect(pn *Node) {
+
+}
+
+// func(*main.Node)
+// func(*main.Node)
+// func(*main.Node, *main.Node)
+func main() {
+	var n1 Node
+    // 重点：方法值
+	fmt.Printf("%T\n", n1.Connect)
+	fmt.Printf("%T\n", Connect)
+    // 重点：方法表达式，得到一个 函数值
+	fmt.Printf("%T\n", (*Node).Connect)
+}
+
+```
+
+### has a：嵌套结构体获取方法
+- 方式：通过嵌入结构体的扩展类型
+  - 嵌入值
+  - 嵌入指针。（可共享，比如font）
+- 注意：并不能实现多态，只是使 结构体A 获取 被嵌套结构体B 的方法
+  - B 里面的成员变量，即使是小写开头，A 的方法仍然可以访问到。
+- 如果嵌套多个引起冲突，需要明确指出
+- [嵌套demo](demo/方法.md)
+
+
+## 接口
+- 命名规则：GO中标志接口多以`er`结尾
+- 具体的类型（struct...），抽象的类型（interface）
+  - interface：不知道它是什么，只知道它的方法集
+> 接口定义
+```go
+/* 定义接口 */
+type nameer interface {
+   method_name1 [return_type]
+   ...
+   method_namen [return_type]
+}
+```
+> 接口实现
+- 只要 该类型 实现了接口声明的函数
+
+> 接口嵌套
+```go
+type nameer interface {
+   name1er
+   name2er
+}
+```
+### 方法集
+- `T` 类型仅 拥有 `(t T)`的方法集
+- `*T` 类型仅 拥有 `(t T)`、`(t *T)`的方法集
+  - 所以`*T`没有实现接口的函数，`T`实现了，也可以。
+<div align="center" style="zoom: 60%">
+<img src="pic/3.png">
+</div>
+
+### 接口值
+- 结构：由两部分组成，**动态类型值 和 动态值**
+- 比较：可以使用`==`和`!＝`来进行比较。
+  - `==`为true时：动态类型 和 动态值都相等
+  - 可以用于map或者slice
+  - 注意：确保 动态类型 是可以比较的，如果不可以比较（如slice）则会 panic
+    - 使用时要确定可以比较
+- 作用：（7.13）
+  - **表达不同具体类型之间的相似性**，隐藏细节和具体类型本身的操作。重点在于方法上，而不是具体类型上。（多态）
+  - **类型的union**。通过类型断言来区别具体类型，重点在于具体类型满足这个接口，而不是在于接口的方法。
+- 建议（7.15）
+  - 接口只有当有两个或两个以上的具体类型必须以相同的方式进行处理时才需要。
+  - 
+> 动态类型
+- 注：go是静态类型的语言（编译时类型检查），所以类型是编译时的概念，因此**类型不是一个值**。
+- 这里的 **动态类型值** 指的是，类型描述符
+  - 一些提供每个类型信息的值，如类型的名称和方法
+- 获得动态类型值：`fmt.Printf("%T\n", w)`
+  - 便于调试
+
+```go
+var w io.Writer
+fmt.Printf("%T\n", w) // "<nil>"
+w = os.Stdout
+fmt.Printf("%T\n", w) // "*os.File"
+w = new(bytes.Buffer)
+fmt.Printf("%T\n", w) // "*bytes.Buffer"
+```
+> 动态值
+- 从概念上讲，无论接口值多大，动态值总可以容下他
+<div align="center" style="zoom: 90%">
+<img src="pic/7.png">
+</div>
+
+> 包含nil指针的 接口 不是 nil接口
+
+```go
+type Aer interface {
+	echo()
+}
+
+type Aimpl struct {
+	data string
+}
+
+func (a Aimpl) echo() {
+	fmt.Println(a.data)
+}
+
+func f(a Aer) {
+	// nil 保护，但是被 包含nil指针的接口穿透
+	if a != nil {
+		a.echo()
+	}
+}
+// panic: value method main.Aimpl.echo called using nil *Aimpl pointer
+func main() {
+	var a *Aimpl
+	f(a)
+}
+```
+- type: *Aimpl
+- value: nil
+
+> demo
+```go
+var w io.Writer         // 状态1：nil
+w = os.Stdout           // 状态2
+w = new(bytes.Buffer)   // 状态3
+w = nil                 // 状态4
+```
+- 状态1 && 状态4：
+  - 接口的nil表现形式，可以通过 `w == nil` 来判断
+<div align="center" style="zoom: 90%">
+<img src="pic/4.png">
+</div>
+
+- 状态2：
+  - `os.Stdout` 是 `*os.File` 类型的
+<div align="center" style="zoom: 90%">
+<img src="pic/5.png">
+</div>
+
+- 状态3：
+<div align="center" style="zoom: 90%">
+<img src="pic/6.png">
+</div>
+
+
+### 类型断言
+- 语法：`x.(T)`
+  - 返回值
+    - 情况1：`T, bool`；失败 `nil, false`
+    - 情况2：`T`，失败 `panic`
+  - x必须是接口
+  - x不能是nil，如果是nil将 panic
+- 两种可能：
+  - T是一个**具体类型**。
+  - T是一个**接口类型**。往往是更大的接口，因为如果是 往小接口 断言，那么直接赋值就可以了。
+- 作用
+  - 通过断言决定是否采用更优方法（一般是接口断言）。比如 并行版本
+    - eg：`Writer`和`stringWriter`。后者避免了copy
+  - 通过断言决定是否特殊处理（一般是具体类型断言）。
+    - fmt
 # 包
 - 引入包：import可以一次引入多个
 - 打包：package表示这个源文件归属哪个包
@@ -834,12 +1089,95 @@ func main() {
 }
 ```
 
-# 错误处理 
+# 错误与异常
+## 错误
+- `error`错误信息：错误信息被认为是一种预期的值，而非异常
+  - 类型：接口
+  - 可以通过调用 error 的 `Error`函数，或者输出函数，获得字符串错误信息
+- 创建一个error
+  - `errors.New("error info")`
+  - `fmt.Errorf(...)`
+- `Errno`：go底层点的调用返回的错误类型，error 接口的实际类型为 `Errno`，避免空间的浪费
+
+
+```go
+// 法1
+fmt.Println(err.Error())
+// 法2
+fmt.Printf("%v", err)
+```
+
+> 比较
+- 与预定义的比较
+```go
+if err == io.EOF {
+
+}
+```
+- 字符串比较
+```go
+if err.Error() == "EOF"{
+    
+}
+```
+> errno
+```go
+package syscall
+
+type Errno uintptr // operating system error code
+
+var errors = [...]string{
+    1:   "operation not permitted",   // EPERM
+    2:   "no such file or directory", // ENOENT
+    3:   "no such process",           // ESRCH
+    // ...
+}
+
+func (e Errno) Error() string {
+    if 0 <= int(e) && int(e) < len(errors) {
+        return errors[e]
+    }
+    return fmt.Sprintf("errno %d", e)
+}
+```
+- 使用
+```go
+var err error = syscall.Errno(2)
+fmt.Println(err.Error()) // "no such file or directory"
+fmt.Println(err)         // "no such file or directory"
+```
+<div align="center" style="zoom: 80%">
+<img src="pic/8.png">
+</div>
+
+
+
+### 错误处理
+- 传播错误。直接return
+- 重试。
+  - 如果错误是偶然的，且不确定的
+- 打完日志退出。
+  - 如果错误发生后，程序无法继续运行
+- 输出错误
+  - 错误不严重的情况
+- 直接忽略错误
+
+## 异常
+- `panic`异常：表示发生了某个已知的bug，一般程序永远不应该出现 `panic` 异常
+  - 用于严重的错误
+- panic异常触发，发生什么
+  - 立即执行该goroutine中被defer的函数
+  - 打印日志，并退出该函数（没恢复的情况下）
+- 规范：不应该试图恢复其他包引起的panic， 公有的 API 应该将函数的失败作为error的返回而不是panic
+### 异常处理    
+- 异常恢复：如果deferr函数中，调用了内置函数 `recorver`，则可以将该函数中的 panic 恢复。
+  - panic 异常的函数不会继续运行，但能正常返回
+- 更安全的做法：选择性恢复 panic（switch）
+- [panic demo](demo/panic.md)
+
 
 # 工具
 
-# 接口
-- GO中标志接口多以`er`结尾
 # 其他
 ## 随机数
 ```go
