@@ -66,7 +66,10 @@ ListNode reverseBetween(ListNode head, int m, int n) {
 
 > 转化为反转前n个的思想
 ```
-如果 m != 1 怎么办？如果我们把 head 的索引视为 1，那么我们是想从第 m 个元素开始反转对吧；如果把 head.next 的索引视为 1 呢？那么相对于 head.next，反转的区间应该是从第 m - 1 个元素开始的；那么对于 head.next.next 呢……
+如果 m != 1 怎么办？如果我们把 head 的索引视为 1，那么
+我们是想从第 m 个元素开始反转对吧；如果把 head.next 的索
+引视为 1 呢？那么相对于 head.next，反转的区间应该是从第 
+m - 1 个元素开始的；那么对于 head.next.next 呢……
 ```
 
 ### 25.K个一组翻转链表
@@ -168,3 +171,11 @@ boolean traverse(ListNode right) {
     return res;
 }
 ```
+
+# 典型题目
+## 环形链表
+- 双指针
+  - 见141、142
+## 合并K个升序链表
+- 外排序思想
+  - 见23

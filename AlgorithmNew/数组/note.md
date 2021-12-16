@@ -22,7 +22,9 @@
   - [380. O(1) 时间插入、删除和获取随机元素](#380-o1-时间插入删除和获取随机元素)
 - [单调队列](#单调队列)
   - [239. 滑动窗口最大值](#239-滑动窗口最大值)
-- [搜索二维矩阵](#搜索二维矩阵)
+- [遍历与检索](#遍历与检索)
+  - [搜索二维矩阵](#搜索二维矩阵)
+  - [498. 对角线遍历](#498-对角线遍历)
 - [峰值](#峰值)
   - [162. 寻找峰值](#162-寻找峰值)
 # 双指针技巧总结
@@ -718,8 +720,8 @@ public:
     }
 };
 ```
-
-# 搜索二维矩阵
+# 遍历与检索
+## 搜索二维矩阵
 
 <div align="center" style="zoom:80%"><img src="./pic/240-1.png"></div>
 
@@ -750,6 +752,61 @@ public:
             }
         }
         return false;
+    }
+};
+```
+
+## 498. 对角线遍历
+<div align="center" style="zoom:60%"><img src="./pic/498-1.png"></div>
+
+- 思路
+  - 每一趟对角线中元素的 **坐标（x, y）相加的和** 是递增的，趟数记为 `status`
+    - 第 1 趟：0
+    - 第 2 趟：1
+    - 第 3 趟：2
+  - 每一趟都是 `x` 或 `y` 其中一个从大到小（每次-1），另一个从小到大（每次+1）。
+  - 确定初始值。例如这一趟是 **x 从大到小**， **x 尽量取最大(取status)**，当status超过 x 的上限时，不足的部分加到 y 上面。
+  - 边界。判断 x， y 边界
+  - 交替。
+
+
+```cpp
+class Solution {
+public:
+    vector<int> findDiagonalOrder(vector<vector<int>>& mat) {
+        if(mat.empty())
+            return {};
+        int m,n;
+        int status = 0;
+        int x,y;
+        vector<int> res;
+        m = mat.size();
+        n = mat[0].size();
+        while(status < m+n-1){
+            // 奇数轮
+            // 重点：取尽可能大，另一个的坐标为不足的部分 status - x
+            x = status < m-1 ? status : m-1;
+            y = status - x;
+            while(x >= 0 && y < n){
+                res.push_back(mat[x][y]);
+                --x;
+                ++y;
+            }
+            ++status;
+            if(status >= m+n-1)
+                break;
+
+            // 偶数轮
+            y = status < n-1 ? status : n-1;
+            x = status - y;
+            while(x < m && y >= 0){
+                res.push_back(mat[x][y]);
+                ++x;
+                --y;
+            }
+            ++status;
+        }
+        return res;
     }
 };
 ```

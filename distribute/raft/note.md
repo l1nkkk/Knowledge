@@ -1,0 +1,275 @@
+- [参考](#参考)
+- [概述](#概述)
+  - [一致性算法的背景：复制状态机](#一致性算法的背景复制状态机)
+- [算法](#算法)
+  - [leader 选举](#leader-选举)
+    - [选举算法](#选举算法)
+  - [日志复制](#日志复制)
+    - [**日志匹配特性**](#日志匹配特性)
+    - [leader 崩溃导致的数据不一致](#leader-崩溃导致的数据不一致)
+  - [安全性](#安全性)
+    - [选举限制](#选举限制)
+    - [log复制限制](#log复制限制)
+    - [follower 和 candidate 宕机](#follower-和-candidate-宕机)
+    - [安全性和可用性的时间依赖](#安全性和可用性的时间依赖)
+  - [集群成员变化](#集群成员变化)
+    - [过程](#过程)
+    - [问题](#问题)
+  - [日志压缩](#日志压缩)
+- [状态与RPC](#状态与rpc)
+
+# 参考
+- https://github.com/LebronAl/raft-thesis-zh_cn/blob/master/raft-thesis-zh_cn.md
+- https://github.com/maemual/raft-zh_cn/blob/master/raft-zh_cn.md#51-raft-%E5%9F%BA%E7%A1%80
+- https://zhuanlan.zhihu.com/p/32052223
+- etcd: https://www.codedump.info/post/20180922-etcd-raft/
+# 概述
+- 三个部分
+  - **leader选举**
+  - **log复制**
+  - **安全性**
+  - 注:
+    - 主要就是 leader选举 和 log复制 这两个模块
+    - 安全性是针对一些细节或者特殊情况，外加的一些限制
+    - 安全性个人认为可以**类比 TCP协议的可靠性**，通过加入一些机制，保证TCP在发生延迟、丢包、重复等特殊情况下，**仍对上层提供可靠服务的保证**。而安全性是Raft对上层的提供一致性保证，保证不会出错（出错指出现不一致现象）。
+- 作者在设计该算法时，充分考虑了可理解性，主要通过两种方式：
+  - 减少状态机的状态
+  - 算法模块分解
+
+## 一致性算法的背景：复制状态机
+- 状态机我的理解是可以理解为 存储数据的单位，可以简单看成数据库。
+- 复制状态机**意义**：实现高可用
+  - 带来分布式一致性难题。
+- 复制状态机 所要**实现的目标**：
+  - 就是有一组在不同服务器上的状态机（进行数据存储），他们之间拥有相同的状态（数据）副本，在一些状态机宕机的情况下，也可以继续运行。
+  - 简单说就是数据做冗余
+
+- 下面为复制状态机的结构。可以看成状态机中**有两个部分：**
+  - 持久化的数据（状态）
+  - 复制日志。主要用于在多节点中同步数据，达成数据的一致性
+  - 注：
+    - **持久化的数据 由 复制日志 来决定的。** 因为再状态机中，相同状态下的每一个操作都会产生相同的结果。
+    - 即 **可以通过保证复制日志中指令的顺序，来保证状态机状态的一致性**。
+<div align="center" style="zoom:80%"><img src="pic/1.png"></div>
+
+- **一致性算法的任务是保证复制日志的一致性**。
+
+- (个人总结)数据（状态）变化指令的各种阶段：
+```md
+客户端发送的指令 =a=> 复制日志 =b=> 持久化
+- a: leader 接受请求
+- b: commit。大多数节点已经更新完复制日志
+```
+
+# 算法
+- 可用性：超过总数的半数节点正常就行了。
+  - 问题：总数是怎么确定的，在随意增删节点下，怎么弄？配置文件吧
+
+- 保证：
+  - leader选举
+    - 保证1：在一个给定的任期内，最多只有一个领导人
+    - 保证5（安全性）：任何的领导人对于给定的任期号，都拥有了之前任期的所有被提交的日志条目（领导人都必须存储所有已经提交的日志条目）
+  - log复制
+    - 保证2：所有已提交的日志条目都是持久化的并且最终会被所有可用的状态机执行
+    - 保证3：日志匹配特性
+    - 保证4：leader 从来不会覆盖或者删除自己的日志
+## leader 选举
+- 节点状态：**leader、follower、candidate**
+  - 正常情况下：只有一个leader，其他全是follower
+  - **只有 leader 处理客户端请求；**，如果follower收到，会重定向给 leader
+  - **follower不发送任何请求，只会响应 candidate 和 leader 的请求**
+
+> 状态变化 和 任期
+- 问题：
+  - leader 到 follower 是什么情况，如果follower 因为心跳延迟而变成candidate，leader收到选举信息会怎么样？
+- 注意：leader 不会变为 candidate。
+  - 品一下为什么。因为leader如果不宕机，就一直是leader。宕机了，怎么可能还成为candidate。
+- 在一个任期内，leader 一直都会是 leader，直到自己宕机了
+<div align="center" style="zoom:80%"><img src="pic/2.png"></div>
+
+- 任期：
+  - Raft 把时间分割成**任意长度**的 任期(term)
+  - **每个任期的开始都是一次 选举**。
+  - 可能出现选举不成功（平票），则开启另一个 任期
+<div align="center" style="zoom:80%"><img src="pic/3.png"></div>
+
+### 选举算法
+- leader保活机制：心跳包
+- （状态）*election timeout*：选举超时，从一个固定的区间（例如 150-300 毫秒）随机选择
+  - 这样的机制可以很大程度减少 选举过程中无人成功的情况。
+- 选举触发事件：*election timeout* 时间里没有收到心跳。节点状态变化：`follower ==> candidate`，开始进行选举。
+
+- 选举过程(candidate状态)：
+  - `currentTerm++`，重置 *election timeout*
+  - 向其他节点发送 `RequestVote RPC`，来给自己投票
+  - 选举结果
+    - 成功。从 大多数服务器 获得针对同一个任期号的选票，**向其他节点发送心跳消息**(AppendEntries附加条目的一种)，阻止新的 leader 产生。
+    - 其他节点成功。在等待投票的时候，收到其他节点的AppendEntries，如果该消息携带的 `term` >= `currentTerm`，则 **`candidate ==>follower`**
+    - 无人成功。选票被瓜分，每一个 candidate 都无法获得大多数选票，从而导致等待时间超过*election timeout*，**选举过程重来**
+
+
+## 日志复制
+- 日志复制过程(粗略)：
+  - ==> 用户请求（包含一条执行指令）
+  - ==> leader 追加 log 
+  - ==> （同步，AppendEntries）leader 向 follower 发起 AppendEntries RPC ，同步该条目，收到请求后 follower 追加 log，并响应 
+  - ==> （提交并返回）leader 收到大多数 follower 的响应后，提交，后把执行结果返回到客户端 
+  - ==> （所有节点最终一致）重复尝试通过RPC，attach log 到所有 follower，直到最终一致。
+- 问题（针对上面粗略的过程，需要注意的**细节**）
+  - 问题1：leader 如何知道 follower 还没有该log的，是不是这里应该维护一个状态
+    - 状态(nextIndex[], matchIndex[]) + 试探
+  - 问题2：leader 如何让 follower commit 的，是不是是否commit也维护一个状态
+    - RPC中告知leaderCommit
+  - 问题3：leader 如何知道我这个集群有多少个节点的？是不是可以动态学习？还是通过配置文件？我记得etcd是通过配置文件
+    - 还是借助特殊的log来更改配置，两阶段法
+  - 问题4：leader 刚当选的时候，如何知道我该和某个节点同步哪些log？试探？怎么试探？
+    - 各个Raft的实现不一样，思想就是一个趋近，慢慢试探的过程。
+
+- **每条log可以看成这样的一个整体：<index, term, operation>**
+  - 个人总结：不要想象成以 <index, term> 为坐标的二维模型，应该想象成以 全局index 为坐标的一维模型。term 的作用在该一维模型的作用为表征是否可覆盖。
+<div align="center" style="zoom:80%"><img src="pic/4.png"></div>
+
+- **提交**：一个条目当可以安全的被应用到状态机中去的时候，该条目就可以被提交。
+- （状态）*leaderCommit*：leader的已知已提交的最高的日志条目的索引。
+  - 包含在所有的 `AppendEntries`(包含心跳包) 中，这样 follower 就会知道当前 leader commit的位置，**所以 follower 也会同步 commit**。（解决问题2，可见问题2在这里的解决，不增加过多的状态，而是通过这样的一个 leaderCommit 就够了）
+
+### **日志匹配特性**
+- （状态） *prevLogIndex* 和 *prevLogTerm* ： 附加在同步log时的 AppendEntries 中， 分别为 同步的log 相邻的的上一条的 index 和 term。用于 `AppendEntries` RPC 的**一致性检查**
+- 特性1： 不同的节点的log中，index 和 term 相同 ==> 这两个节点中，该log的 operation 也相同
+  - 保障：一个 term 中都只有一个 leader（保证1），在该任期中的 index 位置只会有一条log（leader独享 index 的操控）。
+- 特性2： 不同的节点的log中，index 和 term 相同 ==> 这两个节点中，之前的所有log都相同
+  - 保障：通过 `AppendEntries` RPC 的一致性检查。如果 follower 找不到 *prevLogIndex* 和 *prevLogTerm* 将拒绝接收该 log。当 leader 的 `AppendEntries` 返回成功后，就知道follower中该log条目及其之前的log和 leader已经保持一致
+
+
+### leader 崩溃导致的数据不一致
+- 这种不一致问题会在领导人和跟随者的一系列崩溃下加剧
+- 下图情况的 leaderCommit=9
+<div align="center" style="zoom:80%"><img src="pic/5.png"></div>
+
+- 场景，相比 leader 情况
+  - a-b：缺少一些log
+  - c-d：多出一些未被提交的log
+  - e-f：缺少一些log，同时也多出一些未提交log
+- 场景f
+  - 该场景中，某个节点再 term=2 时，为 leader。attach 了一些 log 之后，宕机了，之后很快重启，又当了 leader，之后又 attach 了一些log，又崩溃了，在接下来的几个 term 中都处于崩溃中，再 term=8 的时候，又恢复了，作为 follower。
+
+- 如何解决这种情况的不一致？
+  - 通过强制 follower 直接复制 leader 自己的日志来解决
+  - 这样 leader就不需要特殊操作恢复一致性，简化了Raft算法。
+- (前面 问题1)如何知道应该给 follower 哪个log？ **通过为每个 follower 维护一个 nextIndex**。过程如下：
+  - leader 刚当选的时候，选它的最后一条log的index作为 nextIndex。
+  - 通过 `AppendEntries` RPC，如果被 follower 拒绝，那么减小 nextIndex，继续试探；（这里可以进行优化，减少RPC次数，比如返回冲突条目的任期号和任期号对应的最小index。但其实没有太大必要，因为大多数情况下，失败很少发生，而且不太可能出现这么多不一致log）
+  - 最终 nextIndex 再某个位置使得 leader 和 follower 达成一致，这时 `AppendEntries` 将成功返回，folloer 开始追赶 log（该过程可能覆盖follower原有同index上的log）
+
+## 安全性
+### 选举限制
+- 安全性限制：**领导人都必须存储所有已经提交的日志条目**
+  - 极端情况：一个什么数据都没有的节点做主节点
+  - 怎么做？如果让 leader 当选后，来弥补这些缺失的已提交数据，这个过程存在 follower 向 leader 流数据的操作，而且也带来很多复杂性。
+  - **Raft日志条目的传送是单向的，即 leader ==> follower**
+- Raft实现该安全限制的做法：从阻止 candidate 赢的机制入手。
+  - `RequestVote RPC` 中，包含 candidate 的日志信息（**最后一条日志条目的index和item**），**投票人会拒绝那些日志没有自己新的请求**
+  - 先比较 item，相等比较 index
+
+### log复制限制
+- 一个事实：一个当前任期的 leader，如果前一个任期中的log已经被大多数节点attach，并不能断定可以提交。
+- 安全性限制：**旧任期**的log可提交的充分条件，不再是大多数节点已经attach，还要再加一个条件——**当前任期**的log已经attach到大多数节点，已经具有可提交条件。
+  - 在当前任期的log commit的时候，间接commit前任期未提交的
+  - 保障：日志匹配特性（保证3），当前的可提交，之前的一定可间接提交
+
+> 极端情况
+- 阶段a：s1 为 leader，leaderCommit=1，term=2；index=2 的log 复制到一半，s1发生宕机
+- 阶段b：s5 为 leader，leaderCommit=1，term=3；写入日志，index=2；s5发生宕机
+  - s5为 leader 满足选举限制，可以收到s3, s4, s5的选票
+- 阶段c：s1 为 leader，leaderCommit=1， term=4；写入日志，index=3；同步index=2,term=2的日志到s3，（**关键**）此时s1两种做法，体现是有误安全性限制的差别：
+  - 做法1：提交 index=2,term=2 的 log，因为此时已经有大多数节点有该log了。但是注意，该日志是旧任期遗留的。
+  - 做法2：先不提交，等后面自己任期的log有条件提交时，再间接提交。
+- 做法1下，阶段d：s1宕机了，s5称为leader，leaderCommit=1，term=5；这个时候s5可以同步其 index=2，term=3的 log到所有的节点，并**覆盖原本已经提交的 index=2，term=2 的日志，造成一致性破坏**。
+  - 此时s5可以成为 leader，因为 最后一条日志条目的index和item，可以得到 s2, s3, s4, s5的支持票。满足选举安全性限制
+- 做法2下，阶段e：这个时候s1 在同步完自己任期中的log后，并提交时，才把之前任期的给提交了。这个时候s5就当不了leader了。而且就算s1再这个时候宕机，index=2，term=2 也仍然没有提交，log可以被覆盖。
+<div align="center" style="zoom:80%"><img src="pic/6.png"></div>
+
+### follower 和 candidate 宕机
+- 情况1：收到RPC之前，宕机了。最简单的方式就是leader不断RPC重试
+- 情况2：收到RPC之后，处理中途，宕机了。Raft的RPC是幂等的，再处理一次，不会影响状态
+
+### 安全性和可用性的时间依赖
+- raft要求：
+  - 安全性不依赖时间
+  - 可用性需要依赖时间（不可避免，如选举超时等等）
+
+> 广播时间（broadcastTime） << 选举超时时间（electionTimeout） << 平均故障间隔时间（MTBF）
+- 广播时间：是从一个服务器并行的发送 RPCs 给集群中的其他服务器并接收响应的平均时间
+- 选举超时时间：前文所述
+- 平均故障间隔时间：对于一台服务器而言，两次故障之间的平均时间
+
+## 集群成员变化
+- 难题：一次性原子地转换所有服务器是不可能的，所以在转换期间整个集群存在划分成两个独立的大多数群体的可能性，如下图所述
+<div align="center" style="zoom:80%"><img src="pic/7.png"></div>
+
+- Raft做法：本质为两阶段方法。通过日志复制来推动，还是一样的单向流通，leader 说了算
+  - 第一阶段，进入一个过渡的配置（共同一致，joint
+consensus）
+  - 第二阶段，进入新的配置
+
+### 过程
+- 虚线表示 log entry被创建，实现表示该 log entry 被提交
+<div align="center" style="zoom:80%"><img src="pic/8.png"></div>
+
+- 特殊的日志类型：配置日志（configuration entry ）。用于集群配置转换的存储和通信
+- **一个服务器将新的 配置日志 添加到日志后，就会立即使用该成员配置**
+- 过程
+  1. Leader 收到成员变更请求。（从 `Cold==>Cnew`）
+  2. Leader 生成一个 log entry，内容为 `Cold ∪ Cnew`，追加到日志，并且作为当前自己的成员配置，并且同步到`Cold ∪ Cnew`所有副本，**提交的条件需要分别得到 Cold 和 Cnew 两个多数派的支持**
+  3. Follower 收到 `Cold ∪ Cnew`后，将其设置为自己的成员配置
+  4. Leader commit后，生成内容为 Cnew 的log entry，追加到日志，并**同步复制到 `Cold ∪ Cnew` 中的成员**（注：看具体实现，可能只发给Cnew）。
+  5. Follower 收到 Cnew log后，那么设置成员配置为 Cnew
+  6. Leader 收到 Cnew 中的大多数后，就可以commit了。这个时候，旧配置中不在新配置的节点就可以关闭了。
+
+- 情况
+  - 阶段1：`Cold ∪ Cnew`未提交。这个时候，如果Leader 宕机，不能确定新 Leader 中，成员配置是 Cold 还是 `Cold ∪ Cnew`。
+  - 阶段2：`Cold ∪ Cnew` 已提交。新 Leader 必须是`Cold ∪ Cnew`的成员配置
+    - 理由：领导人都必须存储所有已经提交的日志条目
+
+
+### 问题
+> 新的服务器可能初始化没有存储任何的日志条目
+- 带来的问题：可能造成新节点需要一段时间来追赶，**造成成员配置更新的过程过长**。导致一段时间无法commit
+- 解决：在引入新阶段。**配置更新之前**，进行追赶。且这个时候这些新成员没有投票权利。等到追改完，才进入配置更新流程。
+
+> 集群的领导人可能不是新配置的一员
+- 解决：领导人就会在 commit C-new 日志之后退位（回到follower状态，不发送心跳），导致 选举超时
+  - 理由：这个时候就总能选举出 C-new 的领导人了
+- 在收到 Cnew 请求后， Leader 管理集群，但是不管理自己，Cnew中的大多数，总是不包含自己。
+
+> 移除不在 C-new 中的服务器可能会扰乱集群
+- 个人觉得：这个问题应该是得针对具体的Raft实现，如果Leader会把 Cnew log 发送给淘汰的节点，那么 Cold应该可以加规则让自己退出的吧
+- 带来的问题：旧节点收不到心跳，选举超时后，给 Leader 发来 term更高的 `RequestVote RPC`，这样不加以控制，会导致当前 Leader 退回到 Follower。
+
+- 解决：**当服务器确认当前 Leader 存在时，服务器会忽略`RequestVote RPC`**，如何确认？
+  - 当服务器在当前最小选举超时时间内收到一个请求投票 RPC，他不会更新当前的任期号或者投出选票。
+    - 理由： `广播时间（broadcastTime） << 选举超时时间（electionTimeout）`
+  - 如果 Leader 能够发送正常的心跳，那么就不会被 淘汰节点 干扰。
+
+
+## 日志压缩
+- snapshot：快照是最简单的压缩方法，快照点之前的日志全部丢弃，且快照点之前的状态（数据）被稳定持久化。
+
+<div align="center" style="zoom:80%"><img src="pic/9.png"></div>
+
+- 快照内容：
+  - 状态机状态（数据）
+  - 元数据：为了  AppendEntries 的一致性检查
+    - `last included index`：快照取代的最后 entry 的 index 值
+    - `last included term`：快照取代的最后 entry 的 term 值
+
+- Leader 发送 snapshot 的时机：leader 已经丢弃了下一条需要发送给 follower 的 log entry
+- Follower 收到 snapshot 之后（InstallSnapshot RPC ）两种情况：
+  - snapshot 包含没有在 follower 日志中的entry，follower 直接丢弃整个日志，用 snapshot取代。
+  - snapshot 包含 follower 日志中的前面部分，被包含的 log entries 将被删除
+- 影响效率的两个问题：
+  - 服务器什么时候创建快照
+  - 写入快照需要一段时间，如何不影响正常业务
+
+# 状态与RPC
+

@@ -22,6 +22,7 @@
 - [无限序列中随机抽取元素(水塘抽样算法)](#无限序列中随机抽取元素水塘抽样算法)
 - [sqrt(x)](#sqrtx)
 - [用rand7实现rand10](#用rand7实现rand10)
+- [约瑟夫环](#约瑟夫环)
 # 常用的位操作
 - https://labuladong.gitbook.io/algo/mu-lu-ye-3/mu-lu-ye-2/chang-yong-de-wei-cao-zuo
 
@@ -531,3 +532,6 @@ public:
     }
 };
 ```
+
+# 约瑟夫环
+- 剑指offer 62

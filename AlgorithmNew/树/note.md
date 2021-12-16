@@ -6,6 +6,7 @@
     - [leetcode114. 二叉树展开为链表](#leetcode114-二叉树展开为链表)
     - [leetcode116. 填充每个节点的下一个右侧节点指针](#leetcode116-填充每个节点的下一个右侧节点指针)
     - [*leetcode652.寻找重复的子树](#leetcode652寻找重复的子树)
+    - [662. 二叉树最大宽度](#662-二叉树最大宽度)
   - [已知前序和中序（后序和中序）构造二叉树](#已知前序和中序后序和中序构造二叉树)
     - [leetcode105.从前序与中序遍历序列构造二叉树](#leetcode105从前序与中序遍历序列构造二叉树)
   - [框架](#框架)
@@ -139,6 +140,52 @@ public:
 };
 ```
 
+### 662. 二叉树最大宽度
+
+<div align="center" style="zoom:80%"><img src="./pic/662-1.png"></div>
+
+- 思路：层序遍历+给节点计数
+  - 给每个节点一个 `position` 值，如果我们走向左子树，那么 `position -> position * 2`，如果我们走向右子树，那么 `position -> positon * 2 + 1`。
+  - 当我们在看同一层深度的位置值 `L` 和 `R` 的时候，宽度就是 `R - L + 1`。
+
+
+```cpp
+class Solution {
+public:
+    int widthOfBinaryTree(TreeNode* root) {
+        if(root == nullptr) return 0;
+        int res = 0;
+        int pad = 0;
+        queue<TreeNode*> que;
+
+        root->val = 1;
+        que.push(root);
+
+        while(!que.empty()){
+            res = max(res, que.back()->val - que.front()->val + 1);
+
+            int n = que.size();
+            pad = que.front()->val; // 重点：将最左边节点，从0开始计数
+            while(n){
+                auto node = que.front();
+                que.pop();
+                node->val -= pad;
+                if(node->left != nullptr) {
+                    node->left->val = node->val * 2 ;
+                    que.push(node->left);
+                }
+                if(node->right != nullptr){
+                    node->right->val = node->val * 2 + 1;
+                    que.push(node->right);
+                }
+                --n;
+            }
+        }
+        return res;
+    }
+};
+```
+
 ## 已知前序和中序（后序和中序）构造二叉树
 - 105.从前序与中序遍历序列构造二叉树（中等）
 - 106.从中序与后序遍历序列构造二叉树（中等）
@@ -176,6 +223,8 @@ TreeNode
 */
 TreeNode build(int[] preorder, int preStart, int preEnd, 
                int[] inorder, int inStart, int inEnd) {
+    // base case
+    if(preStart > preEnd) return nullptr;
     // root 节点对应的值就是前序遍历数组的第一个元素
     int rootVal = preorder[preStart];
     // rootVal 在中序遍历数组中的索引
@@ -209,6 +258,7 @@ root.right = build(preorder, preStart + leftSize + 1, preEnd,
 
 
 ## 框架
+- 非递归代码：https://blog.csdn.net/sgbfblog/article/details/7773103
 - 以二叉树的**序列化**为引子
 - **所谓的序列化不过就是把结构化的数据「打平」，其实就是在考察二叉树的遍历方式**。
 ### 前序遍历框架
@@ -221,6 +271,32 @@ void traverse(TreeNode* root) {
     // 前序遍历的代码
     traverse(root.left);
     traverse(root.right);
+}
+```
+
+> 非递归
+- 思路：大方向为弹栈即访问
+  - init：将root入栈
+  - while：
+    - 弹栈访问。**将右节点入栈，再将左节点入栈**
+    - 栈为空退出
+```cpp
+void preOrderIter(struct node *root)
+{
+    if (root == NULL) return;
+    stack<struct node *> s;
+    s.push(root);
+    while (!s.empty()) {
+        struct node *nd = s.top();
+        cout << nd->data << " ";
+        s.pop();
+        // 重点：先放右节点
+        if (nd->right != NULL)
+            s.push(nd->right);
+        if (nd->left != NULL)
+            s.push(nd->left);
+    }
+    cout << endl;
 }
 ```
 
@@ -237,6 +313,33 @@ void traverse(TreeNode root) {
 
 }
 ```
+> 非递归
+- 思路：大方向为弹栈即范文
+  - init：root指向根节点
+  - while：
+    - 如果root不为null --> 将root入栈 --> root = root->left
+    - 如果root为null --> 出栈即访问（root = s.top()） --->  root = root->right
+```cpp
+void inOrderIter(struct node *root)
+{
+    stack<struct node *> s;
+    while (root != NULL || !s.empty()) {
+        if (root != NULL) {
+            s.push(root);
+            root = root->left;
+        }
+        else {
+            root = s.top();
+            cout << root->data << " ";  //访问完左子树后才访问根结点
+            s.pop();
+            root = root->right;        //访问右子树
+        }
+    }
+    cout << endl;
+}
+```
+
+
 
 ### 后序遍历框架
 > 框架
@@ -249,6 +352,36 @@ void traverse(TreeNode root) {
     // 后序遍历的代码
 }
 ```
+> 非递归
+```cpp
+void postOrderIter(struct node *root)
+{
+    if (!root) return;
+
+    // output：pop之后就是后序遍历的顺序了
+    stack<struct node*> s, output;
+    s.push(root);
+    while (!s.empty()) {
+        struct node *curr = s.top();
+        output.push(curr);
+        s.pop();
+
+        // 重点：先放左边再放右边
+        if (curr->left)
+            s.push(curr->left);
+        if (curr->right)
+            s.push(curr->right);
+    }
+    
+    while (!output.empty()) {
+        cout << output.top()->data << " ";
+        output.pop();
+    }
+    cout << endl;
+}
+```
+
+
 ### 层序遍历框架
 - 下面是不需要记录当前层级的解法
 ```cpp
@@ -305,6 +438,9 @@ void traverse(TreeNode root) {
     }
 }
 ```
+
+
+
 
 ## 通过前序和中序（或后序和中序）遍历结果构造二叉树
 - 面试常考
@@ -780,6 +916,49 @@ TreeNode deleteNode(TreeNode root, int key) {
     return root;
 }
 ```
+- 删除分三种情况
+```cpp
+class Solution {
+public:
+    TreeNode* deleteNode(TreeNode* root, int key) {
+        if(root == nullptr) return nullptr;
+        // 先查后访问
+        if(root->val == key){
+            // 删除
+            // 情况1：叶子节点
+            if(root->left == nullptr && root->right == nullptr){
+                delete root;
+                return nullptr;
+            } else if(root->left == nullptr || root->right == nullptr){ // 情况2：只有一个孩子，孩子直接往上顶
+                TreeNode* rtn;
+                if(root->left != nullptr){
+                    return root->left;
+                } else if(root->right != nullptr){
+                    return root->right;
+                }
+            } else { // 情况3：有左右孩子。找到左孩子中的最大，或者右孩子中的最小，往上顶
+                // 找到做孩子中的最大，然后往上顶后，再找
+                
+                TreeNode* rtn;
+                rtn = getMax(root->left);
+                deleteNode(root, rtn->val);
+                root->val = rtn->val;
+                return root; // 重点：还是返回root，并不是删除，而是将某一值赋给他
+            }
+        } else if(root->val < key){
+            root->right = deleteNode(root->right, key);
+        } else {
+            root->left = deleteNode(root->left, key);
+        }
+        return root;
+    }
+    TreeNode* getMax(TreeNode *root){
+        auto rtn = root;
+        while(rtn->right != nullptr) rtn = rtn->right;
+        return new TreeNode(rtn->val);
+    }
+};
+```
 
 ## *给定n个节点，求多少种不同的 BST 结构
 > 96.不同的二叉搜索树（Easy）
@@ -790,6 +969,32 @@ TreeNode deleteNode(TreeNode root, int key) {
   - 选定根（for循环）
   - 遍历左右子树，返回BST结构的种数,记为x,y。
   - x*y为该选定根下的BST种数，为根选定另一个值（循环）
+
+```cpp
+class Solution {
+public:
+    int numTrees(int n) {
+        return count(1,n);
+    }
+
+    int count(int lo, int hi){
+        // 备忘录
+        static vector<vector<int> > note(20, vector<int>(20, -1));
+        // base case
+        if(lo > hi){ return  1;}
+        if(note[lo][hi] != -1) return note[lo][hi];
+        int res = 0;
+        for(int i = lo; i <= hi; ++i){
+            auto left = count(lo,i-1);
+            auto right = count(i+1, hi);
+            res += left * right;
+        }
+        note[lo][hi] = res;
+        return res;
+
+    }
+};
+```
 
 
 
@@ -822,6 +1027,7 @@ public:
 
             // 合并
             if(leftRes.size() == 0 && rightRes.size() == 0){
+                // 叶子节点情况
                 auto root = new TreeNode(i);
                 rtn.push_back(root);
             }
