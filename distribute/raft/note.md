@@ -16,7 +16,6 @@
     - [过程](#过程)
     - [问题](#问题)
   - [日志压缩](#日志压缩)
-- [状态与RPC](#状态与rpc)
 
 # 参考
 - https://github.com/LebronAl/raft-thesis-zh_cn/blob/master/raft-thesis-zh_cn.md
@@ -270,6 +269,4 @@ consensus）
 - 影响效率的两个问题：
   - 服务器什么时候创建快照
   - 写入快照需要一段时间，如何不影响正常业务
-
-# 状态与RPC
 
