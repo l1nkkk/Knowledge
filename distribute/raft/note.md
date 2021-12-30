@@ -2,6 +2,11 @@
 - [概述](#概述)
   - [一致性算法的背景：复制状态机](#一致性算法的背景复制状态机)
 - [算法](#算法)
+  - [RPC以及状态](#rpc以及状态)
+    - [状态](#状态)
+    - [AppendEntries RPC](#appendentries-rpc)
+    - [RequestVote RPC](#requestvote-rpc)
+    - [规则](#规则)
   - [leader 选举](#leader-选举)
     - [选举算法](#选举算法)
   - [日志复制](#日志复制)
@@ -12,10 +17,14 @@
     - [log复制限制](#log复制限制)
     - [follower 和 candidate 宕机](#follower-和-candidate-宕机)
     - [安全性和可用性的时间依赖](#安全性和可用性的时间依赖)
-  - [集群成员变化](#集群成员变化)
+- [集群成员变化](#集群成员变化)
+  - [后期的Raft做法](#后期的raft做法)
     - [过程](#过程)
+  - [前期的Raft做法](#前期的raft做法)
+    - [过程](#过程-1)
     - [问题](#问题)
   - [日志压缩](#日志压缩)
+  - [领导权的禅让（可选）](#领导权的禅让可选)
 
 # 参考
 - https://github.com/LebronAl/raft-thesis-zh_cn/blob/master/raft-thesis-zh_cn.md
@@ -35,8 +44,14 @@
   - 减少状态机的状态
   - 算法模块分解
 
+- Raft中安全性不依赖时间，可用性必须依赖时间
+- 任期在 Raft 算法中充当逻辑时钟的作用
+  - 如果一个候选人或者领导者发现自己的任期号过期了，那么他会立即恢复成跟随者状态。
+  - 如果一个节点接收到一个包含过期的任期号的请求，那么他会直接拒绝这个请求
+
 ## 一致性算法的背景：复制状态机
 - 状态机我的理解是可以理解为 存储数据的单位，可以简单看成数据库。
+  - **状态机可以是易失性的，也可以是持久性的**。重新启动后，必须通过重新应用日志条目来恢复易失性状态机
 - 复制状态机**意义**：实现高可用
   - 带来分布式一致性难题。
 - 复制状态机 所要**实现的目标**：
@@ -53,12 +68,7 @@
 
 - **一致性算法的任务是保证复制日志的一致性**。
 
-- (个人总结)数据（状态）变化指令的各种阶段：
-```md
-客户端发送的指令 =a=> 复制日志 =b=> 持久化
-- a: leader 接受请求
-- b: commit。大多数节点已经更新完复制日志
-```
+
 
 # 算法
 - 可用性：超过总数的半数节点正常就行了。
@@ -72,6 +82,100 @@
     - 保证2：所有已提交的日志条目都是持久化的并且最终会被所有可用的状态机执行
     - 保证3：日志匹配特性
     - 保证4：leader 从来不会覆盖或者删除自己的日志
+## RPC以及状态
+- 注：以下算法不包括成员变化和日志压缩
+### 状态
+> 所有节点上的持久化状态
+
+| 状态 | 描述 | 初始化 |
+| --- | --- | --- |
+| currentTerm | 当前节点所遇到的最大term值 | 刚启动的时，初始化为0 |
+| voteFor | 在curentTerm中，该节点投票给谁 |  |
+| log[] | 当前持久化存储的 log entries，每个log entry为{cmd, term, index} |  |
+
+- currentTerm 和 voteFor 持久化，防止宕机后重启之后重复投票
+
+> 所有节点上的易失状态
+
+| 状态 | 描述 | 初始化 |
+| --- | --- | --- |
+| commitIndex | 当前已知的已提交的log entries 中的最大index | 初始化为0 |
+| lastApplied | 当前已经apply 到状态机的最大index | 初始化为0 |
+
+> leader节点上的易失状态
+
+| 状态 | 描述 | 初始化 |
+| --- | --- | --- |
+| nextIndex[] | 为每一个follower都维护这样一个状态，下一次发送给follower的log entry 的index | 初始化为 last log index + 1，慢慢试探 |
+| matchIndex[] | 为每一个follower都维护这样一个状态，已知复制给follower的log entries 中最大的index | 初始化为0 |
+- 正常情况下：`nextIndex = matchIndex + 1`
+- 一旦 `nextIndex = matchIndex + 1` ，leader 开始发送实际条目
+  - 在领导者发现它与跟随者的日志匹配位置之前，领导者可以发送不带任何条目（例如心跳）的附加日志 RPCs 以节省带宽
+
+### AppendEntries RPC
+- 来自：leader
+> Request
+- term：leader's term
+- leaderId：让 follower 可以对client的请求重定向 
+- prevLogIndex、prevLogTerm：紧接在新条目上的前一个log entry 的index和term。（RPC的一致性检测）
+- entries[]：发送个follower的日志条目，为空表示心跳包，可能有多条（这样效率更高）
+- leaderCommit：leader's commitIndex
+
+> Response
+- term：follower's currentTerm，for leader to update itself
+- success：如果 prevLogIndex、prevLogTerm 匹配，则为true。
+
+> follower 实现
+- 如果 term < currentTerm，返回false
+- 如果没有和preLogIndex，prevLogTerm匹配的log entry，则返回false
+- 如果有冲突的（index相同，term不同），则覆盖
+- append any new entries not in the log
+- 如果 leader > commitIndex，则 commitIndex = min(leaderCommit, index of last new entry)
+
+### RequestVote RPC
+- 来自candidate
+> Request
+- term：candidate's term
+- candidateId：candidate's id
+- lastLogIndex、lastLogTerm：candidate最后一条日志的index和term
+
+> Response
+- term：currentTerm，for candidate to update itself
+- voteGranted：投票成功则为true
+
+> Receiver实现
+- 如果 term < currentTerm，返回false
+- 更新 currentTerm
+- 如果 VotedFor 为null或者为 candidateId，并且 candidate 的日志至少和当前节点日志一样新，则把选票给 candidate，更新 voteFor。
+
+### 规则
+> 所有节点
+- 如果commitIndex > lastApplied，apply log entries
+- 如果收到的RPC中，term > currentTerm，更新 currentTerm，convert to follower
+
+> follower
+- 响应来自 leader 或 candidate 的RPC
+- 选举超时前，没收到 `RequestVote` 或 `AppendEntries`，则convert to candidate
+
+> candidate
+- convert to candidate 后，开始选举：
+  - currentTerm++
+  - vote for self
+  - rest election timer
+  - Send Request Vote RPCs to all other servers
+- 如果收到了大多数的选票：become leader
+- 如果收到new leader 的 `AppendEntries`：convert to follower
+- 如果 election timeout elapses：start new eletion
+
+> Leader
+- 选举结束后：发送 empty `AppendEntries`，宣告新的leader，同时避免其他节点 election timeout
+- 收到来自client的cmd，添加log entry 到 local log[]，在 log entry apply 之后响应。
+- 如果 last log entry > `nextIndex` for a follower，发送 `AppendEntries`  RPC with log entries starting at  `nextIndex`
+  - 如果成功，更新 `nextIndex` 和 `matchIndex`
+  - 如果因为不一致而失败，decrement nextIndex and retry
+- 如果存在一个index N，其中 N > commitIndex，大多数 `matchIndex[i] > N`，以及 **`log[N].term == currentTerm`**，则设置 **`commitIndex = N`**
+  - **matchIndex 的作用体现出来了**
+
 ## leader 选举
 - 节点状态：**leader、follower、candidate**
   - 正常情况下：只有一个leader，其他全是follower
@@ -89,7 +193,7 @@
 - 任期：
   - Raft 把时间分割成**任意长度**的 任期(term)
   - **每个任期的开始都是一次 选举**。
-  - 可能出现选举不成功（平票），则开启另一个 任期
+  - 可能出现选举不成功（没有任何一方拿到大多数），则开启另一个 任期
 <div align="center" style="zoom:80%"><img src="pic/3.png"></div>
 
 ### 选举算法
@@ -111,7 +215,7 @@
 - 日志复制过程(粗略)：
   - ==> 用户请求（包含一条执行指令）
   - ==> leader 追加 log 
-  - ==> （同步，AppendEntries）leader 向 follower 发起 AppendEntries RPC ，同步该条目，收到请求后 follower 追加 log，并响应 
+  - ==> （同步，AppendEntries）leader将该log持久化后，leader 向 follower 发起 AppendEntries RPC ，同步该条目，收到请求后 follower 追加 log并持久化，然后响应 
   - ==> （提交并返回）leader 收到大多数 follower 的响应后，提交，后把执行结果返回到客户端 
   - ==> （所有节点最终一致）重复尝试通过RPC，attach log 到所有 follower，直到最终一致。
 - 问题（针对上面粗略的过程，需要注意的**细节**）
@@ -168,10 +272,11 @@
   - **Raft日志条目的传送是单向的，即 leader ==> follower**
 - Raft实现该安全限制的做法：从阻止 candidate 赢的机制入手。
   - `RequestVote RPC` 中，包含 candidate 的日志信息（**最后一条日志条目的index和item**），**投票人会拒绝那些日志没有自己新的请求**
-  - 先比较 item，相等比较 index
+  - **新旧判断规则**：先比较 item，相等比较 index
 
 ### log复制限制
 - 一个事实：一个当前任期的 leader，如果前一个任期中的log已经被大多数节点attach，并不能断定可以提交。
+  - **Raft 永远不会通过计算副本数目的方式去提交一个之前任期内的日志条目**
 - 安全性限制：**旧任期**的log可提交的充分条件，不再是大多数节点已经attach，还要再加一个条件——**当前任期**的log已经attach到大多数节点，已经具有可提交条件。
   - 在当前任期的log commit的时候，间接commit前任期未提交的
   - 保障：日志匹配特性（保证3），当前的可提交，之前的一定可间接提交
@@ -202,15 +307,45 @@
 - 选举超时时间：前文所述
 - 平均故障间隔时间：对于一台服务器而言，两次故障之间的平均时间
 
-## 集群成员变化
+# 集群成员变化
+## 后期的Raft做法
+- **后期的Raft做法**：限制了集群成员更改的类型，一次只能从集群中添加或删除一个服务器。成员更改中更复杂的更改都是通过一系列单服务器更改实现的。
+  - 这样使得raft的实现更加的简单
+<div align="center" style="zoom:80%"><img src="pic/10.png"></div>
+
+### 过程
+- 集群配置信息使用特殊的 log entry 进行存储和通信。在配置更改的过程中也支持继续为客户端提供服务。
+- 过程：
+  - 开始：将要更改的配置Cnew生成log entry，添加到leader的日志中
+  - 配置的log entry 一旦添加到服务器的日志中，就会在服务器上生效（**此时已经是使用新的配置来判断接收大多数**）。而不用等到该log entry提交。
+  - 结束：该log entry 已提交，意味着大多数节点配置已经生效。则此时整个配置更新过程结束
+- 配置的log entry 提交意味着什么：
+  - 没有收到Cnew的机子不可能称为leader
+  - leader 的配置已经生效
+  - 如果配置删除了某个节点，该节点可以关闭了
+  - **可以启动进一步的配置更新**
+
+- 避免重叠的配置更新过程的方法：知道之前的配置log entry 被提交，才开始新的更新
+
+- **配置的log entry可能被删除**：Raft中，节点一旦发现配置的log entry，马上生效，但是可能因为配置更新过程中出现问题，导致该log entry后面可能被删除，**所以节点必须准备好返回到其日志中的先前配置**
+
+- 在**投票和日志复制**中需要一些机制，来使得配置信息可以达到一致性：
+  - vote：**即使candidate不再当前节点配置中，也需要处理该 `RequestVote` 请求（只需确保候选人日志足够新）**。
+    - 场景：在一个3节点的集群中，如果添加1个节点d，如果leader值复制日志给了另一个节点b就挂了，此时节点b选举超时成为candidate，那么新添加的节点d会收到 `RequestVote` 但是该节点并不在当前配置中，这个时候新添加的节点d也需要投出选票，不然将永远不能生成新的leader。
+  - 日志复制：**即使leader 不在当前节点的配置中，也需要接收其 `AppendEntries`**
+    - 否则永远不能将 新节点 添加到集群中（因为添加配置的log entry之前，需要添加该index 之前的一些log entries）
+
+
+## 前期的Raft做法
 - 难题：一次性原子地转换所有服务器是不可能的，所以在转换期间整个集群存在划分成两个独立的大多数群体的可能性，如下图所述
+  - 针对一次性变化多个节点的情况。
 <div align="center" style="zoom:80%"><img src="pic/7.png"></div>
 
-- Raft做法：本质为两阶段方法。通过日志复制来推动，还是一样的单向流通，leader 说了算
+- **前期Raft做法**：本质为两阶段方法。通过日志复制来推动，还是一样的单向流通，leader 说了算
   - 第一阶段，进入一个过渡的配置（共同一致，joint
 consensus）
   - 第二阶段，进入新的配置
-
+- 以上的两阶段方法还支持，在集群进行配置更改时继续为客户机请求提供服务。
 ### 过程
 - 虚线表示 log entry被创建，实现表示该 log entry 被提交
 <div align="center" style="zoom:80%"><img src="pic/8.png"></div>
@@ -270,3 +405,16 @@ consensus）
   - 服务器什么时候创建快照
   - 写入快照需要一段时间，如何不影响正常业务
 
+
+## 领导权的禅让（可选）
+- 两种使用场景：
+  - leader 必须下台。有时候想重启leader或者从集群中删除leader。
+  - 某一台或多态服务器可能比其更适合做leader。
+- 好处：
+  - 选举超时的时间有点长，避免这短暂的不可用。
+
+- 过程：
+  - leader 停止接受新的客户请求
+  - leader 更新目标节点的日志，使其和自己的日志匹配。
+  - leader将 TimeoutNow 请求发送到目标服务器。目标服务器对该请求的处理方式和选举超时一致。开始新的选举
+  - 目标节点的下一条消息将包括新的任期号，从而导致前任leader下台。
