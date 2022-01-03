@@ -18,13 +18,20 @@
     - [follower 和 candidate 宕机](#follower-和-candidate-宕机)
     - [安全性和可用性的时间依赖](#安全性和可用性的时间依赖)
 - [集群成员变化](#集群成员变化)
+  - [RPC](#rpc)
+    - [AddServer RPC](#addserver-rpc)
+    - [RemoveServer RPC](#removeserver-rpc)
   - [后期的Raft做法](#后期的raft做法)
     - [过程](#过程)
+    - [可用性：新服务器追赶](#可用性新服务器追赶)
+    - [可用性：删除当前的leader](#可用性删除当前的leader)
   - [前期的Raft做法](#前期的raft做法)
     - [过程](#过程-1)
     - [问题](#问题)
-  - [日志压缩](#日志压缩)
-  - [领导权的禅让（可选）](#领导权的禅让可选)
+  - [系统集成](#系统集成)
+- [日志压缩](#日志压缩)
+- [领导权的禅让（可选）](#领导权的禅让可选)
+- [客户端交互](#客户端交互)
 
 # 参考
 - https://github.com/LebronAl/raft-thesis-zh_cn/blob/master/raft-thesis-zh_cn.md
@@ -48,7 +55,7 @@
 - 任期在 Raft 算法中充当逻辑时钟的作用
   - 如果一个候选人或者领导者发现自己的任期号过期了，那么他会立即恢复成跟随者状态。
   - 如果一个节点接收到一个包含过期的任期号的请求，那么他会直接拒绝这个请求
-
+- Raft的可用性目标：不可用的时间要小于选举超时时间，用户需要能够容忍选举超时时间的不可用。
 ## 一致性算法的背景：复制状态机
 - 状态机我的理解是可以理解为 存储数据的单位，可以简单看成数据库。
   - **状态机可以是易失性的，也可以是持久性的**。重新启动后，必须通过重新应用日志条目来恢复易失性状态机
@@ -308,6 +315,36 @@
 - 平均故障间隔时间：对于一台服务器而言，两次故障之间的平均时间
 
 # 集群成员变化
+
+## RPC
+### AddServer RPC
+> Request
+- newServer : address of server to add to configuration
+> Response
+- status : OK if server was added successfully
+- leaderHint : address of recent leader, if known
+
+> 实现
+- 如果不是leader，返回 `NOT_LEADER`
+- 如果新的节点不可用，或者在最后一轮超过最小的选举超时，则返回 `TIMEOUT`
+- 如果先前的配置log entry 未提交，需要等待其提交。
+- 添加新的配置log entry，达成大多数后commit
+- 返回 `OK`
+
+### RemoveServer RPC
+> Request
+- oldServer : address of server to remove from configuration
+
+> Response
+- status : OK if server was added successfully
+- leaderHint : address of recent leader, if known
+
+> 实现
+
+- 如果不是leader，返回 `NOT_LEADER`
+- 如果先前的配置log entry 未提交，需要等待其提交。
+- 添加新的配置log entry，达成大多数后commit
+- 返回 `OK`，如果该节点被移除，则下台
 ## 后期的Raft做法
 - **后期的Raft做法**：限制了集群成员更改的类型，一次只能从集群中添加或删除一个服务器。成员更改中更复杂的更改都是通过一系列单服务器更改实现的。
   - 这样使得raft的实现更加的简单
@@ -335,6 +372,44 @@
   - 日志复制：**即使leader 不在当前节点的配置中，也需要接收其 `AppendEntries`**
     - 否则永远不能将 新节点 添加到集群中（因为添加配置的log entry之前，需要添加该index 之前的一些log entries）
 
+### 可用性：新服务器追赶
+> 问题
+- 提交需要满足大多数，而大多数如果依赖刚加入的节点，该节点又缺少很多日志，那么**节点在追赶的阶段，整个集群不可用，因为不能提交任何log entries**。下面为这种出现这种情况的两个例子：
+<div align="center" style="zoom:60%"><img src="pic/11.png"></div>
+
+> 解决
+- 过程
+  - 在配置更新之前引入了一个附加的阶段，其中一个新服务器作为**无投票权**成员加入集群，即**该节点不计入所需满足的大多数**。
+  - 在该阶段中，进行日志追赶。追赶完成后进入配置更新阶段
+- 那么怎么确定已经追赶上了，可以进入配置更新阶段了呢？
+  - 将日志复制到新服务器的过程分为**10轮**
+  - 每一轮都是将**当前**leader中所有的日志复制过去
+  - 最后一轮时
+    - 如果**最后一轮的持续时间少于一个选举超时**，则领导者将新服务器添加到集群中
+    - 否则，领导者将因错误中止配置更新。调用者可以再进行一次，这个时候追赶的时间肯定更短。
+<div align="center" style="zoom:60%"><img src="pic/12.png"></div>
+
+- 细节：新服务器追赶时，leader 的 nextIndex 要慢慢试探，可以让 follower 在 AppendEntries 响应中返回其日志的长度
+
+
+### 可用性：删除当前的leader
+> 问题
+- 在后期Raft配置更新（只能单词更新一个节点）和有领导权禅让的集群下，很容易实现：直接将领导权禅让出去就行了。
+- 但是在前期的Raft是可以更新任意更新配置的，所以可能在Cnew中没有可以禅让的节点。这个时候只能通过另外一种方法来实现。
+- 可用性问题：leader 追加 Cnew log entry 后，配置马上失效，这时候如果在log entry 提交之前下台，可能为了可用性，该节点还得重新成为leader
+  - 比如，当集群只有两个节点，这个时候如果在没确定S2拥有Cnew之前就将S1下台，那么S2（还是使用旧配置）永远不可能成为leader。这个时候为了可用性，只能让S1成为leader
+
+<div align="center" style="zoom:60%"><img src="pic/13.png"></div>
+
+> 解决
+- 过程
+  - 等到leader提交了Cnew 的log entry，再将leader下台。
+- 提交意味着：后面选举出来的leader，配置一定是Cnew。
+- 这种方法有两个影响：
+  - leader 有一段时间，即使不在Cnew的集群配置里，也要负责管理集群
+  - **不属于Cnew的节点，也需要能够convert candidate**（可能上面的S1在没有提交Cnew之前宕机后立马重启，这个时候需要它再次成为leader）
+
+
 
 ## 前期的Raft做法
 - 难题：一次性原子地转换所有服务器是不可能的，所以在转换期间整个集群存在划分成两个独立的大多数群体的可能性，如下图所述
@@ -342,12 +417,14 @@
 <div align="center" style="zoom:80%"><img src="pic/7.png"></div>
 
 - **前期Raft做法**：本质为两阶段方法。通过日志复制来推动，还是一样的单向流通，leader 说了算
-  - 第一阶段，进入一个过渡的配置（共同一致，joint
+  - 第一阶段，进入一个过渡的配置（联合一致，joint
 consensus）
   - 第二阶段，进入新的配置
 - 以上的两阶段方法还支持，在集群进行配置更改时继续为客户机请求提供服务。
 ### 过程
 - 虚线表示 log entry被创建，实现表示该 log entry 被提交
+- **这时候没有哪个时间点，Cold和Cnew可以同时单独做出决定**
+  - Cold 单独做出决定 ==> Cold,new 联合做出决定 ==> Cnew 做出决定
 <div align="center" style="zoom:80%"><img src="pic/8.png"></div>
 
 - 特殊的日志类型：配置日志（configuration entry ）。用于集群配置转换的存储和通信
@@ -360,11 +437,11 @@ consensus）
   5. Follower 收到 Cnew log后，那么设置成员配置为 Cnew
   6. Leader 收到 Cnew 中的大多数后，就可以commit了。这个时候，旧配置中不在新配置的节点就可以关闭了。
 
-- 情况
-  - 阶段1：`Cold ∪ Cnew`未提交。这个时候，如果Leader 宕机，不能确定新 Leader 中，成员配置是 Cold 还是 `Cold ∪ Cnew`。
+- leader配置更新过程中，宕机情况
+  - 阶段1：`Cold ∪ Cnew` 未提交。这个时候，如果Leader 宕机，不能确定新 Leader 中，成员配置是 Cold 还是 `Cold ∪ Cnew`。
   - 阶段2：`Cold ∪ Cnew` 已提交。新 Leader 必须是`Cold ∪ Cnew`的成员配置
     - 理由：领导人都必须存储所有已经提交的日志条目
-
+- 注：当配置更改已在进行时（当其最新配置未提交或不是简单多数时），领导者将拒绝其他配置更新
 
 ### 问题
 > 新的服务器可能初始化没有存储任何的日志条目
@@ -386,7 +463,14 @@ consensus）
   - 如果 Leader 能够发送正常的心跳，那么就不会被 淘汰节点 干扰。
 
 
-## 日志压缩
+## 系统集成
+- 当节点故障时，自动调用配置更新是可取的。但是也可能是危险的，因为可能删除太多，导致剩余节点数不能形成大多数。
+  - 解决：通过指定一些可用的节点，并指定固定的总节点数，通过配置更新进行替换。
+- 涉及多个服务器的配置更改，分解为单服务器配置更新可能既有添加又有删除。**应该先处理添加，再处理删除。**
+  - 比如3个节点中要替换一个，如果先删除，那么在中间过程不能允许其他节点故障。如果先添加，则可以允许有一个节点故障。
+
+
+# 日志压缩
 - snapshot：快照是最简单的压缩方法，快照点之前的日志全部丢弃，且快照点之前的状态（数据）被稳定持久化。
 
 <div align="center" style="zoom:80%"><img src="pic/9.png"></div>
@@ -406,7 +490,7 @@ consensus）
   - 写入快照需要一段时间，如何不影响正常业务
 
 
-## 领导权的禅让（可选）
+# 领导权的禅让（可选）
 - 两种使用场景：
   - leader 必须下台。有时候想重启leader或者从集群中删除leader。
   - 某一台或多态服务器可能比其更适合做leader。
@@ -418,3 +502,5 @@ consensus）
   - leader 更新目标节点的日志，使其和自己的日志匹配。
   - leader将 TimeoutNow 请求发送到目标服务器。目标服务器对该请求的处理方式和选举超时一致。开始新的选举
   - 目标节点的下一条消息将包括新的任期号，从而导致前任leader下台。
+
+# 客户端交互
