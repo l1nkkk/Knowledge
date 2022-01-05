@@ -9,33 +9,119 @@
   - [例子](#%E4%BE%8B%E5%AD%90)
   - [测试](#%E6%B5%8B%E8%AF%95)
   - [注意点](#%E6%B3%A8%E6%84%8F%E7%82%B9)
+# 参考
+- 廖雪峰Git教程：https://www.liaoxuefeng.com/wiki/896043488029600
+- 菜鸟教程
+# 概述
+- 集中式和分布式
+  - 是否强依赖于中央服务器
+  - 是否pull下来的有项目的全部版本
+
+<div style="zoom: 80%" align="center"><img src="./pic/1.jpg"></div>
+
+<div style="zoom: 80%" align="center"><img src="./pic/2.jpg"></div>
+
+
+- 所有的版本控制系统，其实只能跟踪文本文件的改动（如code）。无法跟踪二进制文件的改动（如word）。
+
+- 文本是有编码的，**强烈建议使用标准的UTF-8编码**，所有语言使用同一种编码，既没有冲突，又被所有平台所支持。
+
+
+# 核心
+## 工作区、暂存区和版本库
+> 参考：https://www.runoob.com/git/git-workspace-index-repo.html
+
+
+- **工作区**：就是电脑里能看到的目录
+- **版本库**：工作区有一个隐藏目录 .git，这个不算工作区，而是 Git 的版本库。
+- **暂存区**：英文叫 **stage 或 index**，存放项目的**目录树以及对象标识**。一般存放在 `.git/index` 中，所以我们把暂存区有时也叫作**索引**（index）
+  - 个人认为可以看成**一个特殊的分支**，分支信息的缓存
+- 其他：
+  - **objects**： Git 的对象库，位于 `.git/objects` 目录下，里面包含了创建的各种对象及内容
+  - **HEAD**：一个游标(指针)，指向当前的分支。
+    - 图示的命令中出现 HEAD 的地方可以用 master 来替换。
+
+<div style="zoom: 100%" align="center"><img src="./pic/4.jpg"></div>
+
+> 注意
+- 工作区==>index：`add`，对index的目录树进行更新，同时会对修改(或新增)的文件生成object
+- index==>工作区：`checkout -- file` 或 `checkout .`
+  - 危险操作，工作区中新增或修改的但是没有 `add` 的文件会被回退
+- 分支==>工作区和index：`git checkout HEAD .`（全部） 或者 `git checkout HEAD <file>`（部分），会用 HEAD 指向的 master 分支中的全部或者部分文件替换暂存区和以及工作区中的文件
+
+## 仓库创建和配置
+> 创建
+1. `git init`
+2. `git clone <repo> <directory>`
+   - `repo` : 仓库文职
+   - `directory`：本地目录
+
+### 配置
+> 列出
+- `git config --list`
+
+> 编辑
+1. nano方式
+   - 针对当前仓库：`git config -e`
+   - 全局：`git config -e --global`
+2. 直接命令行
+   - `git config --global <key> <value>`
+   
+> 配置代理
+```sh
+git config --global https.proxy socks5://127.0.0.1:1080
+
+git config --global https.proxy socks5://127.0.0.1:1080
+
+# 取消
+git config --global --unset http.proxy
+
+git config --global --unset https.**proxy**
+```
+
+> 配置用户信息
+```sh
+git config --global user.name "runoob"
+git config --global user.email test@runoob.com
+```
+
+
+<div style="zoom: 100%" align="center"><img src="./pic/3.jpg"></div>
+
+
+
+
+## clone/add/commit/push/pull/checkout
+
+
+
+## 分支
+
+- 查看分支：`git branch`
+  - -a:查看本地分支
+
+- 创建分支：`git branch <name>`
+
+- 切换分支：`git checkout <name>`或者`git switch <name>`
+
+- 创建+切换分支：`git checkout -b <name>`或者`git switch -c <name>`
+
+- 合并某分支到当前分支：`git merge <name>`
+
+- 删除分支：`git branch -d <name>`
+
+## 版本
+
+
 # 代理
 
-git config --global https.proxy http://127.0.0.1:1080
+git config --global https.proxy socks5://127.0.0.1:1080
 
-git config --global https.proxy https://127.0.0.1:1080
+git config --global https.proxy socks5://127.0.0.1:1080
 
 git config --global --unset http.proxy
 
 git config --global --unset https.proxy
-
-
-# 分支
-
-## 查看分支
-- git branch
-  - -a:查看本地分支
-
-创建分支：`git branch <name>`
-
-切换分支：`git checkout <name>`或者`git switch <name>`
-
-创建+切换分支：`git checkout -b <name>`或者`git switch -c <name>`
-
-合并某分支到当前分支：`git merge <name>`
-
-删除分支：`git branch -d <name>`
-
 
 # git库文件夹中文件的状态
 - Untracked:  
