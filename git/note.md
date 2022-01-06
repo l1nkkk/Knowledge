@@ -1,14 +1,22 @@
-- [代理](#%E4%BB%A3%E7%90%86)
-- [分支](#%E5%88%86%E6%94%AF)
-  - [查看分支](#%E6%9F%A5%E7%9C%8B%E5%88%86%E6%94%AF)
-- [git库文件夹中文件的状态](#git%E5%BA%93%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%AD%E6%96%87%E4%BB%B6%E7%9A%84%E7%8A%B6%E6%80%81)
-- [忽略不想提交文件(.gitignore)](#%E5%BF%BD%E7%95%A5%E4%B8%8D%E6%83%B3%E6%8F%90%E4%BA%A4%E6%96%87%E4%BB%B6gitignore)
-  - [三种方式](#%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F)
-  - [优先级](#%E4%BC%98%E5%85%88%E7%BA%A7)
-  - [语法](#%E8%AF%AD%E6%B3%95)
-  - [例子](#%E4%BE%8B%E5%AD%90)
-  - [测试](#%E6%B5%8B%E8%AF%95)
-  - [注意点](#%E6%B3%A8%E6%84%8F%E7%82%B9)
+- [参考](#参考)
+- [概述](#概述)
+- [核心](#核心)
+  - [工作区、暂存区和版本库](#工作区暂存区和版本库)
+  - [仓库创建和配置](#仓库创建和配置)
+    - [配置](#配置)
+  - [基本操作](#基本操作)
+  - [clone/add/commit/push/pull/checkout](#cloneaddcommitpushpullcheckout)
+  - [分支](#分支)
+  - [版本](#版本)
+- [代理](#代理)
+- [git库文件夹中文件的状态](#git库文件夹中文件的状态)
+- [忽略不想提交文件(.gitignore)](#忽略不想提交文件gitignore)
+  - [三种方式](#三种方式)
+  - [优先级](#优先级)
+  - [语法](#语法)
+  - [例子](#例子)
+  - [测试](#测试)
+  - [注意点](#注意点)
 # 参考
 - 廖雪峰Git教程：https://www.liaoxuefeng.com/wiki/896043488029600
 - 菜鸟教程
@@ -38,7 +46,7 @@
   - 个人认为可以看成**一个特殊的分支**，分支信息的缓存
 - 其他：
   - **objects**： Git 的对象库，位于 `.git/objects` 目录下，里面包含了创建的各种对象及内容
-  - **HEAD**：一个游标(指针)，指向当前的分支。
+  - **HEAD**：一个游标(指针)，**指向当前的分支**。
     - 图示的命令中出现 HEAD 的地方可以用 master 来替换。
 
 <div style="zoom: 100%" align="center"><img src="./pic/4.jpg"></div>
@@ -48,6 +56,7 @@
 - index==>工作区：`checkout -- file` 或 `checkout .`
   - 危险操作，工作区中新增或修改的但是没有 `add` 的文件会被回退
 - 分支==>工作区和index：`git checkout HEAD .`（全部） 或者 `git checkout HEAD <file>`（部分），会用 HEAD 指向的 master 分支中的全部或者部分文件替换暂存区和以及工作区中的文件
+- 在我看来 `git checkout -- <file>` 和 `git restore <file>` 等价，都是将暂存区的内容还原到工作区
 
 ## 仓库创建和配置
 > 创建
@@ -86,8 +95,19 @@ git config --global user.email test@runoob.com
 ```
 
 
+## 基本操作
 <div style="zoom: 100%" align="center"><img src="./pic/3.jpg"></div>
 
+> 需文字说明的命令
+
+| 命令 | 说明 |
+| --- | --- | 
+| git status | 	查看仓库当前的状态，显示有变更的文件（工作区与暂存区比较） |
+| git diff | 比较文件的不同（工作区与暂存区比较） |
+| git rm | 删除工作区文件，同时从git的记录中剔除（区别与rm） |
+| git mv | 移动或重命名工作区文件 |
+| git log | 查看日志提交记录（commit） |
+| `git blame <file>` | 以列表形式查看指定文件的历史修改记录 | 
 
 
 
