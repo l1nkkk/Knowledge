@@ -1,20 +1,31 @@
 - 参考：https://www.codedump.info/post/20180922-etcd-raft/
 
 - [概述](#概述)
-- [etcd raft 实现总览](#etcd-raft-实现总览)
+- [etcd raft 关键结构](#etcd-raft-关键结构)
 - [raft 数据管理](#raft-数据管理)
   - [unstable 结构体: 未持久化的日志数据](#unstable-结构体-未持久化的日志数据)
   - [Storage 接口：持久化数据的内存映像](#storage-接口持久化数据的内存映像)
   - [raftLog结构体](#raftlog结构体)
-  - [应用层处理Ready数据 demo](#应用层处理ready数据-demo)
+- [状态](#状态)
+  - [Progress：leader 所记录的其他节点的状态](#progressleader-所记录的其他节点的状态)
+    - [日志复制状态：ProgressStateType](#日志复制状态progressstatetype)
+    - [滑动窗口：inflights](#滑动窗口inflights)
+- [应用层处理Ready数据 demo](#应用层处理ready数据-demo)
 - [交互数据](#交互数据)
   - [Message](#message)
   - [Ready 结构体](#ready-结构体)
 - [node 结构体](#node-结构体)
 - [节点管理](#节点管理)
 
+
+- match 是怎么更新的
+  - Progress.maybeUpdate
+- 配置更新，如何处理没生效的 config log？
+- readOnly 了解一下
+
 # 概述
-- 应用层：相当于状态机，状态机特性：如果日志内容和顺序一致，apply 后的状态也一致。
+- 应用层：相当于状态机，状态机特性：
+  - 如果日志内容和顺序一致，apply 后的状态也一致。
 - Raft库：保证日志内容和顺序的准确。一致性算法库为上层提供达成一致的log entries（一致指的是顺序和内容一致）
 - 个人理解：Raft 可以类比 tcp 这些协议，为上层提供一定服务以及一定的保证。
   - tcp 对上层屏蔽了，拥塞控制，流量控制，丢包、重复等处理
@@ -46,7 +57,7 @@
 
 
 
-# etcd raft 实现总览
+# etcd raft 关键结构
 - `Ready` 结构体：通知 应用层的数据
   - 通知 有数据需要进行同步给其他节点
   - 通知 有log entries/ snapshot 需要持久化
@@ -175,7 +186,61 @@ type unstable struct {
 - `slice(lo, hi, maxSize uint64) ([]pb.Entry, error)` : 返回[lo,hi)之间的数据，这些数据的大小总和不超过maxSize
 - `mustCheckOutOfBounds(lo, hi uint64) error` : 判断传入的lo，hi是否超过log entries的范围，`l.firstIndex <= lo <= hi <= l.firstIndex + len(l.entries)`
 - `zeroTermOnErrCompacted` : 如果传入的err是nil，则返回t；如果是ErrCompacted则返回0，其他情况都panic
-## 应用层处理Ready数据 demo
+
+# 状态
+## Progress：leader 所记录的其他节点的状态
+> 结构体
+
+|  | 描述 |
+| --- | --- |
+| `Match, Next uint64` | matchIndex, nextIndex。正常情况：nextIndex = matchIndex +1 |
+| `State ProgressStateType` | 当前该节点接收日志数据的状态 |
+| `Pause bool` | 标记是否对该节点停止发送同步msg |
+| `PendingSnapshot uint64` | 保存正在发送但未确认的snapshot的lastIndex |
+| `RecentActive bool` | 表明当前节点是否活跃 |
+| `ins *inflights` | 滑动窗口，用来做流量控制 |
+
+- `PendingSnapshot` 不为0时， Pause 需要为 true，需要等该snapshot接收后，再传下一个
+- `RecentActive` 只要最近该节点有响应，就为true
+- Match 可信， Next 不总是可信
+
+### 日志复制状态：ProgressStateType
+- 三种类型
+  - `ProgressStateProbe` : 探测状态
+  - `ProgressStateReplicate` : 正常log entries 复制状态
+  - `ProgressStateSnapshot` : 同步快照状态
+
+### 滑动窗口：inflights
+- 作用：限制 发送但还没被确认的 MsgApp 的数量
+- `add(inflight uint64)` : 往 buffer 里灌入 inflight，count++。
+- `freeTo(to uint64)` : 在 buffer 里从 start 开始释放，直到 `buffer[start] > to`
+```go
+type inflights struct {
+	// the starting index in the buffer
+	start int
+
+	// number of inflights in the buffer
+	// 当前存储的数据量
+    // start+count > len(buf), 扩容
+    // start+count > size, 调头
+	count int
+
+	// the size of the buffer
+	// 注意，这个只是该滑动窗口的一个封顶的容量
+	size int
+
+	// buffer contains the index of the last entry
+	// inside one message.
+    // 存放 MsgApp 中 log entries 的lastIndex
+	buffer []uint64
+}
+```
+<div align="center" style="zoom:60%;background:#fff"><img src="pic/2-10.png"></div>
+
+
+
+
+# 应用层处理Ready数据 demo
 - 下面代码是 `raftexample` 中处理Ready的流程，主要是四件事
   - 状态机 wal（这是 应用层 的业务需要，不是raft所必须）
   - 日志数据持久化
