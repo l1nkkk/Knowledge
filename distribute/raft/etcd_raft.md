@@ -22,6 +22,8 @@
   - Progress.maybeUpdate
 - 配置更新，如何处理没生效的 config log？
 - readOnly 了解一下
+- checkQuorum 作用
+- config log entries 没有提交，但是要选举，怎么办
 
 # 概述
 - 应用层：相当于状态机，状态机特性：
