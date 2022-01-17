@@ -24,7 +24,7 @@
 - readOnly 了解一下
 - checkQuorum 作用
 - config log entries 没有提交，但是要选举，怎么办
-
+- log entries 里面的 data 的格式应该怎么设置
 # 概述
 - 应用层：相当于状态机，状态机特性：
   - 如果日志内容和顺序一致，apply 后的状态也一致。
