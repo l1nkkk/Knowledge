@@ -6,25 +6,27 @@
 
 - [基本](#基本)
   - [变量](#变量)
-    - [显示设置变量set](#显示设置变量set)
-    - [引用变量](#引用变量)
+    - [设置变量：SET](#设置变量set)
+    - [引用变量：${}](#引用变量)
   - [内部构建和外部构建](#内部构建和外部构建)
-  - [外部构建](#外部构建)
-- [构建目标文件](#构建目标文件)
-  - [编译可执行目标文件：ADD_EXECUTABLEe](#编译可执行目标文件add_executablee)
+    - [内部构建](#内部构建)
+    - [外部构建](#外部构建)
+- [构建目标(target)文件](#构建目标target文件)
+  - [编译可执行目标文件：ADD_EXECUTABLE](#编译可执行目标文件add_executable)
   - [编译共享库：ADD_LIBRARY](#编译共享库add_library)
     - [解析](#解析)
     - [demo](#demo)
     - [设置目标文件输出的名称：SET_TARGET_PROPERTIES](#设置目标文件输出的名称set_target_properties)
     - [动态库版本号：SET_TARGET_PROPERTIES](#动态库版本号set_target_properties)
-  - [换个地方保存目标二进制](#换个地方保存目标二进制)
+  - [设置目标文件输出所在目录](#设置目标文件输出所在目录)
 - [导入](#导入)
   - [头文件搜索路径：INCLUDE_DIRECTORIES](#头文件搜索路径include_directories)
   - [导入共享库](#导入共享库)
-    - [添加共享库目录：LINK_DIRECTORIES](#添加共享库目录link_directories)
-    - [添加共享库：TARGET_LINK_LIBRARIES](#添加共享库target_link_libraries)
+    - [添加共享库目录： LINK_DIRECTORIES](#添加共享库目录-link_directories)
+    - [添加共享库（针对全局target）：LINK_LIBRARIE](#添加共享库针对全局targetlink_librarie)
+    - [添加共享库（针对某个target）：TARGET_LINK_LIBRARIES](#添加共享库针对某个targettarget_link_libraries)
       - [demo](#demo-1)
-  - [特殊的环境变量：`CMAKE_INCLUDE_PATH` 和 `CMAKE_LIBRARY_PATH`](#特殊的环境变量cmake_include_path-和-cmake_library_path)
+  - [通过环境变量添加导入源：`CMAKE_INCLUDE_PATH` 和 `CMAKE_LIBRARY_PATH`](#通过环境变量添加导入源cmake_include_path-和-cmake_library_path)
   - [添加项目子目录：ADD_SUBDIRECTORY](#添加项目子目录add_subdirectory)
 - [安装](#安装)
   - [安装路径前缀：CMAKE_INSTALL_PREFIX](#安装路径前缀cmake_install_prefix)
@@ -42,62 +44,68 @@
   - [源文件添加到变量](#源文件添加到变量)
   - [设置全局define](#设置全局define)
   - [Message命令](#message命令)
+  - [FIND_PACKAGE && FIND_FILE](#find_package--find_file)
 - [命令](#命令)
 
 # 基本
 - CMakeLists.txt 每个文件夹一个（有源文件的地方）
+
 - 内部构建(in-source build)和外部构建(out-of-source build)
   - 外部构建就是中间文件一堆在自己选中的文件夹中，不会和源代码混合在一起
-- 指令(参数1 参数2...) :参数使用括弧括起，**参数之间使用空格或分号分开**。
-- 指令**大小写无关**，推荐全部使用**大写**指令。
+
+- 指令格式
+  - 指令(参数1 参数2...) :参数使用括弧括起，**参数之间使用空格或分号分开**。
+  - 指令**大小写无关**，推荐全部使用**大写**指令。
+
+- target：nCMake中所有的构建目标都可认为是Target
 ## 变量
-### 显示设置变量set
+### 设置变量：SET
 - 用于定义变量：`SET(VAR [VALUE] [CACHE TYPE DOCSTRING [FORCE]])`
-  - 设置C++版本： `set(CMAKE_CXX_STANDARD 14)`
+  - 设置C++版本： `SET(CMAKE_CXX_STANDARD 14)`
   - `SET(SRC_LIST main.c t1.c )` <==> `SET(SRC_LIST "main.c" "t1.c" )`
     - 后者支持文件名出现空格
 
-### 引用变量
-- 我们使用了`${}`来引用变量，这是cmake的变量应用方式，但是，有一些例外，比如在IF控制语句，变量是直接使用变量名引用，而不需要`${}`。如果使用了`${}`去应用变量，其实IF会去判断名为`${}`所代表的值的变量，那当然是不存在的了。
+### 引用变量：${}
+- 使用`${}`来引用变量，这是cmake的变量引用方式
+  - 但是，有一些例外，比如**在 `IF` 控制语句，变量是直接使用变量名引用，而不需要`${}`**。如果使用了`${}`去应用变量，其实IF会去判断名为`${}`所代表的值的变量，那当然是不存在的了。
 
 ## 内部构建和外部构建
-- 内部构建
-  - 生成了一些无法自动删除的中间文件（即无法通过`make distclean`删除中间文件）
+### 内部构建
+- 生成了一些无法自动删除的中间文件与项目文件混杂在一起（即无法通过`make distclean`删除中间文件）
 > 内部构建后的文件比源文件还多
 ```
 $ ls
 CMakeCache.txt  cmake_install.cmake  main.c
 CMakeFiles      CMakeLists.txt       Makefile
-
 ```
 
-## 外部构建
+### 外部构建
 - 推荐使用
 - 步骤：
   1. 如果 内部构建过，需要删除所有内部构建产生的文件
   2. 建立**编译目录** build，**可以在任何地方建立**，不一定再工程目录中
   3. 进入build目录，执行`cmake [CMakeLists.txt所在目录]`
   4. 这时候已经产生了make需要的中间文件，运行make构建工程
-- 注：`HELLO_SOURCE_DIR` 仍然指代工程路径，即` /backup/cmake/t1` 而`HELLO_BINARY_DIR` 则指代编译路径，即`/backup/cmake/t1/build`
+- 注：`HELLO_SOURCE_DIR` 仍然指代工程路径，即 `/backup/cmake/t1` 而`HELLO_BINARY_DIR` 则指代编译路径，即 `/backup/cmake/t1/build`
 
 
-# 构建目标文件
-## 编译可执行目标文件：ADD_EXECUTABLEe
-- 指定生成目标和参与生成的源文件：**ADD_EXECUTABLE**
+# 构建目标(target)文件
+## 编译可执行目标文件：ADD_EXECUTABLE
+- 指定生成目标和参与生成的源文件： **ADD_EXECUTABLE**
   - eg：`ADD_EXECUTABLE(Demo main.cc)`： 将名为 main.cc 的源文件编译成一个名称为 Demo 的可执行文件
   - **一个目录多个源文件**：`ADD_EXECUTABLE(Demo main.cc MathFunctions.cc)`
     - 分别编译成目标文件后参与链接
-  - 不一定要在项目根目录下的`CMakeLists.txt`中。如下所示:
-    ```cmake
-    # -------src目录下
-    ADD_EXECUTABLE(hello main.c)
-    # -------项目根目录下
-    PROJECT(HELLO)
-    ADD_SUBDIRECTORY(src bin)
-    ```
+  - 该命令不一定要在项目根目录下的`CMakeLists.txt`中。如下所示:
+```cmake
+# -------src目录下
+ADD_EXECUTABLE(hello main.c)
+# -------项目根目录下
+PROJECT(HELLO)
+ADD_SUBDIRECTORY(src bin)
+```
 
 ## 编译共享库：ADD_LIBRARY
-
+- 静态和动态库均使用该命令
 
 ### 解析
 ```cmake
@@ -105,7 +113,7 @@ ADD_LIBRARY(libname [SHARED|STATIC|MODULE][EXCLUDE_FROM_ALL]source1 source2 ... 
 ```
 - `libname`：填写hello ==自动转成==> `libhello.X`，如果是动态库‘X‘为`.so`，静态库为`.a`
 - `SHARED` : 动态库(扩展名为.so)
-- `STATIC` : 静态库(扩展名为.a)，默认
+- `STATIC` : 静态库(扩展名为.a)，**默认**
 - `MODULE` : 在使用dyld的系统有效，如果不支持dyld，则被当作SHARED对待。
 - `EXCLUDE_FROM_ALL` : 参数的意思是这个库不会被默认构建，除非有其他的组件依赖或者手工构建。
 
@@ -124,15 +132,17 @@ ADD_LIBRARY(hello_static STATIC ${LIBHELLO_SRC})
 │   ├── libhello.so
 │   ├── libhello_static.a
 ```
-> 解析
-- 如果是`ADD_LIBRARY(hello STATIC ${LIBHELLO_SRC})`，会发现，静态库根本没有被构建，仍然只生成了一个动态库。
-  - 因为hello作为一个target是不能重名的，所以，静态库构建指令无效。
+
+> 注意
+- 如果是 `ADD_LIBRARY(hello STATIC ${LIBHELLO_SRC})`，会发现，静态库根本没有被构建，仍然只生成了一个动态库。
+  - 因为 hello 作为一个 **target 是不能重名的**，所以，静态库构建指令无效。
   - 但是我们一般想要的都是同名，通过下面的指令可以实现
 
 ### 设置目标文件输出的名称：SET_TARGET_PROPERTIES
 ```cmake
-SET_TARGET_PROPERTIES(target1 target2 ...PROPERTIES prop1 value1prop2 value2 ...)
+SET_TARGET_PROPERTIES(target1 target2 ... PROPERTIES prop1 value1prop2 value2 ...)
 ```
+
 - eg:解决上一个demo的问题`SET_TARGET_PROPERTIES(hello_static PROPERTIES OUTPUT_NAME "hello")`
   - 可以同时得到`libhello.so/libhello.a`两个库了
 
@@ -157,14 +167,19 @@ libhello.so.1->libhello.so.1.2
 
 
 
-## 换个地方保存目标二进制
-- 不论是**SUBDIRS**还是**ADD_SUBDIRECTORY**指令，都可以通过SET指令重新定义**EXECUTABLE_OUTPUT_PATH**和**LIBRARY_OUTPUT_PATH**变量来指定**最终的目标二进制的位置**
+## 设置目标文件输出所在目录
+- 不论是 **SUBDIRS** 还是 **ADD_SUBDIRECTORY** 指令，都可以通过 `SET` 指令重新定义 **EXECUTABLE_OUTPUT_PATH** 和 **LIBRARY_OUTPUT_PATH** 变量来指定**最终的目标二进制的位置**
+  - **SUBDIRS** 和 **ADD_SUBDIRECTORY** 中的参数也可以指定最终二进制位置
+
+
 - 下面分别指定可执行文件 和 共享库的位置
   - 不包含编译生成的中间文件
 ```cmake
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 ```
+
+
 - **在哪里加**
   - 在哪里`ADD_EXECUTABLE`或`ADD_LIBRARY`，如果需要改变目标存放路径，就在哪里加入上述的定义
 
@@ -175,34 +190,43 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
    - 外部编译：指的是外部编译所在目录，也就是执行cmake时的所在目录
 
 # 导入
-
+- 头文件导入
+- 库文件导入
 ## 头文件搜索路径：INCLUDE_DIRECTORIES
 ```cmake
 INCLUDE_DIRECTORIES([AFTER|BEFORE] [SYSTEM] dir1 dir2 ...)
 ```
 - `AFTER|BEFORE`：控制是追加还是置前
-- EG：`INCLUDE_DIRECTORIES(/usr/include/hello)`
-- 注：也相当于环境变量中增加路径到 CPLUS_INCLUDE_PATH 变量的作用。相当于GCC中的`-`
+- eg：`INCLUDE_DIRECTORIES(/usr/include/hello)`
+- 注：也相当于环境变量中增加路径到 `CPLUS_INCLUDE_PATH` 变量的作用。相当于GCC中的 `-`
 
 ## 导入共享库
-### 添加共享库目录：LINK_DIRECTORIES
+### 添加共享库目录： LINK_DIRECTORIES
 - 添加非标准的共享库搜索路径
   - 如果是相对路径的时候，是**相对于执行命令的路径**（如build目录），而不是相对于源码（CMakeList）的路径
+
+
 - 可以是一个可执行文件，但是同样可以用于为自己编写的共享库添加共享库链接
 ```cmake
 LINK_DIRECTORIES(directory1 directory2 ...)
 ```
 
-> link_directories
-- 去哪找**库文件**（.so/.dll/.lib/.dylib/...），-L（GCC）：`link_directories()`
-  - 注：也相当于环境变量中增加 LD_LIBRARY_PATH 的路径的作用
-  - 注：静态动态都在这
-  - eg：link_directories("/home/server/third/lib")
-- 需要链接的库文件的名字，-l（GCC）：`LINK_LIBRARIE(库名称即可)`
+> LINK_DIRECTORIES
+- 去哪找**库文件**（.so/.dll/.lib/.dylib/...），-L（GCC）：`LINK_DIRECTORIES()`
+  - 注：
+    - 相当于环境变量中增加 `LD_LIBRARY_PATH` 的路径的作用
+    - 静态动态都可由该命令指定
+  - eg：`LINK_DIRECTORIES("/home/server/third/lib")`
+
+
+### 添加共享库（针对全局target）：LINK_LIBRARIE
+- 作用：Link libraries to all targets added later.
+  - 尽量不用
+- 需要链接的库文件的名字，`-l`（GCC）：`LINK_LIBRARIE(库名)`
   - STATIC 静态， SHARED 动态
 
-### 添加共享库：TARGET_LINK_LIBRARIES
-- 为target添加需要链接的共享库
+### 添加共享库（针对某个target）：TARGET_LINK_LIBRARIES
+- 作用：为 target 添加需要链接的共享库
 ```cmake
 TARGET_LINK_LIBRARIES(target library1<debug | optimized> library2...)
 ```
@@ -239,9 +263,9 @@ $ ldd ./src/main
 	/lib64/ld-linux-x86-64.so.2 (0x00007f489c1c3000)
 
 ```
-## 特殊的环境变量：`CMAKE_INCLUDE_PATH` 和 `CMAKE_LIBRARY_PATH`
-- 注意是系统环境变量，而不是CMAKE变量
-- 作用：如果头文件没有存放在常规路径(`/usr/include, /usr/local/include`等)，则可以通过这些变量就行弥补（但不是设置了就行了，还要配合CMAKE的其他命令），比如下面的例子
+## 通过环境变量添加导入源：`CMAKE_INCLUDE_PATH` 和 `CMAKE_LIBRARY_PATH`
+- 注意是**系统环境变量**，而不是 CMAKE 变量
+- 作用：如果头文件没有存放在常规路径(`/usr/include, /usr/local/include`等)，则可以通过这些变量进行弥补（但**不是设置了就行了，还要配合CMAKE的其他命令，才能发挥作用**），比如下面的例子
 ```cmake
 FIND_PATH(myHeader hello.h)
 IF(myHeader)
@@ -485,6 +509,9 @@ add_executable(Demo ${DIR_SRCS})
     ```cmake 
     MESSAGE([SEND_ERROR | STATUS | FATAL_ERROR] "message to display"...)
      ```
+## FIND_PACKAGE && FIND_FILE
+- FIND_PACKAGE:https://zhuanlan.zhihu.com/p/97369704
+  - 看这个就够了，很清楚
 
 
 # 命令
