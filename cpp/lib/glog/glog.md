@@ -7,7 +7,6 @@ http://senlinzhan.github.io/2017/10/07/glog/
   - http://rpg.ifi.uzh.ch/docs/glog.html
   - https://github.com/google/glog#user-guide
 - 自定义：https://www.cnblogs.com/LyndonYoung/articles/8000265.html
-- https://www.jianshu.com/p/d55838893e9c
 # demo
 ```cpp
 #include <iostream>
@@ -85,9 +84,7 @@ public:
                        time_t timestamp,
                        const char* message,
                        int message_len) {
-        std::cout << "MyInfoLogger::Write "
-                  << "|" << force_flush
-                  << "|" << timestamp
+    LOG(INFO) << "file";
                   << "|" << message
                   << "|" << message_len << std::endl;
     }

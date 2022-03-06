@@ -101,6 +101,7 @@
 > 查询流的细节
 - iostate类型：作为一个位的集合来使用。
   - badbit：不可恢复，系统级错误
+    - 也就是说不能通过clear、setstate等方法恢复？
   - failbit：可恢复，读错，eg：要int来char。eofbit被置位，其也会被置位。
   - eofbit：读到EOF
   - goodbit：值为0，表示流未发生错误
@@ -253,7 +254,7 @@ cout << "hello" << flush;
 - crbegin()，crend()
 
 - 注:
-  - begin对于容器是const的，返回const的迭代器
+  - 对于**元素类型是const的容器**来说，begin返回const的迭代器
     - 显示指定类型：`list<string>::const_iterator it = a.begin()`
   - 不需要写访问时，应该用cbegin和cend
 > 迭代器范围
@@ -374,6 +375,7 @@ int main(){
 ```
 
 > 使用swap
+- 太复杂了吧，用到再说。最好就是用了swap不要用之前的迭代器了。
 - 除了array外，交换两个容器内容会很快，是常数级别的没元素本身不会变，就是改变容器内部的数据结构。
 - 针对大多数
   - 原本的迭代器指向的元素值没变，但是所属的容器变了
@@ -384,6 +386,7 @@ int main(){
   - 但是原本指向的元素值换了
   - 容器的容量必须相等
 - 有成员版本的swap和非成员版本的swap，swap在泛型编程中非常重要，`统一使用非成员版本的swap是个好习惯`
+  - 因为有成员函数swap的容器，在 =运算符 中都会使用其成员函数swap?
 ```cpp
 #include <list>
 #include <array>
@@ -416,7 +419,7 @@ int main(){
     cout << "it3:" << *it3 << endl;
     // out:1
     cout << "it4:" << *it4 << endl;
-    // out: 6 7 8 9 10
+    // out: 6 7 8 9 0
     for(;it3 != aInt1.end();it3++){
         cout << *it3 << " " ;
     }
@@ -448,6 +451,7 @@ int main(){
 > push_back
 - 支持：除了array和forward_list不支持，其他都支持
 - 创建一个元素，然后加入到容器末尾。
+
 
 
 ```cpp
@@ -520,7 +524,7 @@ int main(){
 - c++11
 - 分别有emplace_front、emplace、emplace_back，与insert_front、insert、insert_back。
 - 区别：不是将元素类型对象传递给他们，然后拷贝到容器中。而是在emplace时，调用元素类型的构造函数，在容器管理的内存空间中直接构造函数。
-  - push_back是创建一个临时对象，然后再将其拷贝到容器中。
+  - push_back是创建一个临时对象(**其参数是一个引用常量：`const value_type& __x`**，如果给予的不是常量值，则会生成一个临时变量，使得实参可以引用)，然后再将其拷贝到容器中。
 
 ```cpp
 class Student{
@@ -548,8 +552,8 @@ int main(){
 <div align="center"><img style="zoom:80%" src="pic/2-23.png"></div>
 
 - front，back：
-  - bach不适用与forward_list
-  - 分别返回首元素和尾元素的引用。注意：不是尾后元素
+  - back 不适用与forward_list
+  - 分别返回**首元素和尾元素的引用**。注意：**不是尾后元素**
   - 在调用的时候，应该注意要确保容器非空，不然的话接下来的行为未定义的
   - `auto &a = c.back()`,如果希望使用此变量改变元素的值，记得用引用类型
 - begin和end：
@@ -1469,7 +1473,7 @@ map中每个元素是一个pair对象
   - 添加一个范围
   - 存入一个迭代器ｐ作为提示，指出从哪里开始搜索新元素应该存储的位置
 
-- 返回类型由依赖与传入insert(或emplace)的参数和容器的类型。
+- 返回类型由依赖于 传入insert(或emplace)的参数和容器的类型。
   - （`如果是不可重复关键字的容器`）添加单一元素的时候，返回一个`pair`，first为一个迭代器，指向给定关键字的元素，second为一个`bool`值，false表示本来就存在，什么都没做；true表示插入成功。
   - （`如果是可重复关键字的容器`）添加单一元素的时候，返回一个指向`新元素的迭代器`。
 - 下面的操作是关联容器共有的操作
@@ -2188,7 +2192,7 @@ delete []p;
 
 > 智能指针和动态数组
 
-- 标准库提供了一个可以管理new分配的数组的`unique_ptr`版本
+- **标准库提供了一个可以管理new分配的数组的`unique_ptr`版本**
 - 会自动启动delete
 - 指向数组的unique_ptr提供的操作与之前使用的操作有些不同，不能使用点运算符和箭头成员运算算符。但是且可以用下标运算符
 ```cpp
