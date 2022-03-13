@@ -182,3 +182,6 @@ boolean traverse(ListNode right) {
 ## 合并K个升序链表
 - 外排序思想
   - 见23
+
+## 奇偶链表+链表归并
+- 补充题目：排序奇升偶降链表

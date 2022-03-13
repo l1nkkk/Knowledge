@@ -14,7 +14,6 @@
     - [中序遍历框架](#中序遍历框架)
     - [后序遍历框架](#后序遍历框架)
     - [层序遍历框架](#层序遍历框架)
-  - [通过前序和中序（或后序和中序）遍历结果构造二叉树](#通过前序和中序或后序和中序遍历结果构造二叉树)
   - [序列化](#序列化)
     - [前序序列化](#前序序列化)
     - [后序序列化](#后序序列化)
@@ -24,6 +23,8 @@
     - [满二叉树](#满二叉树)
     - [完全二叉树](#完全二叉树)
   - [最近公共祖先LCA](#最近公共祖先lca)
+  - [二叉树的深度](#二叉树的深度)
+    - [平衡二叉树判断](#平衡二叉树判断)
 - [二叉搜索树](#二叉搜索树)
   - [参考](#参考-1)
   - [概述](#概述)
@@ -259,6 +260,7 @@ root.right = build(preorder, preStart + leftSize + 1, preEnd,
 
 ## 框架
 - 非递归代码：https://blog.csdn.net/sgbfblog/article/details/7773103
+- 二叉树就那几个框架：https://mp.weixin.qq.com/s?__biz=MzAxODQxMDM0Mw==&mid=2247485871&idx=1&sn=bcb24ea8927995b585629a8b9caeed01&chksm=9bd7f7a7aca07eb1b4c330382a4e0b916ef5a82ca48db28908ab16563e28a376b5ca6805bec2&scene=21#wechat_redirect
 - 以二叉树的**序列化**为引子
 - **所谓的序列化不过就是把结构化的数据「打平」，其实就是在考察二叉树的遍历方式**。
 ### 前序遍历框架
@@ -352,7 +354,8 @@ void traverse(TreeNode root) {
     // 后序遍历的代码
 }
 ```
-> 非递归
+> 非递归：双栈
+- 特解
 ```cpp
 void postOrderIter(struct node *root)
 {
@@ -381,6 +384,12 @@ void postOrderIter(struct node *root)
 }
 ```
 
+> 非递归：单栈
+- pop+条件成立即访问
+
+```cpp
+// ... 
+```
 
 ### 层序遍历框架
 - 下面是不需要记录当前层级的解法
@@ -438,13 +447,6 @@ void traverse(TreeNode root) {
     }
 }
 ```
-
-
-
-
-## 通过前序和中序（或后序和中序）遍历结果构造二叉树
-- 面试常考
-- 二叉树就那几个框架：https://mp.weixin.qq.com/s?__biz=MzAxODQxMDM0Mw==&mid=2247485871&idx=1&sn=bcb24ea8927995b585629a8b9caeed01&chksm=9bd7f7a7aca07eb1b4c330382a4e0b916ef5a82ca48db28908ab16563e28a376b5ca6805bec2&scene=21#wechat_redirect
 
 
 ## 序列化
@@ -701,11 +703,11 @@ public:
     TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
         vector<TreeNode*> rcp;
         vector<TreeNode*> rcq;
-        // 得到路径，自底而上，选择后序遍历
-        find(root, p, rcp);
-        find(root, q, rcq);
+        bool pres = false, qres =  false;
+        find(root, p, rcp, pres);
+        find(root, q, rcq, qres);
 
-        // 找最近的根
+        // 找最近的
         int posp = rcp.size()-1;
         int posq = rcq.size()-1;
         while(posp >= 0 && posq >= 0){
@@ -719,20 +721,59 @@ public:
         return rcp[posp+1];
     }
 
-    bool find(TreeNode* root, TreeNode* target, vector<TreeNode*> &record){
-        if(root == nullptr) return false;
-        bool res = false;
+    bool find(TreeNode* root, TreeNode* target, vector<TreeNode*> &record, bool &res){
+        // 剪枝
+        if(root == nullptr || res) return res;
 
         if(root->val == target->val) {
             record.push_back(root);
             return true;
         }
-        res = find(root->left, target, record) || res;
-        res = find(root->right, target, record) || res;
+        // 剪枝
+        res = res || find(root->left, target, record, res) ;
+        res = res || find(root->right, target, record, res)  ;
         if(res){
             record.push_back(root);
         }
         return res;
+    }
+};
+```
+
+## 二叉树的深度
+<div align="center" style="zoom:80%"><img src="./pic/104-1.png"></div>
+
+```cpp
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if(root == nullptr) return 0;
+        return max(maxDepth(root->left), maxDepth(root->right))+1;
+    }
+};
+```
+
+### 平衡二叉树判断
+<div align="center" style="zoom:0%"><img src="./pic/110-1.png"></div>
+
+```cpp
+class Solution {
+public:
+    // 返回树的高度，如果不是平衡的返回-1
+    int depth(TreeNode* root){
+        if(root == nullptr) return 0;
+        int leftv = depth(root->left);
+        if(leftv == -1) return -1;
+        int rightv = depth(root->right);
+        if(rightv == -1) return -1;
+        if(abs(leftv - rightv) >=2){
+            return -1;
+        }
+        return max(leftv, rightv)+1;
+    }
+    bool isBalanced(TreeNode* root) {
+        
+        return depth(root) != -1;
     }
 };
 ```
@@ -805,7 +846,7 @@ boolean isValidBST(TreeNode root, TreeNode min, TreeNode max) {
 ```
 
 > 正确代码（后序）
-
+- 自底到上的正确性保证
 ```cpp
 class Solution {
 public:
