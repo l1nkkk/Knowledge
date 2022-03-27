@@ -50,6 +50,8 @@ public:
 - 中心扩散法
   - 由中心扩向四周
 
+- **寻找回文串是从中间向两端扩展，判断回文串是从两端向中间收缩**
+
 <div align="center" style="zoom:80%">
 <img src="pic/2.png">
 </div>

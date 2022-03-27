@@ -16,13 +16,14 @@
       - [一维DP数组](#一维dp数组)
       - [二维DP数组](#二维dp数组)
     - [编辑距离](#编辑距离)
-    - [最长递增子序列（Longes Increasing Subsequence，简写为 LIS）](#最长递增子序列longes-increasing-subsequence简写为-lis)
-    - [信封嵌套问题](#信封嵌套问题)
-    - [最大子数组](#最大子数组)
-    - [*最长公共子序列(Longest Common Subsequence，简称 LCS)](#最长公共子序列longest-common-subsequence简称-lcs)
-    - [最长回文子序列](#最长回文子序列)
+    - [300. 最长递增子序列（Longes Increasing Subsequence，简写为 LIS）](#300-最长递增子序列longes-increasing-subsequence简写为-lis)
+    - [354. 信封嵌套问题](#354-信封嵌套问题)
+    - [53. 最大子数组](#53-最大子数组)
+    - [*1143.最长公共子序列(Longest Common Subsequence，简称 LCS)](#1143最长公共子序列longest-common-subsequence简称-lcs)
+    - [516. 最长回文子序列](#516-最长回文子序列)
     - [152. 乘积最大子数组](#152-乘积最大子数组)
   - [背包问题](#背包问题)
+  - [10. 正则表达式匹配](#10-正则表达式匹配)
 # 概述
 - **一般形式**：求最值，如最长递增子序列呀，最小编辑距离等等
 - **核心问题**：穷举（特别的穷举）
@@ -140,7 +141,7 @@ for (int i = 1; i < n; i++) {
     - eg:最长公共子序列。在子数组`arr1[0..i]`和子数组`arr2[0..j]`中，我们要求的子序列（最长公共子序列）长度为`dp[i][j]`。
   - 涉及一个字符串/数组
     - eg:最长回文子序列。在子数组`array[i..j]`中，我们要求的子序列（最长回文子序列）的长度为`dp[i][j]`。
-```py
+```c++
 int n = arr.length;
 int[][] dp = new dp[n][n];
 
@@ -217,7 +218,7 @@ public:
 };
 ```
 
-### 最长递增子序列（Longes Increasing Subsequence，简写为 LIS）
+### 300. 最长递增子序列（Longes Increasing Subsequence，简写为 LIS）
 > https://labuladong.gitbook.io/algo/mu-lu-ye-2/mu-lu-ye-1/dong-tai-gui-hua-she-ji-zui-chang-di-zeng-zi-xu-lie
 
 
@@ -248,7 +249,7 @@ public:
 ```
 
 
-### 信封嵌套问题
+### 354. 信封嵌套问题
 > https://labuladong.gitbook.io/algo/mu-lu-ye-2/mu-lu-ye-1/xin-feng-qian-tao-wen-ti
 - 354.俄罗斯套娃信封问题:https://leetcode-cn.com/problems/russian-doll-envelopes/
 - 有点区间问题的味道
@@ -257,7 +258,7 @@ public:
 
 <div align="center" style="zoom:80%"><img src="./pic/4.png"></div>
 
-### 最大子数组
+### 53. 最大子数组
 - 53.最大子序和：https://leetcode-cn.com/problems/maximum-subarray/
 - 思路和最长递增子序列很像。
 - 学了滑动窗口，回过来看，了解为什么不能用滑动窗口
@@ -287,23 +288,23 @@ int maxSubArray(int[] nums) {
 }
 ```
 
-### *最长公共子序列(Longest Common Subsequence，简称 LCS)
+### *1143.最长公共子序列(Longest Common Subsequence，简称 LCS)
 - 参考：https://mp.weixin.qq.com/s/ZhPEchewfc03xWv9VP3msg
 - 参考：https://blog.csdn.net/hrn1216/article/details/51534607
 
 <div align="center" style="zoom:80%"><img src="./pic/1143.1.png"></div>
 
 - 相关题目:
-  - 1143 583 172
+  - 1143 583 712
 
-- 最关键的一点：若两个子串的最后一个字符是相同的，可以将其认为LCS一定包含该字符。如“bbaa”和“ba”，最后一个'a'一定包含再LCS（“ba”）中。
+- **最关键的一点**：若两个子串的最后一个字符是相同的，可以将其认为LCS一定包含该字符。如“bbaa”和“ba”，最后一个'a'一定包含在LCS（“ba”）中。
 
 > 特征分析
 
 - 设A=“a0，a1，…，am”，B=“b0，b1，…，bn”，且Z=“z0，z1，…，zk”为它们的最长公共子序列。不难证明有以下性质：
 - 如果am=bn，则zk=am=bn，且“z0，z1，…，z(k-1)”是“a0，a1，…，a(m-1)”和“b0，b1，…，b(n-1)”的一个最长公共子序列；
-- 如果am!=bn，则若zk!=am，蕴涵“z0，z1，…，zk”是“a0，a1，…，a(m-1)”和“b0，b1，…，bn”的一个最长公共子序列；
-- 如果am!=bn，则若zk!=bn，蕴涵“z0，z1，…，zk”是“a0，a1，…，am”和“b0，b1，…，b(n-1)”的一个最长公共子序列。
+- 如果am!=bn，则若**zk!=am**，蕴涵“z0，z1，…，zk”是“a0，a1，…，a(m-1)”和“b0，b1，…，bn”的一个最长公共子序列；
+- 如果am!=bn，则若**zk!=bn**，蕴涵“z0，z1，…，zk”是“a0，a1，…，am”和“b0，b1，…，b(n-1)”的一个最长公共子序列。
 <div align="center" style="zoom:80%"><img src="./pic/6.jpeg"></div>
 
 - 假如S1的最后一个元素 与 S2的最后一个元素相等，那么S1和S2的LCS就等于 {S1减去最后一个元素} 与 {S2减去最后一个元素} 的 LCS  再加上 S1和S2相等的最后一个元素。
@@ -313,7 +314,7 @@ int maxSubArray(int[] nums) {
 > 状态转移方程
 <div align="center" style="zoom:80%"><img src="./pic/7.jpeg"></div>
 
-### 最长回文子序列
+### 516. 最长回文子序列
 - 参考：https://mp.weixin.qq.com/s/zNai1pzXHeB2tQE6AdOXTA
   - 里面的图很详细形象
 
@@ -379,3 +380,59 @@ public:
 - 子集背包问题（01背包思想）：https://labuladong.gitbook.io/algo/mu-lu-ye-2/mu-lu-ye-2/bei-bao-zi-ji
 
 
+
+## 10. 正则表达式匹配
+- https://mp.weixin.qq.com/s/rnaFK05IcFWvNN1ppNf2ug
+
+<div align="center" style="zoom:80%"><img src="./pic/10-1.png"></div>
+
+- 正则表达算法问题只需要把住一个基本点：看两个字符是否匹配，**一切逻辑围绕匹配/不匹配两种情况展开即可**
+
+- 「状态」无非就是i和j两个指针的位置，「选择」就是p[j]选择匹配几个字符
+- 根据「状态」，我们可以定义一个dp函数
+```cpp
+class Solution {
+public:
+    bool isMatch(string s, string p) {
+        auto res =  dp(s,0,p,0);
+        return res;
+    }
+    unordered_map<string, bool> record;
+    bool dp(string &s, int i, string &p, int j){
+        cout << i << "," << j << endl;
+        // base case
+        if(j == p.size() && s.size() == i) return true;
+        if(s.size() == i){
+            // a 也能被 ab*c*匹配，所以要对这种特殊情况进行处理
+            if((p.size()-j)%2 == 1)return false;
+            for(int i = j; j < p.size(); j+=2){
+                if(p[j+1] != '*') return false;
+            }
+            return true;
+        }
+
+        // trim
+        if(record.count(std::to_string(i)+',' + std::to_string(j)))
+            return record[std::to_string(i)+',' + std::to_string(j)];
+
+        bool res = false;
+        if(s[i] == p[j] || p[j] == '.'){
+            if(j+1 < p.size()&&p[j+1] == '*')
+                // 有 *，可以匹配 0 次或多次
+                res = dp(s,i+1,p,j) || dp(s, i, p, j+2);
+            else
+                // 无 *，匹配一次
+                res = dp(s,i+1,p,j+1);
+        }else{
+            if(j+1 < p.size()&&p[j+1] == '*')
+                // 有 * ，可以匹配0次
+                res =dp(s,i,p,j+2);
+            else
+                // 无 *，无法匹配
+                res = false;
+        }
+        record[std::to_string(i)+',' + std::to_string(j)] = res;
+        return res;
+    }
+};
+```

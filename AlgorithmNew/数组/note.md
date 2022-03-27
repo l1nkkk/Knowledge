@@ -20,6 +20,7 @@
   - [最难去重题（去重后要字典序最小）](#最难去重题去重后要字典序最小)
 - [常数时间下 删除/等概论查找/添加](#常数时间下-删除等概论查找添加)
   - [380. O(1) 时间插入、删除和获取随机元素](#380-o1-时间插入删除和获取随机元素)
+  - [710 黑名单中的随机数](#710-黑名单中的随机数)
 - [单调队列](#单调队列)
   - [239. 滑动窗口最大值](#239-滑动窗口最大值)
 - [遍历与检索](#遍历与检索)
@@ -27,6 +28,12 @@
   - [498. 对角线遍历](#498-对角线遍历)
 - [峰值](#峰值)
   - [162. 寻找峰值](#162-寻找峰值)
+- [洗牌算法：384. 打乱数组](#洗牌算法384-打乱数组)
+- [前缀数组与差分数组](#前缀数组与差分数组)
+  - [前缀数组](#前缀数组)
+    - [案例：560.和为 k 的子数组](#案例560和为-k-的子数组)
+  - [差分数组](#差分数组)
+    - [demo: 1109. 航班预订统计](#demo-1109-航班预订统计)
 # 双指针技巧总结
 - https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye-3/shuang-zhi-zhen-ji-qiao
 ## 快慢指针
@@ -681,6 +688,65 @@ public:
 };
 ```
 
+## 710 黑名单中的随机数
+- 参考：https://labuladong.gitee.io/algo/2/22/65/
+
+- 思路：如下图所示，假设黑名单的元素个数为sz;
+  - 把黑名单区间交换到`[sz,0)`，同时把 `[0, sz)` 中的黑名单数字映射到了正常数字
+
+
+<div align="center" style="zoom:60%"><img src="./pic/7.jpeg"></div>
+
+<div align="center" style="zoom:80%"><img src="./pic/710-1.png"></div>
+
+```cpp
+class Solution {
+public:
+    int sz;
+
+    // 重定位表
+    unordered_map<int, int> mapping;
+
+    Solution(int N, vector<int>& blacklist) {
+        sz = N - blacklist.size();
+        for (int b : blacklist) {
+            // 为再后面调整中区别黑名单
+            mapping[b] = 666;
+        }
+
+        int last = N - 1;
+        for (int b : blacklist) {
+            // 如果黑名单元素 b 已经在区间 [sz, N)
+            // 可以直接忽略
+            if (b >= sz) {
+                continue;
+            }
+
+            // when b < sz，需要对其进行重定位
+            while (mapping.count(last)) {
+                // 说明last位置已经是黑名单的元素
+                last--;
+            }
+            mapping[b] = last;
+            last--;
+        }
+    }
+
+    int pick() {
+        // 随机选取一个索引，并%sz
+        // 如果 sz 刚好是黑名单的数，其可以通过mapping重定位到一个非黑名单的数中
+        int index = rand() % sz;
+        // 这个索引命中了黑名单，
+        // 需要被映射到其他位置
+        if (mapping.count(index)) {
+            return mapping[index];
+        }
+        // 若没命中黑名单，则直接返回
+        return index;
+    }
+};
+```
+
 
 # 单调队列
 - https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye-2/dan-tiao-dui-lie
@@ -905,5 +971,165 @@ public:
         }
         return left;
     }
+};
+```
+
+# 洗牌算法：384. 打乱数组
+- 参考：https://github.com/labuladong/fucking-algorithm/blob/master/%E7%AE%97%E6%B3%95%E6%80%9D%E7%BB%B4%E7%B3%BB%E5%88%97/%E6%B4%97%E7%89%8C%E7%AE%97%E6%B3%95.md
+
+<div align="center" style="zoom:80%"><img src="./pic/384-1.png"></div>
+
+- 分析洗牌算法正确性的准则：**产生的结果必须有 n! 种可能，否则就是错误的**（就是排列组合，n个数一共有 n! 种可能）
+  - 比较粗糙直观的衡量标准
+
+
+> 有以下四种写法
+- 都可以，经过分析发现他们都有 n! 种可能，会第一种就行了,直接点。
+
+```cpp
+// 得到一个在闭区间 [min, max] 内的随机整数
+int randInt(int min, int max);
+
+// 第一种写法
+void shuffle(int[] arr) {
+    int n = arr.length();
+    /******** 区别只有这两行 ********/
+    for (int i = 0 ; i < n; i++) {
+        // 从 i 到最后随机选一个元素
+        int rand = randInt(i, n - 1);
+        /*************************/
+        swap(arr[i], arr[rand]);
+    }
+}
+
+// 第二种写法
+    for (int i = 0 ; i < n - 1; i++)
+        int rand = randInt(i, n - 1);
+
+// 第三种写法
+    for (int i = n - 1 ; i >= 0; i--)
+        int rand = randInt(0, i);
+
+// 第四种写法
+    for (int i = n - 1 ; i > 0; i--)
+        int rand = randInt(0, i);
+```
+
+> 一种错误的写法
+```cpp
+void shuffle(int[] arr) {
+    int n = arr.length();
+    for (int i = 0 ; i < n; i++) {
+        // 每次都从闭区间 [0, n-1]
+        // 中随机选取元素进行交换
+        int rand = randInt(0, n - 1);
+        swap(arr[i], arr[rand]);
+    }
+}
+```
+- 原因：**共有 n^n 种可能，而不是 n!，而且 n^n 不可能是 n! 的整数倍**。
+
+
+> 正确的衡量标准
+
+- 洗牌算法**正确性衡量标准是：对于每种可能的结果出现的概率必须相等，也就是说要足够随机。**
+  - 思路：
+    - 把数组 arr 的所有排列组合都列举出来，做成一个直方图（假设 arr = {1,2,3}）
+    - 每次进行洗牌算法后，就把得到的打乱结果对应的频数加一，重复进行 100 万次，如果每种结果出现的总次数差不多，那就说明每种结果出现的概率应该是相等的
+
+
+
+<div align="center" style="zoom:80%"><img src="./pic/384-2.jpg"></div>
+
+# 前缀数组与差分数组
+
+## 前缀数组
+- 前缀数组：如下图preSum所示，`preSum[i]` 记录 `nums[0..i-1]` 的累加和
+  - 功能：**可以很快的找到区间和**，只需要用两个前缀和去减，时间复杂度O(1)
+  - **涉及区间和的时候要想到**。**原始数组不会被修改的情况下（与差分数组的不同）**，频繁查询某个区间的累加和
+
+<div align="center" style="zoom:60%"><img src="pic/5.jpeg"></div>
+
+
+### 案例：560.和为 k 的子数组
+- 暴力思路：定位`[left, right]`区间，时间复杂度为o(n^2),定位完每一个`[left, right]`，又要计算其区间和，时间复杂度需要o(n)，故**总时间复杂度为o(n^3)**
+- 前缀数组：因为要求区间和，所以发散思维想到前缀数组。构造一个前缀数组，使得计算区间和的时间复杂度为O(1),所以**总时间复杂度为o(n^2)**
+- 思路：前缀数组 + 2sum。
+  - right 定位到某个点的前缀和，我们需要找到前面某个点的前缀和`pre[left]`，使得 `pre[right] - pre[left] == k`的个数
+  - **即需要找到前面前缀和数组 `pre` 中 `pre[right] - k` 的个数，可以发现这是一个 2sum 问题**
+    - 故可以用一个 `map<val,count>` 来存前面遍历过的前缀和，从而使得寻找left的过程从o(n) 变为 o(1);
+  - **总时间复杂度为o(n)**
+
+<div align="center" style="zoom:80%"><img src="pic/560-1.png"></div>
+
+```cpp
+
+class Solution {
+public:
+int subarraySum(vector<int>& nums, int k) {
+    // preSum ==> times
+    unordered_map<int, int> recordPreSum;
+    recordPreSum[0] = 1;
+    int preSum = 0;
+    int res = 0;
+    for(auto n : nums){
+        preSum += n;
+        if(recordPreSum.count(preSum-k))
+            res += recordPreSum[preSum-k];
+
+        ++recordPreSum[preSum];
+    }
+    return res;
+}
+```
+
+## 差分数组
+- 差分数组的主要适用场景是**频繁对原始数组的某个区间的元素进行增减**
+  - 一顿操作后，问题现在数组的情况是什么样的
+- 差分数组：**存储与上一个元素的差，而差分数组第一个元素存储元素本身**。假设差分数组为 `diff[]`, `diff[i]` 就是 `nums[i]` 和 `nums[i-1]` 之差
+  - 性质1：**可以从第一个元素以此推导到任何一个元素。**
+    - `nums[0] = diff[0]`
+    - `nums[i] = diff[i] + nums[i-1]` (其中i != 0)
+  - 性质2：**在差分数组基础上，对于整个区间的加减的时间复杂度为o(1)**
+  - 特点：频繁对某个区间进行相同的加减
+
+
+<div align="center" style="zoom:60%"><img src="pic/6.jpeg"></div>
+
+
+### demo: 1109. 航班预订统计
+
+<div align="center" style="zoom:80%"><img src="pic/1109-1.png"></div>
+
+
+- 思路
+  - 差分数组
+- 区间为 `[begin, end]`
+  - 对于`<begin, end, val>`的加操作，在 `diff[begin]` 中加上 val，在 `diff[end+1]` 中减上 val，就能体现对一个区间的加操作
+
+```cpp
+class Solution {
+public:
+    vector<int> corpFlightBookings(vector<vector<int>>& bookings, int n) {
+        diff_.resize(n,0);
+        vector<int> res(n,0);
+        // 构建差分数组
+        for(int i = 0; i < bookings.size(); ++i){
+            diff_[bookings[i][0]-1] += bookings[i][2];
+            if(bookings[i][1] < n)
+                diff_[bookings[i][1]] -= bookings[i][2];
+        }
+
+        // 复原数组
+        res[0] = diff_[0];
+        for(int i = 1; i < n; ++i){
+            res[i] = res[i-1]+diff_[i];
+        }
+        return res;
+    }
+
+private:
+    vector<int> diff_;
+
 };
 ```
