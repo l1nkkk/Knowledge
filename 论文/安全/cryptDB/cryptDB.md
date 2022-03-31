@@ -1,3 +1,4 @@
+- [](#)
 - [query](#query)
   - [加密相关](#加密相关)
     - [Random（RND）](#randomrnd)
@@ -22,6 +23,21 @@
     - [密钥链使用](#密钥链使用)
 
 - 疑问：AES与AES-CBC与AES-CTR
+
+# 总结
+- 威胁模型
+  - 威胁模型1：代理和用户可信，DBMS不可信
+  - 威胁模型2：代理被攻破
+- 洋葱模型+自适应加密层级变化 的设计思想非常巧妙
+- 密钥的产生方式值得学习
+- 明文table===>密文table
+<div align="center" style="zoom:100%"><img src="./pic/2.png"></div>
+
+- 等值连接查询的调整密钥操作太秀了，利用了椭圆曲线加密
+
+- **多用户**（比如多个应用程序，使用同一个Mysql服务）模式下的处理：
+  - 数据细粒度管理（通过schema注释）
+  - 密钥链（从用户登录密码开始的密钥链）
 
 # query
 - 针对的 威胁模型1：DBMS服务器是不可信的，应用程序和代理是可信的。
@@ -123,7 +139,7 @@
 2. proxy 决定是否需要删除加密层，以及需要删除哪层（通过抽象出的谓词P和列c，来做决定）
 3. 将相应层的密钥交给DBMS，由他来解密（剥层）、操作、并返回
 - 注：
-  - proxy 永远不会让 DBMS 解密超过最不安全的加密层的数据
+  - **proxy 永远不会让 DBMS 解密超过最不安全的加密层的数据**
   - CryptDB使用运行在DBMS服务器上的udf实现洋葱层解密。eg：将 table 1， column 2的onion Ord，解密到OPE层。
     - UPDATE Table1 SET C2-Ord = DECRYPT_RND(K, C2-Ord, C2-IV)
     - **每个列解密都应该包含在事务中，以避免客户端访问正在调整的列时出现一致性问题**
@@ -138,6 +154,7 @@
   - 最初表中的各列的最外层为：`RND, HOM, SEARCH`
   - DBMS只能从中获得行数、列数、数据大小
 - **`C1-IV` 和 `C2-IV`是对IV的RND加密，同一列上的`Onion-Eq` 和 `Onion-Ord` 共享该 IV**
+  - 究竟是密文还是明文。。。
 <div align="center" style="zoom:100%"><img src="./pic/2.png"></div>
 
 > 过程
@@ -242,6 +259,8 @@
 
 
 > 对于 OPE-JOIN
+
+- eg：A.col_a < B.col_b
 - 由于缺乏OPE的 adjustable 方案，所以只能事先由应用程序来提前声明，让声明的列使用相同的密钥。不过 range join 在实际使用中其实很少。
 
 
@@ -263,6 +282,7 @@
 
 # MULTIPLE PRINCIPALS（多用户，多主题）
 - **扩展威胁模型：威胁模型2**
+  - 如果代理端被攻破，数据全部暴露
 - 主要内容
   - 访问控制的schema注释
   - 密钥链
@@ -312,9 +332,9 @@
 > 内部 principle
 - 每个principle对应的密钥为 **{对称密钥，公私密钥对}**。通常情况下都是用对称密钥来进行信息加密。但是**对称密钥只有在用户登陆时才能获取**。
   - eg: Bob给Alice发送msg5，这个时候Alice是离线的，这意味着proxy不能获得Alice的对称加密密钥，所以不能用其来加密 msg 5(principle) 的密钥。所以**这种类型的加密都是用的公钥，Alice 的公钥是可以公开的**。当Alice登陆时，用其私钥解密 msg 5 的key。
-- 如果 principle B speak for principle A。 那么 A's Key 会被用 B's Key 加密，存储在 **`access_keys` table**。这就允许了 B 可以使用 A 的key。
+- 如果 principle B speak for principle A。 那么 A's Key 会被用 B's Public Key 加密，存储在 **`access_keys` table**。这就允许了 B 可以使用 A 的key。
   - eg: 上图中 `msg 1` 的key 用`user 1,2`的key分别加密后存储到了 access_keys
-- 每个敏感字段 都用 **`END_FOR`** 注释的 principle's key 加密，这里的加密是 onion 加密，使用的密钥不再是从全局主密钥派生而来，而是从 principle's key 派生而来。
+- 每个敏感字段 都用 **`END_FOR`** 注释的 principle's key 加密，这里的加密是 onion 加密，**使用的密钥不再是从全局主密钥派生而来，而是从 principle's key 派生而来**。
 
 > 外部 principle
 - cryptDB 为每一个用户都分配了一个 random key。然后用 password 对该 random key 进行加密存储到某个表中。

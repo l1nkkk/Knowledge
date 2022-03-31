@@ -701,8 +701,8 @@ network layer(P2P overlay)
 <div style="zoom:30%; font-size: 24px;" align="center"><img src="./pic/1-51.png"></div>
 
 > eg: 
-<div style="zoom:30%; font-size: 24px;" align="center"><img src="./pic/1-52.png"></div>
-<div style="zoom:30%; font-size: 24px;" align="center"><img src="./pic/1-53.png"></div>
+<div style="zoom:40%; font-size: 24px;" align="center"><img src="./pic/1-52.png"></div>
+<div style="zoom:40%; font-size: 24px;" align="center"><img src="./pic/1-53.png"></div>
 
 
 ## 盲签方法
