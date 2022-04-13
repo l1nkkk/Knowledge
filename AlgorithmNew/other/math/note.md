@@ -522,10 +522,10 @@ public:
             int rtn = ((rand7()-1)*7) + rand7();
             if(rtn <= 40) return rtn%10+1;
             // 优化1：运行到这，说明rtn的范围为41-49，本该舍掉重新来的。
-            rtn = ((rtn-1)*7) + rand7();
+            rtn = ((rtn-40-1)*7) + rand7();
             if(rtn <= 60) return rtn%10+1;
             // 优化2：运行到这，说明rtn的范围为61-63，本该舍掉这三个的
-            rtn = ((rtn-1)*7) + rand7();
+            rtn = ((rtn-60-1)*7) + rand7();
             if(rtn <= 20) return rtn%10+1;
             // 最后只舍掉了一个数，21
         }

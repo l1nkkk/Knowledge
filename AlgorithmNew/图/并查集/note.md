@@ -71,23 +71,22 @@ class UF {
     }
 
     public void union(int p, int q) {
-    int rootP = find(p);
-    int rootQ = find(q);
-    if (rootP == rootQ)// 注意2：判断是不是已经连通的
-        return;
-    // 注意1：将两棵树合并为一棵
-    parent[rootP] = rootQ;
-    // parent[rootQ] = rootP 也一样
-    count--; // 两个分量合二为一
+        int rootP = find(p);
+        int rootQ = find(q);
+        if (rootP == rootQ)// 注意2：判断是不是已经连通的
+            return;
+        // 注意1：将两棵树合并为一棵
+        parent[rootP] = rootQ;
+        // parent[rootQ] = rootP 也一样
+        count--; // 两个分量合二为一
     }
 
     public boolean connected(int p, int q) {
-        int rootP = find(p)int q) {
         int rootP = find(p);
         int rootQ = find(q);
         return rootP == rootQ;
-    };
     }
+    
 
     // 返回某个节点 x 的根节点 
     private int find(int x) {
