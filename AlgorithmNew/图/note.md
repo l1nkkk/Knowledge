@@ -11,7 +11,7 @@
 /* 图节点的逻辑结构 */
 class Vertex {
     int id;
-    vector<Vertex> neighbors;
+    vector<Vertex*> neighbors;
 }
 ```
 
@@ -26,10 +26,12 @@ class Vertex {
 ```cpp
 // 邻接表
 // graph[x] 存储 x 的所有邻居节点
+// graph[from] -> to_s
 vector<vector<int> > graph;
 
 // 邻接矩阵
 // matrix[x][y] 记录 x 是否有一条指向 y 的边
+// matric[from][to]
 // 使用 bool 省空间
 vector<vector<bool>> matrix;
 ```
@@ -57,7 +59,8 @@ vector<vector<bool>> matrix;
 ```cpp
 // 邻接表
 // graph[x] 存储 x 的所有邻居节点以及对应的权重
-vector<vector<int[2]>> graph;
+// pair<to,weigh>
+vector<vector<pair<int, int>> graph;
 
 // 邻接矩阵
 // matrix[x][y] 记录 x 指向 y 的边的权重，0 表示不相邻
@@ -82,7 +85,7 @@ void traverse(TreeNode root) {
 ```cpp
 // 记录被遍历过的节点
 boolean[] visited;
-// set<int> visited;
+// 上面那种要快一点，写代码方便,set<int> visited;
 
 // 记录从起点到当前节点的路径
 boolean[] onPath;
@@ -172,7 +175,7 @@ public:
 - https://labuladong.gitee.io/algo/2/21/55/
 - 输入一幅图和一个起点 start，计算 start 到其他节点的最短距离
 - 本质：BFS加强版
-  - **队列编程优先队列**
+  - **队列变成优先队列**
 - 注：并不是步数少就是好，重点是看权重和
 - 思路：`优先队列 + record[i](记录起点到i的的最小权重)`
   - 当节点从 `priority_queue` 弹出时，说明是此时队列中，权值和最小的，**弹出时**，也就是 start 到 该顶点的最小路径和。
@@ -333,6 +336,16 @@ public:
 ```
 
 ## 1631. 最小体力消耗路径 
+
+
+# 课程表
+- https://labuladong.github.io/algo/2/20/49/
+## 判断环
+
+## 拓扑排序
+
+
+
 
 # 最小生成树
 - https://mp.weixin.qq.com/s/dJ9gqR3RVoeGnATlpMG39w
