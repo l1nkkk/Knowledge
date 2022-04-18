@@ -32,7 +32,7 @@
 - 首先，你要从题目中抽象出一个自变量`x`，一个关于x的函数`f(x)`，以及一个目标值 `target`
 - 还需要满足以下条件
   - f(x)必须是在x上的**单调函数**（单调增单调减都可以）
-  - 题目是让你计算满足约束条件f(x) == target时的x的值
+  - 题目是让你计算满足约束条件f(x) == target时的 x 的值
 
 <div align="center" style="zoom:80%"><img src="./pic/1.jpeg"></div> 
 
@@ -136,10 +136,10 @@ int binarySearch(vector<int> nums, int target){
 ```
 - **区间定义**：[left，right]为每次进行搜索的区间
   - 所以不需要包括已经判断过的值，无论left更新还是right更新都不会直接以mid替代，因为mid已经判断过不合适
-- 为什么是`right = nums.size()-1; `
+- 为什么是 `right = nums.size()-1; `
   - 因为是左闭右闭区间 **[left, right]**
 
-- 为什么`while`是`<=`
+- 为什么 `while` 是 `<=`
   - 因为区间为空，循环终止。区间为空的时候为 **[right+1, right]**
 
 - 为什么`left = mid + 1，right = mid - 1`
@@ -266,20 +266,20 @@ int binarySearch(vector<int> nums, int target){
 - 这种情况下使用左闭右闭区间比较简单
 ```cpp
 int findMin(vector<int>& nums) {
-        int left, right;
-        left = 0;
-        right = nums.size()-1;
-        // 注：这里返回的是一个只有一个元素的区间，这个元素就是最小的元素。这种情况最好用左闭右闭，比较简单
-        while(left < right){
-            int mid = left + (right - left) /2;
-            if( nums[mid] <= nums[right]){   // 最小值在左边
-                right = mid;
-            } else{ // mid不可能是最小值
-                left = mid+1;
-            }
+    int left, right;
+    left = 0;
+    right = nums.size()-1;
+    // 注：这里返回的是一个只有一个元素的区间，这个元素就是最小的元素。这种情况最好用左闭右闭，比较简单
+    while(left < right){
+        int mid = left + (right - left) /2;
+        if( nums[mid] <= nums[right]){   // 最小值在左边
+            right = mid;
+        } else{ // mid不可能是最小值
+            left = mid+1;
         }
-        return nums[left];
     }
+    return nums[left];
+}
 ```
 
 ### 154. 寻找旋转排序数组中的最小值 II
@@ -289,7 +289,7 @@ int findMin(vector<int>& nums) {
 - **区间定义**：[lo,hi] 为旋转点所在区间
 - **当 nums[m] > nums[j] 时**： m 一定在 左排序数组 中，即旋转点 x 一定在[m+1,j]闭区间内，因此执行 i = m + 1
 - **当 nums[m] < nums[j] 时**： m 一定在 右排序数组 中，即旋转点 x 一定在[i,m]闭区间内，因此执行 j = m 
-- **当 nums[m] < nums[j] 时**：无法判断，--j减小范围
+- **当 nums[m] == nums[j] 时**：无法判断，--j减小范围
 
 ```cpp
 class Solution {
