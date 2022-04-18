@@ -67,7 +67,7 @@
   - 死锁
     - 形成环而导致死锁的解决方法通常将锁从函数里面提取到外面
   - coordination：如何协作
-    - condiction variable：sync.Cond
+    - condiction variable：sync.Cond 
     - channel
     - waitGroup
 - Go 教程：一个爬虫代码案例，三个版本
@@ -81,17 +81,37 @@
 
 
 
-# 4. GFS
+# 4. GFS	
+
+- 论文设计：并行性能、容错、复制、一致性等内容
+
+- why hard？
+  - performance：最原始需求（初衷）
+    - sharding 以支持并行(分区)
+  - fault
+    - fault tolerant==solve by==> replication（复制）==导致==> inconsistency
+  - consistency
+    - consistency ==导致==> low performance
+    - 注：可以把强一致性想象成就像单机服务一样
+
+- 论文背景：2003年，已经出现大量的web网站，而且分布式系统的研究也已经几十年了，学术界在分布式系统上的电子，很少有能应用到工业领域的
+  - 需求：big and fast file system
+  - Single data center：GFS一般只运行在单个数据中心
+  - Internal use：仅内部使用
+  -  Big sequential access：OLAP
+    - 而不是针对少量数据的随机读写：OTAP，比如存储银行数据的Mysql
+- A fairly heretical view：**认为存储系统具有弱一致性是可接受的，而当时学术界的观念认为存储系统就应该具有良好的行为（注：就和我前段时间看加密技术的应用一样，适当的泄露其实可以接受，而不是啥都不泄露，那搞你妈个锤子）**
+  - 另一个点就是Single master，学术界的东西可能会让Single有多个来容灾，但是GFS的操作是侥幸的使用一个master
+  - **在这类系统中对数据的容错能力不需要像 银行系统 那样高，比如在20000条搜索结果中丢失/弄错了一条，影响并不大**
+
+- 详见我的GFS总结
+  - 论文看到 一致性章节就放弃了，后面用到再看
 
 
 
+# 5. Primary-Backup replication
 
-
-
-
-
-
-
+- fail-stop：一个术语，就是说分布式中，某个节点出错，只是停止执行该节点而已，对整个系统没有影响。
 
 
 
