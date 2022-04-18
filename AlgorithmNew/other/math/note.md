@@ -23,6 +23,7 @@
 - [sqrt(x)](#sqrtx)
 - [用rand7实现rand10](#用rand7实现rand10)
 - [约瑟夫环](#约瑟夫环)
+- [判断互质以及最大公约数](#判断互质以及最大公约数)
 # 常用的位操作
 - https://labuladong.gitbook.io/algo/mu-lu-ye-3/mu-lu-ye-2/chang-yong-de-wei-cao-zuo
 
@@ -535,3 +536,19 @@ public:
 
 # 约瑟夫环
 - 剑指offer 62
+
+
+# 判断互质以及最大公约数
+```cpp
+int gcb(int a, int b){
+    int ta,tb;
+    ta = max(a,b);
+    tb = min(a,b);
+    while(ta % tb){
+        auto t = ta % tb;
+        ta = tb;
+        tb = t;
+    }
+    return tb;
+}
+```
