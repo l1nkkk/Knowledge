@@ -13,6 +13,7 @@
     - [最长无重复子串](#最长无重复子串)
   - [双指针思想](#双指针思想)
     - [349. 两个数组的交集](#349-两个数组的交集)
+    - [870. 优势洗牌](#870-优势洗牌)
 - [哈希表](#哈希表)
   - [twosum问题](#twosum问题)
 - [单调栈](#单调栈)
@@ -425,6 +426,44 @@ public:
                 ++x;
             }else if (nums1[x] > nums2[y]){
                 ++y;
+            }
+        }
+        return res;
+    }
+};
+```
+
+### 870. 优势洗牌
+- 田忌赛马思路
+- 先排序，但是要记住排序前索引(构造一个`vector<pair>`解决,first 位原Index，second 为 value )
+- 双指针解出出战策略
+
+
+<div align="center" style="zoom:70%"><img src="./pic/870-1.png"></div>
+
+```cpp
+class Solution {
+public:
+    vector<int> advantageCount(vector<int>& nums1, vector<int>& nums2) {
+        sort(nums1.begin(), nums1.end());
+        vector<pair<int, int>> nums2Ex;
+        for(int i = 0; i < nums2.size(); ++i){
+            nums2Ex.push_back(make_pair(i,nums2[i]));
+        }
+        sort(nums2Ex.begin(),nums2Ex.end(),[](pair<int,int> &p1, pair<int, int> &p2)->bool {
+            return p1.second < p2.second;
+        });
+        int lo = 0;
+        int hi = nums1.size()-1;
+        int pos = nums2Ex.size()-1;
+        vector<int> res(nums1.size(),0);
+
+        while(lo <= hi){
+            // 如果 n1 中 最大的都被 n2 的最大还大，用最弱的对战
+            if(nums1[hi] <= nums2Ex[pos].second){
+                res[nums2Ex[pos--].first] = nums1[lo++];
+            }else{
+                res[nums2Ex[pos--].first] = nums1[hi--];
             }
         }
         return res;

@@ -13,6 +13,7 @@ import (
 //
 // Serial crawler
 //
+// 方法1：单线程，深度优先方法
 // 深度优先，fetched用来做记录，避免重复
 func Serial(url string, fetcher Fetcher, fetched map[string]bool) {
 	if fetched[url] {
@@ -29,13 +30,14 @@ func Serial(url string, fetcher Fetcher, fetched map[string]bool) {
 	return
 }
 
+// 方法2：使用mutex和共享数据的并发，广度优先
 //
 // Concurrent crawler with shared state and Mutex
 //
 
 type fetchState struct {
-	mu      sync.Mutex
-	fetched map[string]bool
+	mu      sync.Mutex      // 避免 fetched 的竞争
+	fetched map[string]bool // 记录，避免环
 }
 
 func ConcurrentMutex(url string, fetcher Fetcher, f *fetchState) {
@@ -52,10 +54,13 @@ func ConcurrentMutex(url string, fetcher Fetcher, f *fetchState) {
 	if err != nil {
 		return
 	}
+	// waitGroup 使用
 	var done sync.WaitGroup
 	for _, u := range urls {
 		done.Add(1)
-        u2 := u
+
+		// 闭包中不能用 u
+		u2 := u
 		go func() {
 			defer done.Done()
 			ConcurrentMutex(u2, fetcher, f)
@@ -155,7 +160,7 @@ func (f fakeFetcher) Fetch(url string) ([]string, error) {
 	return nil, fmt.Errorf("not found: %s", url)
 }
 
-// 模仿的，加入"http://golang.org/"上有urls下的 url
+// 模拟网页的爬取，表示某个url下有哪些 url
 // fetcher is a populated fakeFetcher.
 var fetcher = fakeFetcher{
 	"http://golang.org/": &fakeResult{

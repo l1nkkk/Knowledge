@@ -316,7 +316,7 @@ void traverse(TreeNode root) {
 }
 ```
 > 非递归
-- 思路：大方向为弹栈即范文
+- 思路：大方向为弹栈即访问
   - init：root指向根节点
   - while：
     - 如果root不为null --> 将root入栈 --> root = root->left
@@ -385,10 +385,36 @@ void postOrderIter(struct node *root)
 ```
 
 > 非递归：单栈
-- pop+条件成立即访问
+- pop+条件成立即访问（上一次访问为右子节点）
 
 ```cpp
-// ... 
+class Solution {
+    List<Integer> ans = new ArrayList<>();
+    public List<Integer> postorderTraversal(TreeNode root) {
+        Stack<TreeNode> s = new Stack<>();
+        TreeNode cur = root;  
+        TreeNode pre = null;  // 用于记录上一次访问的节点
+        while(cur!=null || !s.isEmpty()) {
+            while(cur!=null) {
+                s.push(cur);
+                cur = cur.left;
+            }
+            if(!s.isEmpty()) {
+                cur = s.pop();
+                if(cur.right==null || pre==cur.right) { // 访问节点的条件
+                    ans.add(cur.val); // 访问
+                    pre = cur; // 这一步是记录上一次访问的节点
+                    cur = null; // 此处为了跳过下一次循环的访问左子节点的过程，直接进入栈的弹出阶段，因为但凡在栈中的节点，它们的左子节点都肯定被经过且已放入栈中。
+                }
+                else { // 不访问节点的条件
+                    s.push(cur); // 将已弹出的根节点放回栈中
+                    cur = cur.right; // 经过右子节点
+                }
+            }
+        }
+        return ans;
+    }
+}
 ```
 
 ### 层序遍历框架

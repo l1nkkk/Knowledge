@@ -44,36 +44,39 @@
   - **log复制**
   - **安全性**
   - 注:
-    - 主要就是 leader选举 和 log复制 这两个模块
-    - 安全性是针对一些细节或者特殊情况，外加的一些限制
-    - 安全性个人认为可以**类比 TCP协议的可靠性**，通过加入一些机制，保证TCP在发生延迟、丢包、重复等特殊情况下，**仍对上层提供可靠服务的保证**。而安全性是Raft对上层的提供一致性保证，保证不会出错（出错指出现不一致现象）。
-- 作者在设计该算法时，充分考虑了可理解性，主要通过两种方式：
+    - 主要就是 **leader选举** 和 **log复制** 这两个模块
+    - **安全性** 是针对一些细节或者特殊情况，外加的一些限制
+    - **安全性** 个人认为可以**类比 TCP协议的可靠性**，通过加入一些机制，保证TCP在发生延迟、丢包、重复等特殊情况下，**仍对上层提供可靠服务的保证**。而安全性是Raft对上层的提供一致性保证，保证不会出错（出错指出现不一致现象）。
+- 作者在设计该算法时，充分考虑了**可理解性**，主要通过两种方式：
   - 减少状态机的状态
   - 算法模块分解
 
-- Raft中安全性不依赖时间，可用性必须依赖时间
-- 任期在 Raft 算法中充当逻辑时钟的作用
+- **Raft中安全性不依赖时间，可用性必须依赖时间**
+- `任期term` 在 Raft 算法中充当**逻辑时钟**的作用
   - 如果一个候选人或者领导者发现自己的任期号过期了，那么他会立即恢复成跟随者状态。
   - 如果一个节点接收到一个包含过期的任期号的请求，那么他会直接拒绝这个请求
-- Raft的可用性目标：不可用的时间要小于选举超时时间，用户需要能够容忍选举超时时间的不可用。
+- Raft的可用性目标：**不可用的时间要小于选举超时时间，用户需要能够容忍选举超时时间的不可用**。
+
+
 ## 一致性算法的背景：复制状态机
 - 状态机我的理解是可以理解为 存储数据的单位，可以简单看成数据库。
   - **状态机可以是易失性的，也可以是持久性的**。重新启动后，必须通过重新应用日志条目来恢复易失性状态机
-- 复制状态机**意义**：实现高可用
+- 复制状态机**意义**：**实现高可用**
   - 带来分布式一致性难题。
 - 复制状态机 所要**实现的目标**：
   - 就是有一组在不同服务器上的状态机（进行数据存储），他们之间拥有相同的状态（数据）副本，在一些状态机宕机的情况下，也可以继续运行。
   - 简单说就是数据做冗余
 
 - 下面为复制状态机的结构。可以看成状态机中**有两个部分：**
-  - 持久化的数据（状态）
-  - 复制日志。主要用于在多节点中同步数据，达成数据的一致性
+  - **持久化的数据**（状态）
+  - **复制日志**。主要用于在多节点中同步数据，达成数据的一致性
   - 注：
-    - **持久化的数据 由 复制日志 来决定的。** 因为再状态机中，相同状态下的每一个操作都会产生相同的结果。
+    - **持久化的数据 由 复制日志 来决定的。因为在状态机中，相同状态下的每一个操作都会产生相同的结果** 。
     - 即 **可以通过保证复制日志中指令的顺序，来保证状态机状态的一致性**。
 <div align="center" style="zoom:80%"><img src="pic/1.png"></div>
 
 - **一致性算法的任务是保证复制日志的一致性**。
+  - 即内容和顺序一致
 
 
 
@@ -90,9 +93,9 @@
     - 保证3：日志匹配特性
     - 保证4：leader 从来不会覆盖或者删除自己的日志
 ## RPC以及状态
-- 注：以下算法不包括成员变化和日志压缩
+- 注：以下算法不包括 成员变化和日志压缩
 ### 状态
-> 所有节点上的持久化状态
+> **所有节点**上的持久化状态
 
 | 状态 | 描述 | 初始化 |
 | --- | --- | --- |
@@ -102,14 +105,14 @@
 
 - currentTerm 和 voteFor 持久化，防止宕机后重启之后重复投票
 
-> 所有节点上的易失状态
+> **所有节点**上的易失状态
 
 | 状态 | 描述 | 初始化 |
 | --- | --- | --- |
 | commitIndex | 当前已知的已提交的log entries 中的最大index | 初始化为0 |
 | lastApplied | 当前已经apply 到状态机的最大index | 初始化为0 |
 
-> leader节点上的易失状态
+> **leader节点**上的易失状态
 
 | 状态 | 描述 | 初始化 |
 | --- | --- | --- |
@@ -137,10 +140,10 @@
 - 如果没有和preLogIndex，prevLogTerm匹配的log entry，则返回false
 - 如果有冲突的（index相同，term不同），则覆盖
 - append any new entries not in the log
-- 如果 leader > commitIndex，则 commitIndex = min(leaderCommit, index of last new entry)
+- 如果 leaderCommit > commitIndex，则 commitIndex = min(leaderCommit, index of last new entry)
 
 ### RequestVote RPC
-- 来自candidate
+- 来自 candidate
 > Request
 - term：candidate's term
 - candidateId：candidate's id
@@ -168,20 +171,21 @@
 - convert to candidate 后，开始选举：
   - currentTerm++
   - vote for self
-  - rest election timer
+  - reset election timer
   - Send Request Vote RPCs to all other servers
 - 如果收到了大多数的选票：become leader
-- 如果收到new leader 的 `AppendEntries`：convert to follower
+- 如果收到 new leader 的 `AppendEntries`：convert to follower
 - 如果 election timeout elapses：start new eletion
 
 > Leader
 - 选举结束后：发送 empty `AppendEntries`，宣告新的leader，同时避免其他节点 election timeout
 - 收到来自client的cmd，添加log entry 到 local log[]，在 log entry apply 之后响应。
+  - 不是commit?
 - 如果 last log entry > `nextIndex` for a follower，发送 `AppendEntries`  RPC with log entries starting at  `nextIndex`
   - 如果成功，更新 `nextIndex` 和 `matchIndex`
   - 如果因为不一致而失败，decrement nextIndex and retry
 - 如果存在一个index N，其中 N > commitIndex，大多数 `matchIndex[i] > N`，以及 **`log[N].term == currentTerm`**，则设置 **`commitIndex = N`**
-  - **matchIndex 的作用体现出来了**
+  - **matchIndex 的作用体现出来了，用来判断leader中某条日志是否可以commit**
 
 ## leader 选举
 - 节点状态：**leader、follower、candidate**
@@ -201,6 +205,10 @@
   - Raft 把时间分割成**任意长度**的 任期(term)
   - **每个任期的开始都是一次 选举**。
   - 可能出现选举不成功（没有任何一方拿到大多数），则开启另一个 任期
+  - 更新的情况：
+    - 选举超时，成为 candidate
+    - 收到其他 candidate 的 RequestVote
+    - 收到新的 leader 的 AppendEntries
 <div align="center" style="zoom:80%"><img src="pic/3.png"></div>
 
 ### 选举算法
@@ -264,7 +272,7 @@
   - 该场景中，某个节点再 term=2 时，为 leader。attach 了一些 log 之后，宕机了，之后很快重启，又当了 leader，之后又 attach 了一些log，又崩溃了，在接下来的几个 term 中都处于崩溃中，再 term=8 的时候，又恢复了，作为 follower。
 
 - 如何解决这种情况的不一致？
-  - 通过强制 follower 直接复制 leader 自己的日志来解决
+  - **通过强制 follower 直接复制 leader 自己的日志来解决**
   - 这样 leader就不需要特殊操作恢复一致性，简化了Raft算法。
 - (前面 问题1)如何知道应该给 follower 哪个log？ **通过为每个 follower 维护一个 nextIndex**。过程如下：
   - leader 刚当选的时候，选它的最后一条log的index作为 nextIndex。
@@ -277,7 +285,7 @@
   - 极端情况：一个什么数据都没有的节点做主节点
   - 怎么做？如果让 leader 当选后，来弥补这些缺失的已提交数据，这个过程存在 follower 向 leader 流数据的操作，而且也带来很多复杂性。
   - **Raft日志条目的传送是单向的，即 leader ==> follower**
-- Raft实现该安全限制的做法：从阻止 candidate 赢的机制入手。
+- Raft实现该安全限制的做法：**从阻止 candidate 赢的机制入手**。
   - `RequestVote RPC` 中，包含 candidate 的日志信息（**最后一条日志条目的index和item**），**投票人会拒绝那些日志没有自己新的请求**
   - **新旧判断规则**：先比较 item，相等比较 index
 
@@ -298,15 +306,17 @@
 - 做法1下，阶段d：s1宕机了，s5称为leader，leaderCommit=1，term=5；这个时候s5可以同步其 index=2，term=3的 log到所有的节点，并**覆盖原本已经提交的 index=2，term=2 的日志，造成一致性破坏**。
   - 此时s5可以成为 leader，因为 最后一条日志条目的index和item，可以得到 s2, s3, s4, s5的支持票。满足选举安全性限制
 - 做法2下，阶段e：这个时候s1 在同步完自己任期中的log后，并提交时，才把之前任期的给提交了。这个时候s5就当不了leader了。而且就算s1再这个时候宕机，index=2，term=2 也仍然没有提交，log可以被覆盖。
+- **Why** ： 因为其是旧任期下的日志（记为e1），任期记为t1。在某个节点中，相同Index下的entry中的term(记为t2，在一些意外上产生这种情况)，如果 `t2 > t1`，则 t2 对应的节点此时仍有称为leader的潜力，所以如果将 e1 提交，那么后面有被leader覆盖的可能。
+  - **只有当最新的term中，有可以commit的log entry，才可以安全将旧term的log提交**
 <div align="center" style="zoom:80%"><img src="pic/6.png"></div>
 
 ### follower 和 candidate 宕机
 - 情况1：收到RPC之前，宕机了。最简单的方式就是leader不断RPC重试
-- 情况2：收到RPC之后，处理中途，宕机了。Raft的RPC是幂等的，再处理一次，不会影响状态
+- 情况2：收到RPC之后，处理中途，宕机了。**Raft的RPC是幂等的**，再处理一次，不会影响状态
 
 ### 安全性和可用性的时间依赖
 - raft要求：
-  - 安全性不依赖时间
+  - 安全性不依赖时间（依赖term）
   - 可用性需要依赖时间（不可避免，如选举超时等等）
 
 > 广播时间（broadcastTime） << 选举超时时间（electionTimeout） << 平均故障间隔时间（MTBF）
@@ -503,4 +513,4 @@ consensus）
   - leader将 TimeoutNow 请求发送到目标服务器。目标服务器对该请求的处理方式和选举超时一致。开始新的选举
   - 目标节点的下一条消息将包括新的任期号，从而导致前任leader下台。
 
-# 客户端交互
+# 客户端交互    

@@ -326,6 +326,8 @@ public:
   - `[369,369368]`
 - 思路
   - 不能单纯的比较字符串。应该比较等长度的，如果相等，再用长度长的剩余的部分去比较
+
+> 垃圾代码
 ```cpp
 struct cmp{
     bool operator()(const string& s1, const string &s2){
@@ -370,4 +372,32 @@ public:
 
     }
 };
+```
+
+> 正解 
+- 和 剑指offer45.把数组排成最小的数 是一样的，指不过这题是求最大
+- 思路：
+  - 先排序，让贪心显现
+  - 之后只要不断取最大，就ok了
+```cpp
+class Solution {
+public:
+    string largestNumber(vector<int>& nums) {
+        sort(nums.begin(), nums.end(), [](int i, int j){
+            string istr = to_string(i);
+            string jstr = to_string(j);
+            return istr+jstr > jstr+istr;
+        });
+        string res;
+        for (int num:nums) {
+            res += to_string(num);
+        }
+        if (res[0] == '0'){
+            return "0";
+        }else{
+            return res;
+        }
+    }
+};
+
 ```
