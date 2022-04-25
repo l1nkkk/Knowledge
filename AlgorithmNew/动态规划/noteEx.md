@@ -92,11 +92,6 @@ int maxVal(TreeNode root) {
 ```
 
 
-
-
-
-
-
 # 2. 入门例子
 
 ## 2.1 斐波那契数列
@@ -128,7 +123,8 @@ int maxVal(TreeNode root) {
 - 注
   - **符合 「最优子结构」**，比如你想求 `amount = 11` 时的最少硬币数（原问题），如果你知道凑出 `amount = 10` 的最少硬币数（子问题），你只需要把子问题的答案加一（再选一枚面值为 1 的硬币）就可能是原问题的答案。因为硬币的数量是没有限制的，所以子问题之间没有相互制，是互相独立的
 
-![image-20220419144553941](E:\Knowledge\AlgorithmNew\动态规划\noteEx.assets\image-20220419144553941.png)
+
+<div align="center" style="zoom:60%"><img src="./noteEx.assets/image-20220419144553941.png"></div>
 
 > 分析
 
@@ -150,8 +146,7 @@ int maxVal(TreeNode root) {
 # 3. 经典例题
 
 ## 3.1 leetcode887_鸡蛋掉落
-
-![image-20220418231552488](noteEx.assets/image-20220418231552488.png)
+<div align="center" style="zoom:60%"><img src="noteEx.assets/image-20220418231552488.png"></div>
 
 > 题目解析
 
@@ -218,7 +213,7 @@ def dp(K, N):
 
 
 
-![image-20220418235957083](noteEx.assets/image-20220418235957083.png)
+<div align="center"><img  src="noteEx.assets/image-20220418235957083.png"  alt="image-20220418235957083" style="zoom:50%;" /></div>
 
 
 
@@ -282,7 +277,9 @@ def superEggDrop(K: int, N: int):
   - 那么注意 `dp(K - 1, i - 1)` 和 `dp(K, N - i)` 这两个函数，其中 `i` 是从 1 到 `N` 单增的，如果我们固定 `K` 和 `N`，**把这两个函数看做关于 `i` 的函数，前者随着 `i` 的增加应该也是单调递增的，而后者随着 `i` 的增加应该是单调递减的**：
   - **综上，满足二分查找应用到函数的性质**
 
-![image-20220419003419578](noteEx.assets/image-20220419003419578.png)
+
+<div align="center" style="zoom:60%"><img src="noteEx.assets/image-20220419003419578.png"></div>
+
 
 ```python
 def superEggDrop(self, K: int, N: int) -> int:
@@ -323,12 +320,7 @@ def superEggDrop(self, K: int, N: int) -> int:
     return dp(K, N)
 ```
 
-
-
 - 时间复杂度：总时间复杂度是 O(K*N*logN), 空间复杂度 O(KN)
-
-
-
 
 
 ### 3.1.3 解法2：不一样的状态定义
@@ -371,9 +363,8 @@ dp[k][m] = n
 # （一层一层线性探查嘛）
 ```
 
-![image-20220419005507576](noteEx.assets/image-20220419005507576.png)
 
-
+<div align="center" style="zoom:60%"><img src="noteEx.assets/image-20220419005507576.png"></div>
 
 - base case：
   - `dp[0][i]`：全为0
@@ -414,8 +405,8 @@ int superEggDrop(int K, int N) {
 
 ### 3.2.1 leetcode72_编辑距离
 
-![image-20220419151655138](E:\Knowledge\AlgorithmNew\动态规划\noteEx.assets\image-20220419151655138.png)
 
+<div align="center" style="zoom:60%"><img src="./noteEx.assets/image-20220419151655138.png"></div>
 
 
 > 题目解析
@@ -432,12 +423,13 @@ int superEggDrop(int K, int N) {
   - 设两个字符串分别为 `"rad"` 和 `"apple"`，为了把 `s1` 变成 `s2`，算法会这样进行
   - **所以只需要想象s1为了匹配s2需要做哪些操作就行了，不用管s2的变化**
 
-![image-20220419152916596](E:\Knowledge\AlgorithmNew\动态规划\noteEx.assets\image-20220419152916596.png)
 
-<img src="https://labuladong.github.io/algo/images/editDistance/edit.gif" alt="img" style="zoom:67%;" />
-
-<img src="https://labuladong.github.io/algo/images/editDistance/1.jpg" alt="img" style="zoom:67%;" />
-
+<div align="center">
+<img src="https://labuladong.github.io/algo/images/editDistance/edit.gif" alt="img" style="zoom:40%;" />
+</div>
+<div align="center">
+<img src="https://labuladong.github.io/algo/images/editDistance/1.jpg" alt="img" style="zoom:40%;" />
+</div>
 
 
 > 分析
@@ -496,7 +488,8 @@ public:
 
 #### 3.2.2.1 leetcode300_最长递增子序列
 
-![image-20220419155525275](E:\Knowledge\AlgorithmNew\动态规划\noteEx.assets\image-20220419155525275.png)
+<div align="center" style="zoom:70%"><img src="./noteEx.assets/image-20220419155525275.png"></div>
+
 
 > 分析
 
@@ -537,7 +530,7 @@ public:
 
 
 
-<div align="center" style="zoom:80%"><img src="./pic/4.png"></div>
+<div align="center" style="zoom:70%"><img src="./pic/4.png"></div>
 
 > 题目解析
 
