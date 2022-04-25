@@ -1,37 +1,40 @@
 - [参考](#参考)
-- [概述](#概述)
-  - [一致性算法的背景：复制状态机](#一致性算法的背景复制状态机)
-- [算法](#算法)
-  - [RPC以及状态](#rpc以及状态)
-    - [状态](#状态)
-    - [AppendEntries RPC](#appendentries-rpc)
-    - [RequestVote RPC](#requestvote-rpc)
-    - [规则](#规则)
-  - [leader 选举](#leader-选举)
-    - [选举算法](#选举算法)
-  - [日志复制](#日志复制)
-    - [**日志匹配特性**](#日志匹配特性)
-    - [leader 崩溃导致的数据不一致](#leader-崩溃导致的数据不一致)
-  - [安全性](#安全性)
-    - [选举限制](#选举限制)
-    - [log复制限制](#log复制限制)
-    - [follower 和 candidate 宕机](#follower-和-candidate-宕机)
-    - [安全性和可用性的时间依赖](#安全性和可用性的时间依赖)
-- [集群成员变化](#集群成员变化)
-  - [RPC](#rpc)
-    - [AddServer RPC](#addserver-rpc)
-    - [RemoveServer RPC](#removeserver-rpc)
-  - [后期的Raft做法](#后期的raft做法)
-    - [过程](#过程)
-    - [可用性：新服务器追赶](#可用性新服务器追赶)
-    - [可用性：删除当前的leader](#可用性删除当前的leader)
-  - [前期的Raft做法](#前期的raft做法)
-    - [过程](#过程-1)
-    - [问题](#问题)
-  - [系统集成](#系统集成)
-- [日志压缩](#日志压缩)
-- [领导权的禅让（可选）](#领导权的禅让可选)
-- [客户端交互](#客户端交互)
+- [1. 概述](#1-概述)
+  - [1.1 一致性算法的背景：复制状态机](#11-一致性算法的背景复制状态机)
+- [2. 算法](#2-算法)
+  - [2.1 RPC以及状态](#21-rpc以及状态)
+    - [2.1.1 状态](#211-状态)
+    - [2.1.2 AppendEntries RPC](#212-appendentries-rpc)
+    - [2.1.3 RequestVote RPC](#213-requestvote-rpc)
+    - [2.1.4 规则](#214-规则)
+  - [2.2 leader 选举](#22-leader-选举)
+    - [2.2.1 选举算法](#221-选举算法)
+  - [2.3 日志复制](#23-日志复制)
+    - [2.3.1 **日志匹配特性**](#231-日志匹配特性)
+    - [2.3.2 leader 崩溃导致的数据不一致](#232-leader-崩溃导致的数据不一致)
+  - [2.4 安全性](#24-安全性)
+    - [2.4.1 选举限制](#241-选举限制)
+    - [2.4.2 log复制限制](#242-log复制限制)
+    - [2.4.3 follower 和 candidate 宕机](#243-follower-和-candidate-宕机)
+    - [2.4.5 安全性和可用性的时间依赖](#245-安全性和可用性的时间依赖)
+- [3. 集群成员变化](#3-集群成员变化)
+  - [3.1 RPC](#31-rpc)
+    - [3.1.1 AddServer RPC](#311-addserver-rpc)
+    - [3.1.2 RemoveServer RPC](#312-removeserver-rpc)
+  - [3.2 后期的Raft做法](#32-后期的raft做法)
+    - [3.2.1 过程](#321-过程)
+    - [3.2.2 可用性：新服务器追赶](#322-可用性新服务器追赶)
+    - [3.2.3 可用性：删除当前的leader](#323-可用性删除当前的leader)
+  - [3.3 前期的Raft做法](#33-前期的raft做法)
+    - [3.3.1 过程](#331-过程)
+    - [3.3.2 问题](#332-问题)
+  - [3.4 系统集成](#34-系统集成)
+- [4. 日志压缩configuration](#4-日志压缩configuration)
+  - [4.1 RPC](#41-rpc)
+- [5. 领导权的禅让（可选）](#5-领导权的禅让可选)
+- [6. 客户端交互](#6-客户端交互)
+
+
 
 # 参考
 - https://github.com/LebronAl/raft-thesis-zh_cn/blob/master/raft-thesis-zh_cn.md
@@ -91,18 +94,18 @@
   - **S1. Election Safety**：一个任期最多只能有一个 leader
   - **S2. Leader Append-Only**：一个 leader 绝对不会 覆盖 或 删除 任何 log entries，其只会 append log entries。append log entries 只在leader中进行
   - **S3. Log Matching**：如果两条日志的 index 和 term 相同，则 log entry的内容相同，且其之前的日志也相同
-  - **S4. Leader Completeness**：对于给定的 term，如果某个节点一个 log entry 已经 commit，则该 log entry 将被 term更高的 leader 所持久化
+  - **S4. Leader Completeness**：对于给定的 term，如果某个节点一个 log entry 已经 commit，则该 log  将被 term更高的 leader 所持久化
     - 任何给定任期的领导者都包含以前任期内提交的所有条目
   - **S5. State Machine Safety**：如果一个服务器 apply 给定index的 log entry，则没有其他的服务器会 apply 相同 index 下不同的 log entry
   
-  ![image-20220425153404230](E:\Knowledge\distribute\raft\note.assets\image-20220425153404230.png)
+  ![image-20220425153404230](./note.assets/image-20220425153404230.png)
 ## 2.1 RPC以及状态
 - 注：以下算法不包括 成员变化和日志压缩
 - 最主要为 AppendEntries 和 RequestVote 两个RPC，后面有第三个RPC，用于服务器之间snapshot的传输
 - 如果服务器没有及时收到RPC响应，则会重试RPC，并且会并行发出RPC已获得最佳性能
 ### 2.1.1 状态
 
-![image-20220425145152285](E:\Knowledge\distribute\raft\note.assets\image-20220425145152285.png)
+![image-20220425145152285](./note.assets/image-20220425145152285.png)
 
 > **所有节点**上的持久化状态
 
@@ -112,7 +115,7 @@
 | voteFor | 在curentTerm中，该节点投票给谁 |  |
 | log[] | 当前持久化存储的 log entries，每个log entry为{cmd, term, index} |  |
 
-- currentTerm 和 voteFor 持久化，防止宕机后重启之后重复投票
+- 和 voteFor 持久化，防止宕机后重启之后重复投票
 
 > **所有节点**上的易失状态
 
@@ -134,7 +137,7 @@
 
 ### 2.1.2 AppendEntries RPC
 
-![image-20220425145342605](E:\Knowledge\distribute\raft\note.assets\image-20220425145342605.png)
+![image-20220425145342605](./note.assets/image-20220425145342605.png)
 
 - 来自：leader
 - 作用：
@@ -156,11 +159,11 @@
 - 如果没有和preLogIndex，prevLogTerm匹配的log entry，则返回false
 - 如果有冲突的（index相同，term不同），则覆盖
 - append any new entries not in the log
-- 如果 leaderCommit > commitIndex，则 commitIndex = min(leaderCommit, index of last new entry)
+- 如果 leaderCommit > commitIndex，则 commitIndex = min(leaderCommit, index of last new entry
 
 ### 2.1.3 RequestVote RPC
 
-![image-20220425145356747](E:\Knowledge\distribute\raft\note.assets\image-20220425145356747.png)
+![image-20220425145356747](./note.assets/image-20220425145356747.png)
 
 - 来自 candidate
 > Request
@@ -172,14 +175,14 @@
 - term：currentTerm，for candidate to update itself
 - voteGranted：投票成功则为true
 
-> Receiver实现
+> 能为系Receiver实现
 - 如果 term < currentTerm，返回false
 - 否则更新 currentTerm
 - 如果 VotedFor 为null或者为 candidateId，并且 candidate 的日志至少和当前节点日志一样新，则把选票给 candidate，更新 voteFor。
 
 ### 2.1.4 规则
 
-![image-20220425145425728](E:\Knowledge\distribute\raft\note.assets\image-20220425145425728.png)
+![image-20220425145425728](./note.assets/image-20220425145425728.png)
 
 > 所有节点
 - 如果commitIndex > lastApplied，apply log entries
@@ -193,7 +196,7 @@
 - convert to candidate 后，开始选举：
   - currentTerm++
   - vote for self
-  - reset election timer
+  - 能为系能为系reset election timer
   - Send Request Vote RPCs to all other servers
 - 如果收到了大多数的选票：become leader
 - 如果收到 new leader 的 `AppendEntries`：convert to follower
@@ -211,10 +214,10 @@
 
 ## 2.2 leader 选举
 - 节点三种状态：**leader、follower、candidate**
-  - 正常情况下：只有一个leader，其他全是follower
+  - 正常情况下：只有一个leader，其他全是follower能为系
   - **只有 leader 处理客户端请求；**，如果follower收到，会重定向给 leader
   - **follower不发送任何请求，只会响应 candidate 和 leader 的请求**
-  - 当节点启动的时候，以 follower 的状态启动
+  - 当节点启动的时候，以 follower 的状态启动pic/12.png
 
 > 状态变化 和 任期
 - 问题：
@@ -270,8 +273,7 @@
     - A4：各个Raft的实现不一样，思想就是一个趋近，慢慢试探的过程。也可以让 follower 在 resp 的时候直接告知 mastet（etcd的实现就是这样）
 - **每条log可以看成这样的一个整体：<index, term, operation>**
   - 个人总结：不要想象成以 <index, term> 为坐标的二维模型，应该想象成以 全局index 为坐标的一维模型。term 的作用在该一维模型的作用为表征是否可覆盖。
-<div align="center" style="zoom:80%"><img src="pic/4.png"></div>
-
+  
 - **提交**：一个条目当可以安全的被应用到状态机中去的时候，该条目就可以被提交。
 - （状态）*leaderCommit*：leader的已知已提交的最高的日志条目的索引。
   - 包含在所有的 `AppendEntries`(包含心跳包) 中，这样 follower 就会知道当前 leader commit的位置，**所以 follower 也会同步 commit**。
@@ -362,8 +364,8 @@
 
 # 3. 集群成员变化
 
-## RPC
-### AddServer RPC
+## 3.1 RPC
+### 3.1.1 AddServer RPC
 > Request
 - newServer : address of server to add to configuration
 > Response
@@ -377,7 +379,7 @@
 - 添加新的配置log entry，达成大多数后commit
 - 返回 `OK`
 
-### RemoveServer RPC
+### 3.1.2 RemoveServer RPC
 > Request
 - oldServer : address of server to remove from configuration
 
@@ -391,34 +393,35 @@
 - 如果先前的配置log entry 未提交，需要等待其提交。
 - 添加新的配置log entry，达成大多数后commit
 - 返回 `OK`，如果该节点被移除，则下台
-## 后期的Raft做法
-- **后期的Raft做法**：限制了集群成员更改的类型，一次只能从集群中添加或删除一个服务器。成员更改中更复杂的更改都是通过一系列单服务器更改实现的。
+## 3.2 后期的Raft做法
+- **后期的Raft做法**：限制了集群成员更改的类型，**一次只能从集群中添加或删除一个服务器**。成员更改中更复杂的更改都是通过一系列单服务器更改实现的。
   - 这样使得raft的实现更加的简单
 <div align="center" style="zoom:80%"><img src="pic/10.png"></div>
 
-### 过程
+### 3.2.1 过程
 - 集群配置信息使用特殊的 log entry 进行存储和通信。在配置更改的过程中也支持继续为客户端提供服务。
 - 过程：
   - 开始：将要更改的配置Cnew生成log entry，添加到leader的日志中
   - 配置的log entry 一旦添加到服务器的日志中，就会在服务器上生效（**此时已经是使用新的配置来判断接收大多数**）。而不用等到该log entry提交。
   - 结束：该log entry 已提交，意味着大多数节点配置已经生效。则此时整个配置更新过程结束
-- 配置的log entry 提交意味着什么：
-  - 没有收到Cnew的机子不可能称为leader
+- 配置的 log entry commit 意味着什么：
+  - 没有收到 Cnew 的机子不可能成为 leader
   - leader 的配置已经生效
   - 如果配置删除了某个节点，该节点可以关闭了
   - **可以启动进一步的配置更新**
 
-- 避免重叠的配置更新过程的方法：知道之前的配置log entry 被提交，才开始新的更新
+- 避免重叠配置更新的方法：知道之前的 configuration entry 被提交，才开始新的更新
 
-- **配置的log entry可能被删除**：Raft中，节点一旦发现配置的log entry，马上生效，但是可能因为配置更新过程中出现问题，导致该log entry后面可能被删除，**所以节点必须准备好返回到其日志中的先前配置**
+- **configuration entry 可能被删除**：Raft中，节点一旦发现配置的log entry，马上生效，但是可能因为配置更新过程中出现问题，导致该log entry后面可能被删除，**所以节点必须准备好返回到其日志中的先前配置**
 
 - 在**投票和日志复制**中需要一些机制，来使得配置信息可以达到一致性：
-  - vote：**即使candidate不再当前节点配置中，也需要处理该 `RequestVote` 请求（只需确保候选人日志足够新）**。
-    - 场景：在一个3节点的集群中，如果添加1个节点d，如果leader值复制日志给了另一个节点b就挂了，此时节点b选举超时成为candidate，那么新添加的节点d会收到 `RequestVote` 但是该节点并不在当前配置中，这个时候新添加的节点d也需要投出选票，不然将永远不能生成新的leader。
+  - vote：**即使candidate不在当前节点配置中，也需要处理该 `RequestVote` 请求（只需确保候选人日志足够新）**。
+    - 场景：在一个3节点的集群中，如果添加1个节点d，如果leader只复制日志给了另一个节点b就挂了，此时节点b选举超时成为candidate，那么新添加的节点d会收到 `RequestVote` 但是该节点并不在当前配置中，这个时候新添加的节点d也需要投出选票，不然将永远不能生成新的leader。
   - 日志复制：**即使leader 不在当前节点的配置中，也需要接收其 `AppendEntries`**
     - 否则永远不能将 新节点 添加到集群中（因为添加配置的log entry之前，需要添加该index 之前的一些log entries）
+  - 综上：对于 选举和日志复制，即使发送端不在配置中，也要正常的行为回应
 
-### 可用性：新服务器追赶
+### 3.2.2 可用性：新服务器追赶
 > 问题
 - 提交需要满足大多数，而大多数如果依赖刚加入的节点，该节点又缺少很多日志，那么**节点在追赶的阶段，整个集群不可用，因为不能提交任何log entries**。下面为这种出现这种情况的两个例子：
 <div align="center" style="zoom:60%"><img src="pic/11.png"></div>
@@ -438,12 +441,12 @@
 - 细节：新服务器追赶时，leader 的 nextIndex 要慢慢试探，可以让 follower 在 AppendEntries 响应中返回其日志的长度
 
 
-### 可用性：删除当前的leader
+### 3.2.3 可用性：删除当前的leader
 > 问题
-- 在后期Raft配置更新（只能单词更新一个节点）和有领导权禅让的集群下，很容易实现：直接将领导权禅让出去就行了。
+- 在后期Raft配置更新（只能单词更新一个节点）和有领导权禅让的集群下，很容易实现：直接将领导权禅让出去就行了。configuration
 - 但是在前期的Raft是可以更新任意更新配置的，所以可能在Cnew中没有可以禅让的节点。这个时候只能通过另外一种方法来实现。
-- 可用性问题：leader 追加 Cnew log entry 后，配置马上失效，这时候如果在log entry 提交之前下台，可能为了可用性，该节点还得重新成为leader
-  - 比如，当集群只有两个节点，这个时候如果在没确定S2拥有Cnew之前就将S1下台，那么S2（还是使用旧配置）永远不可能成为leader。这个时候为了可用性，只能让S1成为leader
+- 可用性问题：leader 追加 Cnew log entry 后，配置马上生效，这时候如果在log entry 提交之前下台，可能为了可用性，该节点还得重新成为leader
+  - 比如，当集群只有两个节点，这个时候如果在没确定S2拥有Cnew之前就将S1下台，那么S2（还是使用旧配置）永远不可能成为leader。这个时候为了可用性，只能又让S1成为leader
 
 <div align="center" style="zoom:60%"><img src="pic/13.png"></div>
 
@@ -457,86 +460,124 @@
 
 
 
-## 前期的Raft做法
-- 难题：一次性原子地转换所有服务器是不可能的，所以在转换期间整个集群存在划分成两个独立的大多数群体的可能性，如下图所述
+## 3.3 前期的Raft做法
+- 难题：一次性原子地转换所有服务器是不可能的，所以在转换期间整个集群**存在划分成两个独立的多数派的可能性**，如下图所述
   - 针对一次性变化多个节点的情况。
 <div align="center" style="zoom:80%"><img src="pic/7.png"></div>
 
 - **前期Raft做法**：本质为两阶段方法。通过日志复制来推动，还是一样的单向流通，leader 说了算
-  - 第一阶段，进入一个过渡的配置（联合一致，joint
-  consensus）
+  - 第一阶段，进入一个过渡的配置（联合一致，joint consensus）
   - 第二阶段，进入新的配置
-- 以上的两阶段方法还支持，在集群进行配置更改时继续为客户机请求提供服务。
-### 过程
-- 虚线表示 log entry被创建，实现表示该 log entry 被提交
-- **这时候没有哪个时间点，Cold和Cnew可以同时单独做出决定**
+- 解决“两个多数派”问题的要点：**让 Cold 和Cnew 没有可以单方面做出配置日志 决定的时刻**。
+- 以上的两阶段方法支持 在集群进行配置更改时继续为客户机请求提供服务。
+### 3.3.1 过程
+
+- 阶段1细节：joint consensus
+  - log entress 被复制到新旧配置的所有的服务器
+  - 新旧配置的节点都可以充当 leader
+  - **commit 和 选举 所需的多数派需要 旧配置的多数派 和 新配置的多数派**
+- Cold,new 提交意味着：
+  - Cold 和Cnew 都不能在没有对方批准的情况下做出决定
+    - **意味着：不会出现上述的两个master的情况，因为该master必须是Cold 和 Cnew 商量出来的**，Leader 此时可以安全的创建描述 Cnew 的 log entry，并将其复制到集群
+  - Leader Completeness Property(S4.) 保证拥有Cold,new 日志条目的服务器才能被选为领导者
+- 阶段2：
+  - 系统开始使用新配置
+
+---
+
+configuration
+
+- 虚线表示 log entry 被创建但未提交，实线表示该 log entry 被提交
+- **没有哪个时间点，Cold和Cnew可以同时单独做出决定**
   - Cold 单独做出决定 ==> Cold,new 联合做出决定 ==> Cnew 做出决定
 <div align="center" style="zoom:80%"><img src="pic/8.png"></div>
 
 - 特殊的日志类型：配置日志（configuration entry ）。用于集群配置转换的存储和通信
-- **一个服务器将新的 配置日志 添加到日志后，就会立即使用该成员配置**
-- 过程
+- **一个服务器将新的 configuration entry 添加到日志后，就会立即使用该成员配置**
+  - 服务器始终使用其日志中的最新配置，无论该条目是否已提交
+
+- 配置更新过程
   1. Leader 收到成员变更请求。（从 `Cold==>Cnew`）
   2. Leader 生成一个 log entry，内容为 `Cold ∪ Cnew`，追加到日志，并且作为当前自己的成员配置，并且同步到`Cold ∪ Cnew`所有副本，**提交的条件需要分别得到 Cold 和 Cnew 两个多数派的支持**
   3. Follower 收到 `Cold ∪ Cnew`后，将其设置为自己的成员配置
   4. Leader commit后，生成内容为 Cnew 的log entry，追加到日志，并**同步复制到 `Cold ∪ Cnew` 中的成员**（注：看具体实现，可能只发给Cnew）。
   5. Follower 收到 Cnew log后，那么设置成员配置为 Cnew
   6. Leader 收到 Cnew 中的大多数后，就可以commit了。这个时候，旧配置中不在新配置的节点就可以关闭了。
-
 - leader配置更新过程中，宕机情况
   - 阶段1：`Cold ∪ Cnew` 未提交。这个时候，如果Leader 宕机，不能确定新 Leader 中，成员配置是 Cold 还是 `Cold ∪ Cnew`。
-  - 阶段2：`Cold ∪ Cnew` 已提交。新 Leader 必须是`Cold ∪ Cnew`的成员配置
+    - 具体取决于获胜的候选人是否收到了 Cold,new。 **无论如何，Cnew 不能在此期间做出单方面的决定**。
+    - 如果是Cold，则当做没有成员变更的发生。
+    - 如果是Cold,new，则继续 配置日志 的复制，继续配置的更新
+  - 阶段2：`Cold ∪ Cnew` 已提交。新 Leader 必须是`Cold ∪ Cnew`的成员配置(通过 S4 保证)
     - 理由：领导人都必须存储所有已经提交的日志条目
-- 注：当配置更改已在进行时（当其最新配置未提交或不是简单多数时），领导者将拒绝其他配置更新
+- 注：**当配置更改已在进行时（当其最新配置未提交或不是简单多数时），领导者将拒绝其他配置更新**
 
-### 问题
+### 3.3.2 问题
 > 新的服务器可能初始化没有存储任何的日志条目
-- 带来的问题：可能造成新节点需要一段时间来追赶，**造成成员配置更新的过程过长**。导致一段时间无法commit
-- 解决：在引入新阶段。**配置更新之前**，进行追赶。且这个时候这些新成员没有投票权利。等到追改完，才进入配置更新流程。
+- 带来的问题：可能造成新节点需要一段时间来追赶，**造成成员配置更新的过程过长**。可能导致一段时间无法commit
+- 解决：**在引入新阶段（即新的节点状态）**。**配置更新之前**，进行追赶。且这个时候这些新成员没有投票权利。等到追改完，才进入配置更新流程。
 
 > 集群的领导人可能不是新配置的一员
 - 解决：领导人就会在 commit C-new 日志之后退位（回到follower状态，不发送心跳），导致 选举超时
   - 理由：这个时候就总能选举出 C-new 的领导人了
-- 在收到 Cnew 请求后， Leader 管理集群，但是不管理自己，Cnew中的大多数，总是不包含自己。
+- 在收到 Cnew 请求后， Leader 管理一个不包含自己的集群；Cnew中的多数派中，总是不包含自己。
 
-> 移除不在 C-new 中的服务器可能会扰乱集群
+> 删除的服务器可能会扰乱集群
 - 个人觉得：这个问题应该是得针对具体的Raft实现，如果Leader会把 Cnew log 发送给淘汰的节点，那么 Cold应该可以加规则让自己退出的吧
-- 带来的问题：旧节点收不到心跳，选举超时后，给 Leader 发来 term更高的 `RequestVote RPC`，这样不加以控制，会导致当前 Leader 退回到 Follower。
+- 带来的问题：进入Cnew配置后，旧节点收不到心跳，选举超时后，给 Leconfigurationader 发来 term更高的 `RequestVote RPC`，这样不加以控制，会导致当前 Leader 退回到 Follower。
 
 - 解决：**当服务器确认当前 Leader 存在时，服务器会忽略`RequestVote RPC`**，如何确认？
-  - 当服务器在当前最小选举超时时间内收到一个请求投票 RPC，他不会更新当前的任期号或者投出选票。
+  - follower：当服务器在当前**最小选举超时时间内（注：选举超时是从一个区间中随机取的，这里值该区间的最小值）**收到一个请求投票 RPC，他不会更新当前的任期号或者投出选票。
     - 理由： `广播时间（broadcastTime） << 选举超时时间（electionTimeout）`
-  - 如果 Leader 能够发送正常的心跳，那么就不会被 淘汰节点 干扰。
+  - Leader：如果 Leader 能够收到心跳返回，那么就不会被 淘汰节点 干扰。
 
 
-## 系统集成
+## 3.4 系统集成
 - 当节点故障时，自动调用配置更新是可取的。但是也可能是危险的，因为可能删除太多，导致剩余节点数不能形成大多数。
   - 解决：通过指定一些可用的节点，并指定固定的总节点数，通过配置更新进行替换。
 - 涉及多个服务器的配置更改，分解为单服务器配置更新可能既有添加又有删除。**应该先处理添加，再处理删除。**
   - 比如3个节点中要替换一个，如果先删除，那么在中间过程不能允许其他节点故障。如果先添加，则可以允许有一个节点故障。
 
 
-# 日志压缩
+# 4. 日志压缩configuration
+- 需求：log entries规模持续增长，这样会给服务器空间带来压力，而且如果新加节点，也会让追赶时间变长。
+  - 影响了可用性
+
 - snapshot：快照是最简单的压缩方法，快照点之前的日志全部丢弃，且快照点之前的状态（数据）被稳定持久化。
 
 <div align="center" style="zoom:80%"><img src="pic/9.png"></div>
 
 - 快照内容：
   - 状态机状态（数据）
-  - 元数据：为了  AppendEntries 的一致性检查
+  - 元数据：为了  AppendEntries 的一致性检查 和 支持成员变更
     - `last included index`：快照取代的最后 entry 的 index 值
     - `last included term`：快照取代的最后 entry 的 term 值
+    - the latest configuration in the log as of last included index
+      - 个人理解：所覆盖 log entries 中，最新的 配置信息（log entry）
+  
+- 机制
+  - **每个服务器独立生成 snapshot**，仅覆盖已提交的 log entries。
+    - 如果 follower 的快照，只能从 leader 中获取，那么效率太低了，必须通过网络传输给 follower
+  - 一旦服务器完成写入快照，它可能会删除所有日志条目，直到最后包含的索引，以及任何先前的快照
+  
+  
 
-- Leader 发送 snapshot 的时机：leader 已经丢弃了下一条需要发送给 follower 的 log entry
-- Follower 收到 snapshot 之后（InstallSnapshot RPC ）两种情况：
-  - snapshot 包含没有在 follower 日志中的entry，follower 直接丢弃整个日志，用 snapshot取代。
-  - snapshot 包含 follower 日志中的前面部分，被包含的 log entries 将被删除
-- 影响效率的两个问题：
-  - 服务器什么时候创建快照
-  - 写入快照需要一段时间，如何不影响正常业务
+## 4.1 RPC
+<img src="note.assets/image-20220425213433543.png" alt="image-20220425213433543" style="zoom:67%;" />
+
+- snapshot 的发送与接收
+
+  - Leader 发送 snapshot 的时机：leader 已经丢弃了下一条需要发送给 follower 的 log entry
+
+  - Follower 收到 snapshot 之后（InstallSnapshot RPC ）两种情况：
+    - snapshot 包含没有在 follower 日志中的entry，follower 直接丢弃整个日志，用 snapshot取代。
+      - snapshot 包含 follower 日志中的前面部分，被包含的 log entries 将被删除
 
 
-# 领导权的禅让（可选）
+
+
+# 5. 领导权的禅让（可选）
+
 - 两种使用场景：
   - leader 必须下台。有时候想重启leader或者从集群中删除leader。
   - 某一台或多态服务器可能比其更适合做leader。
@@ -549,4 +590,58 @@
   - leader将 TimeoutNow 请求发送到目标服务器。目标服务器对该请求的处理方式和选举超时一致。开始新的选举
   - 目标节点的下一条消息将包括新的任期号，从而导致前任leader下台。
 
-# 客户端交互    
+# 6. 客户端交互    
+
+- Raft 的客户端将所有的请求发送给 Leader
+  - 当客户端首次启动时，它会连接到随机选择的服务器。
+  - 如果客户端的首选不是leader，该服务器将拒绝客户端的请求，并提供最新leader的信息
+    - **AppendEntries 请求包括领导者的网络地址**
+  
+- 对 Raft 的目标是实现**可线性化的语义**：即每个操作看起来只在请求和响应的某个时间点被执行一次。
+  - 问题：但是，如果 log entry 提交之后，响应 client 之前，leader宕机了，那么 client 将会在一个新的leader上重试 command，这会导致该 command 被执行两次
+  - 解决：让 client 为每个命令分配一个 唯一 seq num。raft 跟踪为每个客户端处理的最新 seq num，如果收到command的 seq num 已经执行过（通过与最新的seq num比较），则立即返回
+  
+- Read-only 的操作不需要写任何 log entry 就能被处理。
+  - 问题：如果没有额外的措施，将面临返回陈旧数据的风险（读一致性），**因为响应请求的leader可能已被它不知道的新leader取代**，线性化读领导者可以依靠心跳机制来提供一种租约形式[9]，但这将依赖于安全时间取不能返回陈旧数据，**Raft 需要两个额外的预防措施来保证这一点**，而不使用 log
+    1. **leader 必须拥有提交的条目的最新信息**。Leader Completeness
+       Property保证 leader 拥有所有已提交的条目，但在其任期开始时，它可能不知道那些是哪些
+       - **解决：它需要从其任期内提交一个条目。  Raft 通过让每个领导者在其任期开始时将一个 blank  no-op entry 提交到日志中来处理这个问题**
+       
+    2. **leader必须在处理只读请求之前检查它是否已被废止**
+       
+       - **解决：在处理在 Read-only 请求时，与多数派 交换（发送并返回）心跳消息来处理这个问题**，或者领导者可以依靠心跳机制来提供一种租约形式[9]，但这将依赖于安全时间
+       
+         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
