@@ -119,7 +119,7 @@
   - 字符串行：string
     - 存的是UTF-8编码
     - 获得字节长度：`len()`，对于字符串**len返回的是字节数**，可以用`==`和`<`等比较，比较是基于字节的，[i]返回第i个字节，是byte类型的。
-    - utf-8字符数：`utf-8.RuneCountInString(s)`
+    - utf-8字符数：`utf8.RuneCountInString(s)`
     - 将byte切片(utf-8)转rune(unicode)：`utf8.DecodeRune(bytes)`。如果遇到错误的UTF-8编码
     - 将string(utf-8)转rune(unicode)：`utf8.DecodeRuneInString(bytes)`。如果遇到错误的UTF-8编码
       - 如果解析错误，将生成一个特殊的unicode:`\uFFFD`
@@ -458,6 +458,7 @@ func f() *int{
   - 第一个 `print` 等价于 `print([]interface{}{123, "abc"})`
   - 第二个 `print` 等价于 `print(123, "abc")`
 ```go
+// 相当于再封了一层切片
 func print(a ...interface{}) {
 	fmt.Println(a...)
 }
@@ -550,7 +551,7 @@ func main() {
 可以在函数执行后，return之前执行
 > 细节
 
-- 执行是按先defer的先执行，栈的方式。
+- 执行是按先defer的慢执行，栈的方式。
 - defer也会因为不及时而带来麻烦，如文件描述符耗尽
   - 解决：用函数进行包装。go圣经p154
 - 异常处理
