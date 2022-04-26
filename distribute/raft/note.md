@@ -278,6 +278,14 @@
 - （状态）*leaderCommit*：leader的已知已提交的最高的日志条目的索引。
   - 包含在所有的 `AppendEntries`(包含心跳包) 中，这样 follower 就会知道当前 leader commit的位置，**所以 follower 也会同步 commit**。
 
+> 试探
+
+- (前面 Q1)如何知道应该给 follower 哪个log？ **通过为每个 follower 维护一个 nextIndex**。过程如下：
+  - leader 刚当选的时候，选它的最后一条log的index作为 nextIndex。
+  - 通过 `AppendEntries` RPC，如果被 follower 拒绝，那么减小 nextIndex，继续试探；（这里可以进行优化，减少RPC次数，比如返回冲突条目的任期号和任期号对应的最小index，这样的话，试探的粒度不再是index，而是term。但其实没有太大必要，因为大多数情况下，失败很少发生，而且不太可能出现这么多不一致log）
+  - 最终 nextIndex 再某个位置使得 leader 和 follower 达成一致，这时 `AppendEntries` 将成功返回，folloer 开始追赶 log（该过程可能覆盖follower原有同index上的log）
+- **试探阶段（找出需要实际发送的条目）**：领导者可以发送不带任何条目（例如心跳）的附加日志 RPCs 以节省带宽。 然后，**一旦 matchIndex 恰好比 nextIndex 小 1，则领导者应开始发送实际条目**
+
 ### 2.3.1 **日志匹配特性**
 
 - (S3. Log Matching Property)
@@ -304,22 +312,16 @@
 - 如何解决这种情况的不一致？
   - **通过强制 follower 直接复制 leader 自己的日志来解决**
   - 这样 leader就不需要特殊操作恢复一致性，简化了Raft算法。
-- (前面 问题1)如何知道应该给 follower 哪个log？ **通过为每个 follower 维护一个 nextIndex**。过程如下：
-  - leader 刚当选的时候，选它的最后一条log的index作为 nextIndex。
-  - 通过 `AppendEntries` RPC，如果被 follower 拒绝，那么减小 nextIndex，继续试探；（这里可以进行优化，减少RPC次数，比如返回冲突条目的任期号和任期号对应的最小index，这样的话，试探的粒度不再是index，而是term。但其实没有太大必要，因为大多数情况下，失败很少发生，而且不太可能出现这么多不一致log）
-  - 最终 nextIndex 再某个位置使得 leader 和 follower 达成一致，这时 `AppendEntries` 将成功返回，folloer 开始追赶 log（该过程可能覆盖follower原有同index上的log）
 - **通过这种机制，领导者在上台时无需采取任何特殊措施来恢复日志一致性。领导者永远不会覆盖或删除自己日志中的条目（S2. Leader Append-Only）**
 
 ## 2.4 安全性
 ### 2.4.1 选举限制
 - 安全性限制：**领导人都必须存储所有已经提交的日志条目**（S4. ）
-  - 极端情况：一个什么数据都没有的节点做主节点
-  - 怎么做？如果让 leader 当选后，来弥补这些缺失的已提交数据，这个过程存在 follower 向 leader 流数据的操作，而且也带来很多复杂性。
-  - **Raft日志条目的传送是单向的，即 leader ==> follower**
+  - **极端情况**：一个什么数据都没有的节点做主节点
+  - **怎么做**：如果候选人的日志至少和大多数的服务器节点一样新，那么他一定持有了所有已经提交的日志条目
 - Raft实现该安全限制的做法：**从阻止 candidate 赢的角度入手**。
-  - `RequestVote RPC` 中，包含 candidate 的日志信息（**最后一条日志条目的index和item**），**投票人会拒绝那些日志没有自己新的请求**
-  - **新旧判断规则**：先比较 item，相等比较 index
-    - 待查证（看etcd raft源码）：If the logs end with the same term, then whichever log is longer is more up-to-date. 如果日志以相同的term结束，那么无论哪个日志较长，都是最新的？？？
+  - `RequestVote RPC` 中，包含 candidate 的日志信息（**最后一条日志条目的 index 和 item**），**投票人会拒绝那些日志没有自己新的请求**
+- **新旧判断规则**：先比较 item，相等比较 index
 
 ### 2.4.2 log复制限制
 - 一个事实：一个当前任期的 leader，如果前一个任期中的log已经被大多数节点attach，并不能断定可以提交。
@@ -340,7 +342,7 @@
 - 做法2下，阶段e：这个时候s1 在同步完自己任期中的log后，并提交时，才把之前任期的给提交了。这个时候s5就当不了leader了。而且就算s1再这个时候宕机，index=2，term=2 也仍然没有提交，log可以被覆盖。
 - **Why** ： 因为其是旧任期下的日志（记为e1），任期记为t1。在某个节点中，相同Index下的entry中的term(记为t2，在一些意外上产生这种情况)，如果 `t2 > t1`，则 t2 对应的节点此时仍有称为leader的潜力，所以如果将 e1 提交，那么后面有被leader覆盖的可能。
   - **只有当最新的term中，有可以commit的log entry，才可以安全将旧term的log提交**
-<div align="center" style="zoom:80%"><img src="pic/6.png"></div>
+<div align="center" style="zoom:80%"><img src="note.assets/image-20220426091318795.png"></div>
 
 - 5.4.3 Safety argument 将安全性分析，略过
 
@@ -348,6 +350,14 @@
 
 - 情况1：收到RPC之前，宕机了。最简单的方式就是leader不断RPC重试
 - 情况2：收到RPC之后，处理中途，宕机了。**Raft的RPC是幂等的**，再处理一次，不会影响状态
+
+### 2.4.4 持久化状态和服务重启
+
+- Raft 服务器必须持久化足够的信息到稳定存储中来保证服务的安全重启，需要持久化以下信息
+  - **当前的任期和投票选择**，以防止服务器在相同的任期内投票两次（出现场景：投票后宕机，立即重启，再投一次），或者将新领导者的日志条目替换为废弃领导者的日志条目（出现场景：此时旧term和新term两个leader，宕机后重启）
+  - **commited log entry**（在日志提交之前就需要持久化该日志），防止已经提交的条目在服务器重启时丢失或“uncommited“
+- **状态机可以是易失性的，也可以是持久性的**，重新启动后，必须通过重新应用日志条目来恢复易失性状态机。
+  - 持久状态机在重启后已经应用了大多数条目，为了避免重新应用它们，其最后应用的索引也必须是持久的。
 
 ### 2.4.5 安全性和可用性的时间依赖
 - raft要求：
@@ -366,6 +376,11 @@
 
 ## 3.1 RPC
 ### 3.1.1 AddServer RPC
+
+<div align="center" style="zoom:100%"><img src="note.assets/image-20220426094352136.png"></div>
+
+- AddServer RPC 用于向当前配置添加新服务器
+
 > Request
 - newServer : address of server to add to configuration
 > Response
@@ -380,6 +395,11 @@
 - 返回 `OK`
 
 ### 3.1.2 RemoveServer RPC
+
+<div align="center" style="zoom:100%"><img src="pic/14.png"></div>
+
+- RemoveServer RPC 用于从当前配置中删除服务器
+
 > Request
 - oldServer : address of server to remove from configuration
 
@@ -396,6 +416,8 @@
 ## 3.2 后期的Raft做法
 - **后期的Raft做法**：限制了集群成员更改的类型，**一次只能从集群中添加或删除一个服务器**。成员更改中更复杂的更改都是通过一系列单服务器更改实现的。
   - 这样使得raft的实现更加的简单
+  
+  > 如下所示，对于只变更一个节点的情况，不会形成两个多数派
 <div align="center" style="zoom:80%"><img src="pic/10.png"></div>
 
 ### 3.2.1 过程
@@ -403,17 +425,17 @@
 - 过程：
   - 开始：将要更改的配置Cnew生成log entry，添加到leader的日志中
   - 配置的log entry 一旦添加到服务器的日志中，就会在服务器上生效（**此时已经是使用新的配置来判断接收大多数**）。而不用等到该log entry提交。
-  - 结束：该log entry 已提交，意味着大多数节点配置已经生效。则此时整个配置更新过程结束
+  - 结束：该log entry 已提交，意味着大多数节点配置已经生效。则此时集群中整个配置更新过程结束
 - 配置的 log entry commit 意味着什么：
   - 没有收到 Cnew 的机子不可能成为 leader
   - leader 的配置已经生效
   - 如果配置删除了某个节点，该节点可以关闭了
   - **可以启动进一步的配置更新**
-
 - 避免重叠配置更新的方法：知道之前的 configuration entry 被提交，才开始新的更新
-
+- Q：为什么不在 commit 的时候，服务器才应用配置？
+  - A：因为这样的话 Raft leader 很难知道何时旧集群的大部分已经采用了新日志，leader需要跟踪哪些服务器的 configuration entry 被提交
+  - 但是这种机制引发另一个问题：configuration entry 可能被删除
 - **configuration entry 可能被删除**：Raft中，节点一旦发现配置的log entry，马上生效，但是可能因为配置更新过程中出现问题，导致该log entry后面可能被删除，**所以节点必须准备好返回到其日志中的先前配置**
-
 - 在**投票和日志复制**中需要一些机制，来使得配置信息可以达到一致性：
   - vote：**即使candidate不在当前节点配置中，也需要处理该 `RequestVote` 请求（只需确保候选人日志足够新）**。
     - 场景：在一个3节点的集群中，如果添加1个节点d，如果leader只复制日志给了另一个节点b就挂了，此时节点b选举超时成为candidate，那么新添加的节点d会收到 `RequestVote` 但是该节点并不在当前配置中，这个时候新添加的节点d也需要投出选票，不然将永远不能生成新的leader。
@@ -438,19 +460,22 @@
     - 否则，领导者将因错误中止配置更新。调用者可以再进行一次，这个时候追赶的时间肯定更短。
 <div align="center" style="zoom:60%"><img src="pic/12.png"></div>
 
+- 每一轮结束后，新服务器就会拥有这一轮开始时领导者日志中记录的所有条目。然而，到那时，领导者可能已经收到了新的条目；这些将在下一轮中重复
 - 细节：新服务器追赶时，leader 的 nextIndex 要慢慢试探，可以让 follower 在 AppendEntries 响应中返回其日志的长度
 
 
 ### 3.2.3 可用性：删除当前的leader
 > 问题
-- 在后期Raft配置更新（只能单词更新一个节点）和有领导权禅让的集群下，很容易实现：直接将领导权禅让出去就行了。configuration
-- 但是在前期的Raft是可以更新任意更新配置的，所以可能在Cnew中没有可以禅让的节点。这个时候只能通过另外一种方法来实现。
-- 可用性问题：leader 追加 Cnew log entry 后，配置马上生效，这时候如果在log entry 提交之前下台，可能为了可用性，该节点还得重新成为leader
+- Q1：如果删除的节点是leader
+- A1：在后期Raft配置更新（只能单词更新一个节点）和有领导权禅让的集群下，很容易实现：直接将领导权禅到另一台服务器，然后让另一台服务器正常执行成员更改就行了。
+- 在前期的Raft（详见3.3节）是可以任意更新配置的，所以可能在Cnew中没有可以禅让的节点。这个时候只能通过另外一种方法来实现。
+  - 在这种方法中，**一旦leader提交 Cnew 条目，从配置中删除的领导者将会下台。**
+- Q2：leader 追加 Cnew log entry 后，配置马上生效，这时候如果在log entry commit之前下台，该节点可能还得重新成为leader
   - 比如，当集群只有两个节点，这个时候如果在没确定S2拥有Cnew之前就将S1下台，那么S2（还是使用旧配置）永远不可能成为leader。这个时候为了可用性，只能又让S1成为leader
 
 <div align="center" style="zoom:60%"><img src="pic/13.png"></div>
 
-> 解决
+> A2
 - 过程
   - 等到leader提交了Cnew 的log entry，再将leader下台。
 - 提交意味着：后面选举出来的leader，配置一定是Cnew。
@@ -534,63 +559,202 @@ configuration
 
 ## 3.4 系统集成
 - 当节点故障时，自动调用配置更新是可取的。但是也可能是危险的，因为可能删除太多，导致剩余节点数不能形成大多数。
-  - 解决：通过指定一些可用的节点，并指定固定的总节点数，通过配置更新进行替换。
+  - 解决：通过指定一些可用的节点，并指定固定的总节点数，可用的服务器可以自动替换失败的服务器。
 - 涉及多个服务器的配置更改，分解为单服务器配置更新可能既有添加又有删除。**应该先处理添加，再处理删除。**
   - 比如3个节点中要替换一个，如果先删除，那么在中间过程不能允许其他节点故障。如果先添加，则可以允许有一个节点故障。
+- 如果没有动态成员更改，每个服务器只有一个列出配置的静态文件。**有了动态成员更改，服务器不再需要静态配置文件，因为系统在 Raft 日志中管理配置**
+  - **某个服务器：使用 configuration entry 作为其日志中的第一个条目来初始化 其中一个服务器，**此配置仅列出该服务器，其本身构成多数派，因此可以将该配置提交。
+  - **其他服务器：其他服务器应使用空日志进行初始化**；它们被添加到集群中，并通过成员更改机制了解当前配置
 
 
-# 4. 日志压缩configuration
+# 4. 日志压缩
 - 需求：log entries规模持续增长，这样会给服务器空间带来压力，而且如果新加节点，也会让追赶时间变长。
   - 影响了可用性
-
 - snapshot：快照是最简单的压缩方法，快照点之前的日志全部丢弃，且快照点之前的状态（数据）被稳定持久化。
+  - 思路：丢弃中间状态和操作
+- 特点：
+  - 与 Raft 核心算法和成员更改不同，**不同的系统在日志压缩方面有不同的需求，没有一种适合所有人的解决方案来进行日志压缩**
+  - **状态机必须紧密地参与日志压缩，并且状态机的大小以及状态机是基于磁盘还是易失性存储器的差异都很大**
+    - **日志压缩的大部分责任都落在状态机上，状态机负责将状态写入磁盘并压缩状态**
 
-<div align="center" style="zoom:80%"><img src="pic/9.png"></div>
+
 
 - 快照内容：
-  - 状态机状态（数据）
+  - 状态机状态（数据，针对不同状态机而不同）
   - 元数据：为了  AppendEntries 的一致性检查 和 支持成员变更
     - `last included index`：快照取代的最后 entry 的 index 值
     - `last included term`：快照取代的最后 entry 的 term 值
-    - the latest configuration in the log as of last included index
+    - 索引前缀的最新配置
       - 个人理解：所覆盖 log entries 中，最新的 配置信息（log entry）
   
+- 核心概念：
+
+  - **不要将压缩决策集中在领导者上，而是每个服务器独立地压缩其日志的提交前缀**，优点如下：
+    - 免除不必要的传输（压缩的日志记录，follower都有，不需要master传输给他们）
+    - 有助于模块化（日志压缩的大部分复杂性都包含在状态机中，并且与 Raft 本身没有太多交互，有助于将复杂性降至最低）
+  - **将一个日志前缀的责任（某个点之前所有日志recover负责方的转变）从 Raft 转移到状态机**
+    - 状态机迟早会将 log entries 以一种可以recover当前系统状态的方式落盘
+    - 完成后其将告诉Raft放弃相应日志前缀前的所有日志（**这个时候负责方发生转移**）
+    - raft 放弃对日志前缀前所有日志的责任之前，它必须保存一些描述日志前缀的自身状态（保留上述描述的元数据）
+  - **一旦 Raft 丢弃了日志前缀前的日志，状态机将承担两项新的责任**：
+    - 重启时，状态机需要先从磁盘加载与被丢弃的日志条目应用相对应的状态；然后才能应用 Raft 日志中的任何条目
+    - 状态机需要生成一致的镜像，以便可以发送给 slow follower
+      - 注：这里的一致是指所有状态机生成的都是一样的？
+
 - 机制
   - **每个服务器独立生成 snapshot**，仅覆盖已提交的 log entries。
     - 如果 follower 的快照，只能从 leader 中获取，那么效率太低了，必须通过网络传输给 follower
   - 一旦服务器完成写入快照，它可能会删除所有日志条目，直到最后包含的索引，以及任何先前的快照
   
+
+## 4.1 基于内存的状态快照
+<div align="center" style="zoom:80%"><img src="pic/9.png"></div>
+
+- 上图显示了当状态机保持在**内存中时**，在 Raft 中进行快照的基本思想：每个服务器都独立拍摄快照，仅覆盖其日志中的已提交条目
+  - 快照中的大部分工作涉及序列化状态机的当前状态，这特定于特定的状态机实现
+- 状态机还必须对它们保存的信息进行序列化，以便为客户端提供线性化能力
+  - 什么意思？
+- 一旦状态机完成了快照的写入，就可以将日志截断，并且可以将之前的快照丢弃
+
+- 面临的问题
+  - 保存和加载快照
+    - 序列化和反序列化
+    - 磁盘读写
+  - 传输快照
+    - 协议 & 网络
+  - 消除不安全的日志访问 & 丢弃日志条目
+    - 不安全的日志访问：比如 index = i 的日志存在， i-1 的日志可能被compact 到snapshot当中了，如果通过 i-1 来访问，那么将出问题
+  - 并发生成 snapshot，保证可用性
+  - 何时生成snapshot，确定生成的频率
+
+> snapshot 的发送与接收
+
+<div align="center" style="zoom:80%"><img src="note.assets/image-20220425213433543.png"></div>
+
+
+
+- Leader 发送 snapshot 的时机：leader 已经丢弃了下一条需要发送给 follower 的 log entry
+
+- Follower 收到 snapshot 之后（InstallSnapshot RPC ）两种情况：
+  - snapshot 包含没有在 follower 日志中的entry，follower 直接丢弃整个日志，用 snapshot取代。
+    - snapshot 包含 follower 日志中的前面部分，被包含的 log entries 将被删除
+
+### 4.1.1 并发生成 snapshot
+
+- 问题：创建snapshot很耗时，无论是序列化还是磁盘IO。那么如何让其避免出现可用性缺口呢？
+  - 并发，但如何热更新？
+- 两种解决方案：本质都是 copy-on-write 技术
+  - 构建 immutable data structure（类似 im-memtable），然后对该结构进行创建snapshot
+  - 使用操作系统的 copy-on-write 支持，比如使用fork来复制整个服务器的地址空间，子进程创建snapshot，父进程继续提供服务支持
+-  copy-on-write **需要额外的内存**，这与在创建 snapshot 过程中，更改的状态机状态的比例成正比
+  - 状态机必须有一个到快照文件的流接口，以便快照在创建时不必完全暂存于内存中
+  - 在生成snapshot期间内存容量耗尽，服务器应该停止接受新的log entries，直到完成snapshot（这会牺牲服务器的可用性，但集群可能仍然可用）
+  - 最好不要中止 snapshot 生成过程，因为下次可能会面临同样的问题
+
+### 4.1.2 何时生成 snapshot
+
+- 频率的影响
+  - 太快：影响服务器负载、浪费带宽等
+  - 太慢：浪费存储容量，增加recover 时 reply log 的时间
+- 方案
+  - 以 log 规模为阈值：**在日志达到固定大小（以字节为单位）时生成快照**
+  - 更好的方案：snapshot 大小与 log 大小进行比较，如果 snapshot 大小比 log 大小小很多倍，可能值得生成snapshot。
+    - 问题：如何计算snapshot大小，难以预测compact后输出的大小
+    - 解决：**使用上一个snapshot的大小而不是下一个snapshot的大小**
+    - 一旦日志的大小超过前面快照的大小乘以一个可配置的**扩展因子**(*expansion factor*)，服务器就会拍摄快照
+      - 扩展因子：在磁盘**带宽与空间利用率**之间进行权衡。当扩展因子为4时：
+        - 约 20% 的磁盘的带宽用于快照（对于快照的每 1 字节，将写入 4 字节的日志条目）
+        - 需要大约 6 倍的磁盘容量（old snapshot[1], log entries[4], new snapshot[2]）
+- 另一种思路：以 client 的请求永远不会在 正在生成snapshot的服务器上等待的目标，进行调度。
+  - 可行原因：只需要多数派来保证 log 可以 commit，少数节点就可以进行生称snapshot
+  - 细节：如果 leader 需要生成snapshot，可以首先退出leader，再进行snapshot生成
+  - 优点：可以消除并发生成snapshot的需求
+
+## 4.2 基于磁盘的状态机快照
+
+- 特点：这些状态机中总是在磁盘上准备好状态的副本，apply log entries 都会更改磁盘上的状态，并且有效的生成新的snapshot，**因此，一旦apply log entries，就可以从 Raft 日志中将其丢弃**
+  - 个人理解：持久化在磁盘中的数据，就是天然的snapshot
+  - 状态机可以对写进行缓存（memtable），而 raft log entries 为这些内存缓存提供持久性保证（WAL）
+- 此类状态机主要问题：改变磁盘上的状态会导致性能下降。如果没有写缓冲，每个写操作就是一个随机写，这将限制系统的总体写吞吐。（写缓存可能也没有多大帮助）
+- **磁盘状态机必须提供读一致性的磁盘快照，以便在传输给follower时，可以在长时间内保持一致的快照。主要的解决策略依然是 copy on right**
+  - 磁盘格式几乎总是划分为逻辑块，因此在状态机中实现写时复制应该很简单
+  - **基于磁盘的状态机也可以依赖于操作系统支持来获取快照**。例如，**Linux 上的 LVM（逻辑卷管理）可用于创建整个磁盘分区的快照**，另外一些最新的文件系统允许快照单个目录
+- **传输快照时的时间和空间消耗**：复制磁盘image的快照可能花费很长时间，并且这个时间对磁盘修改的积累，会导致快照所需的磁盘使用量也增加。**基于磁盘的状态机可以通过以下算法传输其磁盘内容来避免大部分此类开销：**
+  1. 对于每个磁盘块，跟踪其最后修改的时间
+  2. leader 将磁盘内容逐块传输给 follower，这个过程中leader 上磁盘数据可能并发的被修改，因此每个 block 传输的时候，应该记录其最后修改时间
+  3. 生成磁盘内容的 copy-on-write snapshot。这样的话，leader 将拥有其磁盘内容的读一致性副本
+  4. 重传在 step 2 首次传输和在 step 3 中生成快照之间修改的磁盘块
+     - 我的问题：那这样如果写过多，岂不是无休止。
+     - 解决：写缓存可以一定程度避免，让某段时间内的写，不落盘更新状态，只写WAL。
+
+## 4.3 增量清理方法
+
+- 特点：增量的方法进行 compact，例如 log cleaning 和 LSM tree
+  - **我的理解**：增删改全部转化成增量写，因此问题变成都是顺序写，我每次的状态压缩，就只处理这部分顺序写就够了
+- 优点：
+  - 一次只处理一部分数据
+  - 无论是正常的操作（增删改）还是compact，都可以高效的写入磁盘，因为在这两种情况下都是使用大量顺序写入来完成
+  - 可以相当容易传输一致的状态快照，因为其不会随机修改磁盘状态数据
+- 尽管实现增量压缩可能很复杂，但是可以将这种复杂性转移到诸如 LevelDB 之类的库中
+
+### 4.3.1 Basics of log cleaning
+
+- 来自：Rosenblum M, Ousterhout J K. The design and implementation of a log-structured file system[J]. ACM Transactions on Computer Systems (TOCS), 1992, 10(1): 26-52.
+
+- Log cleanning 是在日志结构文件系统 的背景下引入的，最近已被提议用于**内存存储系统**，例如 RAMCloud 
+
+- 后面再了解，暂时看不懂
+
   
 
-## 4.1 RPC
-<img src="note.assets/image-20220425213433543.png" alt="image-20220425213433543" style="zoom:67%;" />
+### 4.3.2 Basics of log-structured merge trees
 
-- snapshot 的发送与接收
+- **它们会进行大量顺序写，并且不会就地修改磁盘上的数据**。 但是，LSM 树不维护日志中的所有状态，而是重新组织状态以实现更好的随机访问
+- 当日志达到固定大小时，将按键对日志进行排序，并按排序顺序将其写入**称为 Run (也就是sst文件)的文件**。**Run 永远不会被修改**，但压缩过程会定期将多个 Run 合并在一起（compaction 过程），从而产生新的 Run 并丢弃旧的 Run
+- 要读取键，它首先检查该键是否最近在其日志中被修改（检查memtable），然后检查每个 Run
 
-  - Leader 发送 snapshot 的时机：leader 已经丢弃了下一条需要发送给 follower 的 log entry
+### 4.3.3  Log cleaning and log-structured merge trees in Raft
 
-  - Follower 收到 snapshot 之后（InstallSnapshot RPC ）两种情况：
-    - snapshot 包含没有在 follower 日志中的entry，follower 直接丢弃整个日志，用 snapshot取代。
-      - snapshot 包含 follower 日志中的前面部分，被包含的 log entries 将被删除
+> 将 LSM Tree 应用于Raft中
 
+- raft log 将最近的日志持久化到磁盘上（wal），LSM-tree 可以将最近数据直接放在 memtable
+- 当 raft log 数量达到阈值，可以将 memtable 写入 sst 文件
+- 如果 leader 需要将状态发送给 slow follower，则将 sst 文件发送给follower，**因为sst文件不可变，所以不需要担心传输期间修改 sst文件**
 
+## 4.2 备选方案：基于leader的方法
+
+- 前面的方案由于 服务器可以在leader不知情情况下生成 snapshot，未被了 strong leader 的原则，但是作者认为这种背离是合理的。这一部分介绍 维持 strong leader 下，如何生成快照。需要的时候再看
 
 
 # 5. 领导权的禅让（可选）
 
 - 两种使用场景：
   - leader 必须下台。有时候想重启leader或者从集群中删除leader。
-  - 某一台或多态服务器可能比其更适合做leader。
+  - 某一台或多台服务器可能比其更适合做leader。
 - 好处：
   - 选举超时的时间有点长，避免这短暂的不可用。
-
 - 过程：
   - leader 停止接受新的客户请求
-  - leader 更新目标节点的日志，使其和自己的日志匹配。
-  - leader将 TimeoutNow 请求发送到目标服务器。目标服务器对该请求的处理方式和选举超时一致。开始新的选举
+  - leader 更新目标节点的日志，使其和自己的日志匹配（确保目标节点日志是最新的）
+  - leader将 TimeoutNow  RPC请求发送到目标服务器。目标服务器对该请求的处理方式和选举超时一致。开始新的选举（该目标服务器很可能先于其他节点开始进行选举）
   - 目标节点的下一条消息将包括新的任期号，从而导致前任leader下台。
+- 意外：目标服务器也有可能发生故障。在这种情况下，集群必须恢复客户端操作。
+  - 如果在**选举超时后领导权禅让仍未完成**，则当前 leader 将中止禅让并恢复接受客户请求
+    - Q：选举超时这个时间怎么定？是在领导权禅让开始前，弄一个定时器吗
+  - 如果当前 leader 弄错了并且目标服务器实际上是可用的，那么在最坏的情况下，此错误将导致一次额外的选举，此后客户端操作会恢复
 
-# 6. 客户端交互    
+# 6. 客户端交互 
+
+- 下图为客户端用来与复制状态机进行交互的 RPCs
+  - 客户端调用 ClientRequest RPC 来修改复制状态
+  - 调用 ClientQuery RPC 来查询复制状态
+  - 新的客户端使用 RegisterClient RPC 接收其客户端标识符，这有助于确定何时线性化所需的会话信息已被丢弃
+
+<div align="center" style="zoom:80%"><img src="note.assets/image-20220426170813044.png"></div>
+
+##   6.1 寻找集群
+
+- 背景：如果成员是静态的，直接配置文件就完了。但是raft中允许成员动态变更，所以如何知道集群中的节点是一个问题
 
 - Raft 的客户端将所有的请求发送给 Leader
   - 当客户端首次启动时，它会连接到随机选择的服务器。
@@ -605,6 +769,7 @@ configuration
   - 问题：如果没有额外的措施，将面临返回陈旧数据的风险（读一致性），**因为响应请求的leader可能已被它不知道的新leader取代**，线性化读领导者可以依靠心跳机制来提供一种租约形式[9]，但这将依赖于安全时间取不能返回陈旧数据，**Raft 需要两个额外的预防措施来保证这一点**，而不使用 log
     1. **leader 必须拥有提交的条目的最新信息**。Leader Completeness
        Property保证 leader 拥有所有已提交的条目，但在其任期开始时，它可能不知道那些是哪些
+       
        - **解决：它需要从其任期内提交一个条目。  Raft 通过让每个领导者在其任期开始时将一个 blank  no-op entry 提交到日志中来处理这个问题**
        
     2. **leader必须在处理只读请求之前检查它是否已被废止**
