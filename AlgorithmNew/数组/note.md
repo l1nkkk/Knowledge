@@ -731,7 +731,8 @@ public:
 - 参考：https://labuladong.gitee.io/algo/2/22/65/
 
 - 思路：如下图所示，假设黑名单的元素个数为sz;
-  - 把黑名单区间交换到`[sz,0)`，同时把 `[0, sz)` 中的黑名单数字映射到了正常数字
+  - 把黑名单区间交换到`[sz,n)`，同时把 `[0, sz)` 中的黑名单数字映射到了正常数字
+  - 不需要额外的数组，复用索引即可
 
 
 <div align="center" style="zoom:60%"><img src="./pic/7.jpeg"></div>

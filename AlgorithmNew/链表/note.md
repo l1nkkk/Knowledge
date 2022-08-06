@@ -1,3 +1,18 @@
+- [链表反转](#链表反转)
+  - [关于递归的一些诀窍](#关于递归的一些诀窍)
+  - [反转整个链表](#反转整个链表)
+  - [反转链表前 N 个节点](#反转链表前-n-个节点)
+  - [反转链表的一部分](#反转链表的一部分)
+    - [25.K个一组翻转链表](#25k个一组翻转链表)
+- [回文链表](#回文链表)
+  - [字符串判断回文](#字符串判断回文)
+  - [解法](#解法)
+    - [模仿双指针](#模仿双指针)
+  - [快慢指针+反转](#快慢指针反转)
+- [典型题目](#典型题目)
+  - [环形链表](#环形链表)
+  - [合并K个升序链表](#合并k个升序链表)
+  - [奇偶链表+链表归并](#奇偶链表链表归并)
 # 链表反转
 - 参考：https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye/di-gui-fan-zhuan-lian-biao-de-yi-bu-fen
 - 难度逐渐加大，其实在上一层做修改即可
@@ -173,6 +188,49 @@ boolean traverse(ListNode right) {
     left = left.next;
     return res;
 }
+```
+
+## 快慢指针+反转
+- 实现O(n)时间复杂度，O(1)空间复杂度
+```go
+func reverse(head *ListNode) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+	rtn := reverse(head.Next)
+	head.Next.Next = head
+	head.Next = nil
+	return rtn
+}
+
+func isPalindrome(head *ListNode) bool {
+	if head == nil {
+		return true
+	}
+	slow, fast := head, head
+	// 找中点
+	for fast.Next != nil && fast.Next.Next != nil {
+		slow = slow.Next
+		fast = fast.Next.Next
+	}
+
+	// reverse
+	it2 := slow.Next
+	slow.Next = nil
+	it2 = reverse(it2)
+
+	// check
+	it1 := head
+	for it1 != nil && it2 != nil {
+		if it1.Val != it2.Val {
+			return false
+		}
+		it1 = it1.Next
+		it2 = it2.Next
+	}
+	return true
+}
+
 ```
 
 # 典型题目
