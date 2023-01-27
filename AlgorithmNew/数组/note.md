@@ -247,6 +247,8 @@ public:
     }
 };
 ```
+> 189. 轮转数组
+- 见题解
 
 ## 滑动窗口
 - 参考：https://labuladong.gitbook.io/algo/mu-lu-ye-1/mu-lu-ye-4/hua-dong-chuang-kou-ji-qiao-jin-jie
@@ -955,6 +957,9 @@ public:
     }
 };
 ```
+
+## 48. 旋转图像
+- 见题解
 
 # 峰值
 ## 162. 寻找峰值

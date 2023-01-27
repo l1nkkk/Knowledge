@@ -708,6 +708,8 @@ public:
     }
 };
 ```
+
+
 ## 最近公共祖先LCA
 - https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/
 - 参考：https://mp.weixin.qq.com/s/9RKzBcr3I592spAsuMH45g
@@ -803,6 +805,9 @@ public:
     }
 };
 ```
+
+# 前缀树
+- 见leetcode208
 
 # 二叉搜索树
 ## 参考
